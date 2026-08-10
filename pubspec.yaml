@@ -1,0 +1,69 @@
+name: cou_bus_tracker
+description: CoU Bus Tracker - Comilla University Transport Management System
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State Management
+  flutter_riverpod: ^2.6.1
+
+  # Networking
+  dio: ^5.7.0
+  http: ^1.2.2
+  connectivity_plus: ^6.1.2
+
+  # Routing
+  go_router: ^14.8.1
+
+  # Storage
+  flutter_secure_storage: ^9.2.4
+  shared_preferences: ^2.3.4
+
+  # UI
+  shimmer: ^3.0.0
+  cached_network_image: ^3.4.1
+  badges: ^3.1.2
+  google_fonts: ^6.2.1
+  flutter_animate: ^4.5.2
+  flutter_staggered_animations: ^1.0.0
+
+  # Image & File
+  image_picker: ^1.1.2
+
+  # Launcher
+  url_launcher: ^6.3.1
+  webview_flutter: ^4.9.0
+
+  # Utils
+  intl: 0.20.2
+  equatable: ^2.0.7
+  json_annotation: ^4.9.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  build_runner: ^2.4.14
+  json_serializable: ^6.8.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/buslogo.jpeg"
+  min_sdk_android: 21
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/images/buslogo.jpeg"
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
