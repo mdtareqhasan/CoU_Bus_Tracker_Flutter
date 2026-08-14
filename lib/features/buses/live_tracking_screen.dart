@@ -380,19 +380,41 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
           const SizedBox(width: 12),
           // Speed Panel
           Container(
-            width: 85,
-            height: 85,
+            width: 95,
+            height: 95,
             decoration: BoxDecoration(
               gradient: AppTheme.primaryGradient,
               shape: BoxShape.circle,
               border: Border.all(color: Colors.white.withOpacity(0.2), width: 2),
-              boxShadow: [BoxShadow(color: AppTheme.primaryBlue.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 5))],
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.primaryBlue.withOpacity(0.3),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                )
+              ],
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(_speed.split(' ')[0], style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900, height: 1)),
-                const Text('km/h', style: TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold)),
+                Text(
+                  _speed.replaceAll(RegExp(r'[^0-9]'), ''),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                    height: 1.1,
+                  ),
+                ),
+                const Text(
+                  'km/h',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                ),
               ],
             ),
           ).animate(target: isMoving ? 1 : 0).scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1), curve: Curves.elasticOut),
