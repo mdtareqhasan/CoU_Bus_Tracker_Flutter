@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 class ApiService {
   // --- Configuration ---
   static const String _wifiBaseUrl = "http:// 192.168.1.176:8080/api";
-  static const String _usbBaseUrl = "http://localhost:8080/api";
+  static const String _usbBaseUrl = "http://localhost:8081/api";
 
   // State to track which URL to use
   static bool useWifi = false;

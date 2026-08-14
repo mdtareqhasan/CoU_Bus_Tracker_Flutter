@@ -42,6 +42,9 @@ dependencies:
   url_launcher: ^6.3.1
   webview_flutter: ^4.9.0
 
+  # Location
+  geolocator: ^13.0.1
+
   # Utils
   intl: 0.20.2
   equatable: ^2.0.7

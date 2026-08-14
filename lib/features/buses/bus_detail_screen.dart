@@ -13,7 +13,6 @@ import '../../shared/models/schedule.dart';
 import '../providers.dart';
 
 class BusDetailScreen extends ConsumerStatefulWidget {
-// ... existing code ...
   final int busId;
   final int? initialScheduleId;
   const BusDetailScreen({super.key, required this.busId, this.initialScheduleId});
@@ -137,19 +136,19 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
       floating: false,
       pinned: true,
       stretch: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppTheme.primaryBlue,
       elevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
         onPressed: () => context.pop(),
       ),
-      flexibleSpace: Container(
-        decoration: const BoxDecoration(
-          gradient: AppTheme.primaryGradient,
-        ),
-        child: FlexibleSpaceBar(
-          stretchModes: const [StretchMode.zoomBackground, StretchMode.blurBackground],
-          background: Stack(
+      flexibleSpace: FlexibleSpaceBar(
+        stretchModes: const [StretchMode.zoomBackground, StretchMode.blurBackground],
+        background: Container(
+          decoration: const BoxDecoration(
+            gradient: AppTheme.primaryGradient,
+          ),
+          child: Stack(
             children: [
               // Abstract background decoration
               Positioned(
@@ -290,20 +289,6 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
         ),
       ],
     ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0);
-  }
-
-  Widget _buildRouteInfo(BusDetail bus) {
-    final route = (bus.schedules != null && bus.schedules!.isNotEmpty)
-        ? bus.schedules!.first.routeDisplay
-        : bus.route ?? 'রুট তথ্য নেই';
-
-    return Row(
-      children: [
-        const Icon(Icons.route_rounded, size: 18, color: AppTheme.textHint),
-        const SizedBox(width: 12),
-        Expanded(child: Text(route, style: const TextStyle(fontSize: 15))),
-      ],
-    );
   }
 
   Widget _buildDriverInfo(BusDetail bus) {
@@ -468,4 +453,3 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
     );
   }
 }
-
