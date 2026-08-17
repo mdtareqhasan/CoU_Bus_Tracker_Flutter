@@ -27,12 +27,17 @@ class StorageService {
     required String name,
     required String email,
     int? userId,
+    bool isVerified = false,
+    bool isEduMail = false,
   }) async {
     await _secureStorage.write(key: StorageKeys.accessToken, value: token);
     await _prefs.setString(StorageKeys.userRole, role);
     await _prefs.setString(StorageKeys.displayName, name);
     await _prefs.setString(StorageKeys.userEmail, email);
     if (userId != null) await _prefs.setInt(StorageKeys.userId, userId);
+    await _prefs.setBool(StorageKeys.isVerified, isVerified);
+    await _prefs.setBool(StorageKeys.isEduMail, isEduMail);
+    await _prefs.setBool('_has_token', true);
   }
 
   Future<String?> getAccessToken() async {
@@ -43,15 +48,19 @@ class StorageService {
   String? getDisplayName() => _prefs.getString(StorageKeys.displayName);
   String? getUserEmail() => _prefs.getString(StorageKeys.userEmail);
   int? getUserId() => _prefs.getInt(StorageKeys.userId);
+  bool isVerified() => _prefs.getBool(StorageKeys.isVerified) ?? false;
+  bool isEduMail() => _prefs.getBool(StorageKeys.isEduMail) ?? false;
 
   bool isLoggedIn() {
-    final token = _prefs.getBool('_has_token');
-    return token == true;
+    // Explicitly check for both token and the boolean flag
+    final hasToken = _prefs.getBool('_has_token') ?? false;
+    return hasToken;
   }
 
   Future<bool> hasToken() async {
     final token = await getAccessToken();
-    return token != null && token.isNotEmpty;
+    final hasFlag = _prefs.getBool('_has_token') ?? false;
+    return (token != null && token.isNotEmpty) || hasFlag;
   }
 
   Future<void> clearSession() async {
@@ -60,6 +69,9 @@ class StorageService {
     await _prefs.remove(StorageKeys.displayName);
     await _prefs.remove(StorageKeys.userEmail);
     await _prefs.remove(StorageKeys.userId);
+    await _prefs.remove(StorageKeys.isVerified);
+    await _prefs.remove(StorageKeys.isEduMail);
+    await _prefs.setBool('_has_token', false);
   }
 
   Future<void> setThemeMode(String mode) async {

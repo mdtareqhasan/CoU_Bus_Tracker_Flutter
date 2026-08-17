@@ -69,10 +69,7 @@ class RoleScreen extends StatelessWidget {
     return SliverAppBar(
       pinned: true,
       backgroundColor: AppTheme.primaryBlue,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
-        onPressed: () => context.go('/profile'),
-      ),
+      automaticallyImplyLeading: false,
       title: const Text('আপনার ভূমিকা', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
       flexibleSpace: Container(decoration: const BoxDecoration(gradient: AppTheme.primaryGradient)),
     );

@@ -32,8 +32,11 @@ class ProfileScreen extends ConsumerWidget {
       pinned: true,
       backgroundColor: AppTheme.primaryBlue,
       automaticallyImplyLeading: false,
-      title: const Text('প্রোফাইল', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
-      flexibleSpace: Container(decoration: const BoxDecoration(gradient: AppTheme.primaryGradient)),
+      title: const Text('প্রোফাইল',
+          style: TextStyle(
+              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+      flexibleSpace: Container(
+          decoration: const BoxDecoration(gradient: AppTheme.primaryGradient)),
     );
   }
 
@@ -93,11 +96,17 @@ class ProfileScreen extends ConsumerWidget {
                   Icon(Icons.login_rounded, color: Colors.white),
                   SizedBox(width: 12),
                   Text('লগইন / নিবন্ধন করুন',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white)),
                 ],
               ),
             ),
-          ).animate().fadeIn(delay: 400.ms).scale(begin: const Offset(0.9, 0.9)),
+          )
+              .animate()
+              .fadeIn(delay: 400.ms)
+              .scale(begin: const Offset(0.9, 0.9)),
           const SizedBox(height: 100),
         ],
       ),
@@ -135,7 +144,8 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ],
           ),
-          child: const Icon(Icons.person_rounded, color: Colors.white, size: 72),
+          child:
+              const Icon(Icons.person_rounded, color: Colors.white, size: 72),
         ),
       ],
     ).animate().fadeIn(duration: 600.ms).scale(begin: const Offset(0.8, 0.8));
@@ -229,9 +239,11 @@ class ProfileScreen extends ConsumerWidget {
       ),
       child: Column(
         children: [
-          _buildInfoRow(context, 'নাম', authState.displayName ?? '—', Icons.person_outline_rounded),
+          _buildInfoRow(context, 'নাম', authState.displayName ?? '—',
+              Icons.person_outline_rounded),
           const Divider(indent: 48, height: 1),
-          _buildInfoRow(context, 'ইমেইল', authState.email ?? '—', Icons.email_outlined),
+          _buildInfoRow(
+              context, 'ইমেইল', authState.email ?? '—', Icons.email_outlined),
           const Divider(indent: 48, height: 1),
           _buildInfoRow(
               context,
@@ -249,7 +261,7 @@ class ProfileScreen extends ConsumerWidget {
       child: OutlinedButton.icon(
         onPressed: () async {
           await ref.read(authProvider.notifier).logout();
-          if (context.mounted) context.go('/home');
+          if (context.mounted) context.go('/auth/role');
         },
         icon: const Icon(Icons.logout_rounded, color: AppTheme.error),
         label: const Text(
@@ -267,7 +279,8 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildInfoRow(BuildContext context, String label, String value, IconData icon) {
+  Widget _buildInfoRow(
+      BuildContext context, String label, String value, IconData icon) {
     return Padding(
       padding: const EdgeInsets.all(AppTheme.space16),
       child: Row(
@@ -285,7 +298,11 @@ class ProfileScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(label, style: Theme.of(context).textTheme.bodySmall),
-              Text(value, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontSize: 14)),
+              Text(value,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleSmall
+                      ?.copyWith(fontSize: 14)),
             ],
           ),
         ],

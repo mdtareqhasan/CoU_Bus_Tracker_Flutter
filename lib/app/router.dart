@@ -11,6 +11,7 @@ import '../features/notices/notice_screen.dart';
 import '../features/auth/role_screen.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/register_screen.dart';
+import '../features/auth/upload_id_screen.dart';
 import '../features/profile/profile_screen.dart';
 import '../features/about/about_screen.dart';
 
@@ -96,6 +97,11 @@ final appRouter = GoRouter(
         final role = state.uri.queryParameters['role'] ?? 'student';
         return RegisterScreen(role: role);
       },
+    ),
+    GoRoute(
+      path: '/auth/upload-id',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const UploadIdScreen(),
     ),
     GoRoute(
       path: '/about',

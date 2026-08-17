@@ -21,8 +21,11 @@ class ErrorHandler {
     }
   }
 
-  static String get timeoutMessage => 'সংযোগ সময় শেষ হয়েছে। আবার চেষ্টা করুন।';
+  static String get timeoutMessage =>
+      'সার্ভার চালু হচ্ছে। অনুগ্রহ করে ১-২ মিনিট অপেক্ষা করুন এবং আবার চেষ্টা করুন।';
   static String get networkMessage => 'ইন্টারনেট সংযোগ পরীক্ষা করুন।';
   static String get sessionExpired => 'সেশন শেষ হয়েছে। আবার সাইন ইন করুন।';
   static String get defaultError => 'কিছু ভুল হয়েছে। আবার চেষ্টা করুন।';
+  static String get coldStartMessage =>
+      'সার্ভার চালু হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...';
 }

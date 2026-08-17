@@ -6,28 +6,27 @@ part 'auth_response.g.dart';
 class AuthResponse {
   final String? accessToken;
   final String? tokenType;
-  @JsonKey(name: 'adminName')
-  final String? displayName;
+  final String? role;
+  final int? id;
   final String? name;
   final String? email;
-  final String? role;
+  final bool? isVerified;
+  final bool? isEduMail;
 
   const AuthResponse({
     this.accessToken,
     this.tokenType,
-    this.displayName,
+    this.role,
+    this.id,
     this.name,
     this.email,
-    this.role,
+    this.isVerified,
+    this.isEduMail,
   });
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) =>
       _$AuthResponseFromJson(json);
   Map<String, dynamic> toJson() => _$AuthResponseToJson(this);
 
-  String get userDisplayName {
-    if (name != null && name!.isNotEmpty) return name!;
-    if (displayName != null && displayName!.isNotEmpty) return displayName!;
-    return 'ব্যবহারকারী';
-  }
+  String get userDisplayName => name ?? 'ব্যবহারকারী';
 }

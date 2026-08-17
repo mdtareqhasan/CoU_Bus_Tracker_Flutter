@@ -1,17 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
+import 'constants.dart';
 
 class ApiService {
-  // --- Configuration ---
-  static const String _wifiBaseUrl = "http:// 192.168.1.176:8080/api";
-  static const String _usbBaseUrl = "http://localhost:8081/api";
-
-  // State to track which URL to use
-  static bool useWifi = false;
-
-  // Dynamic Base URL getter
-  static String get baseUrl => useWifi ? _wifiBaseUrl : _usbBaseUrl;
+  static String get baseUrl => ApiConstants.baseUrl;
 
   // --- Singleton Pattern ---
   static final ApiService _instance = ApiService._internal();
@@ -27,7 +20,7 @@ class ApiService {
   // --- GET Request ---
   Future<http.Response> get(String endpoint) async {
     final url = Uri.parse('$baseUrl$endpoint');
-    
+
     if (kDebugMode) {
       print('🚀 GET Request: $url');
     }
@@ -45,7 +38,7 @@ class ApiService {
   // --- POST Request ---
   Future<http.Response> post(String endpoint, dynamic body) async {
     final url = Uri.parse('$baseUrl$endpoint');
-    
+
     if (kDebugMode) {
       print('🚀 POST Request: $url');
       print('📦 Body: ${jsonEncode(body)}');
@@ -69,14 +62,6 @@ class ApiService {
   void _logResponse(http.Response response) {
     if (kDebugMode) {
       print('📥 Response [${response.statusCode}]: ${response.body}');
-    }
-  }
-
-  /// Toggle between USB (localhost) and Wifi (IP) debugging
-  static void toggleDebugMode(bool wifi) {
-    useWifi = wifi;
-    if (kDebugMode) {
-      print('🔧 ApiService BaseURL switched to: $baseUrl');
     }
   }
 }

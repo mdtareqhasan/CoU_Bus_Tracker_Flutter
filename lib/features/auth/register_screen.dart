@@ -1,12 +1,12 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../app/theme.dart';
 import 'auth_provider.dart';
-import '../../shared/models/student_register_request.dart';
-import '../../shared/models/teacher_register_request.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   final String role;
@@ -22,8 +22,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _studentIdController = TextEditingController();
+  final _teacherIdController = TextEditingController();
   final _departmentController = TextEditingController();
   final _batchController = TextEditingController();
+  final _designationController = TextEditingController();
+  final _phoneController = TextEditingController();
+  
+  File? _idCardImage;
+  final ImagePicker _picker = ImagePicker();
   bool _obscurePassword = true;
 
   @override
@@ -32,9 +38,37 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     _studentIdController.dispose();
+    _teacherIdController.dispose();
     _departmentController.dispose();
     _batchController.dispose();
+    _designationController.dispose();
+    _phoneController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
+
+    if (image != null) {
+      final file = File(image.path);
+      final size = await file.length();
+      
+      if (size > 5 * 1024 * 1024) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('ছবি ৫ এমবি এর কম হতে হবে'), backgroundColor: AppTheme.error),
+          );
+        }
+        return;
+      }
+
+      setState(() {
+        _idCardImage = file;
+      });
+    }
   }
 
   @override
@@ -82,17 +116,22 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       ).animate().fadeIn(delay: 100.ms).slideY(begin: 0.2, end: 0),
                       const SizedBox(height: AppTheme.space8),
                       const Text(
-                        'তথ্য দিয়ে আপনার অ্যাকাউন্ট তৈরি করুন',
+                        'আপনার পরিচয় নিশ্চিত করতে আইডি কার্ড আপলোড করুন',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: AppTheme.textSecondary),
                       ).animate().fadeIn(delay: 200.ms),
                       const SizedBox(height: AppTheme.space32),
+                      
+                      _buildIdCardPicker(),
+                      const SizedBox(height: AppTheme.space32),
+
                       _buildTextField(
                         controller: _nameController,
                         label: 'পুরো নাম',
                         icon: Icons.person_outline_rounded,
                         validator: (v) => v == null || v.isEmpty ? 'নাম দিন' : null,
                       ).animate().fadeIn(delay: 300.ms).slideX(begin: 0.1, end: 0),
+                      
                       const SizedBox(height: AppTheme.space12),
                       _buildTextField(
                         controller: _emailController,
@@ -105,6 +144,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           return null;
                         },
                       ).animate().fadeIn(delay: 400.ms).slideX(begin: 0.1, end: 0),
+                      
                       const SizedBox(height: AppTheme.space12),
                       _buildTextField(
                         controller: _passwordController,
@@ -122,6 +162,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           return null;
                         },
                       ).animate().fadeIn(delay: 500.ms).slideX(begin: 0.1, end: 0),
+
                       if (widget.role == 'student') ...[
                         const SizedBox(height: AppTheme.space12),
                         _buildTextField(
@@ -135,14 +176,47 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           controller: _departmentController,
                           label: 'বিভাগ',
                           icon: Icons.business_outlined,
+                          validator: (v) => v == null || v.isEmpty ? 'বিভাগ দিন' : null,
                         ).animate().fadeIn(delay: 700.ms).slideX(begin: 0.1, end: 0),
                         const SizedBox(height: AppTheme.space12),
                         _buildTextField(
                           controller: _batchController,
                           label: 'ব্যাচ',
                           icon: Icons.class_outlined,
+                          validator: (v) => v == null || v.isEmpty ? 'ব্যাচ দিন' : null,
                         ).animate().fadeIn(delay: 800.ms).slideX(begin: 0.1, end: 0),
                       ],
+
+                      if (widget.role == 'teacher') ...[
+                        const SizedBox(height: AppTheme.space12),
+                        _buildTextField(
+                          controller: _teacherIdController,
+                          label: 'শিক্ষক আইডি',
+                          icon: Icons.badge_outlined,
+                          validator: (v) => v == null || v.isEmpty ? 'আইডি দিন' : null,
+                        ).animate().fadeIn(delay: 600.ms).slideX(begin: 0.1, end: 0),
+                        const SizedBox(height: AppTheme.space12),
+                        _buildTextField(
+                          controller: _departmentController,
+                          label: 'বিভাগ',
+                          icon: Icons.business_outlined,
+                          validator: (v) => v == null || v.isEmpty ? 'বিভাগ দিন' : null,
+                        ).animate().fadeIn(delay: 700.ms).slideX(begin: 0.1, end: 0),
+                        const SizedBox(height: AppTheme.space12),
+                        _buildTextField(
+                          controller: _designationController,
+                          label: 'পদবী',
+                          icon: Icons.work_outline_rounded,
+                        ).animate().fadeIn(delay: 800.ms).slideX(begin: 0.1, end: 0),
+                        const SizedBox(height: AppTheme.space12),
+                        _buildTextField(
+                          controller: _phoneController,
+                          label: 'ফোন নাম্বার',
+                          icon: Icons.phone_android_rounded,
+                          keyboardType: TextInputType.phone,
+                        ).animate().fadeIn(delay: 900.ms).slideX(begin: 0.1, end: 0),
+                      ],
+
                       const SizedBox(height: AppTheme.space32),
                       _buildRegisterButton(authState),
                       const SizedBox(height: AppTheme.space16),
@@ -160,7 +234,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             ],
                           ),
                         ),
-                      ).animate().fadeIn(delay: 1000.ms),
+                      ).animate().fadeIn(delay: 1100.ms),
                       const SizedBox(height: AppTheme.space48),
                     ],
                   ),
@@ -170,6 +244,62 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildIdCardPicker() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('বিশ্ববিদ্যালয় আইডি কার্ডের ছবি (MANDATORY)', 
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.textPrimary)),
+        const SizedBox(height: 12),
+        GestureDetector(
+          onTap: _pickImage,
+          child: Container(
+            height: 200,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+              border: Border.all(
+                color: _idCardImage == null ? AppTheme.primaryBlue.withOpacity(0.3) : AppTheme.successGreen,
+                width: 2,
+                style: _idCardImage == null ? BorderStyle.solid : BorderStyle.solid,
+              ),
+            ),
+            child: _idCardImage != null
+                ? Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(AppTheme.radiusLarge - 2),
+                        child: Image.file(_idCardImage!, width: double.infinity, height: 200, fit: BoxFit.cover),
+                      ),
+                      Positioned(
+                        right: 8,
+                        top: 8,
+                        child: CircleAvatar(
+                          backgroundColor: Colors.black54,
+                          child: IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.white),
+                            onPressed: _pickImage,
+                          ),
+                        ),
+                      )
+                    ],
+                  )
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.add_a_photo_rounded, size: 48, color: AppTheme.primaryBlue.withOpacity(0.5)),
+                      const SizedBox(height: 12),
+                      const Text('আইডি কার্ডের ছবি সিলেক্ট করুন', style: TextStyle(color: AppTheme.textSecondary)),
+                      const Text('(JPG/PNG, Max 5MB)', style: TextStyle(color: AppTheme.textHint, fontSize: 11)),
+                    ],
+                  ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -270,29 +400,46 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
             : const Text('নিবন্ধন করুন', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
       ),
-    ).animate().fadeIn(delay: 900.ms).scale(begin: const Offset(0.95, 0.95));
+    ).animate().fadeIn(delay: 1000.ms).scale(begin: const Offset(0.95, 0.95));
   }
 
   void _register() {
+    if (_idCardImage == null) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('আইডি কার্ড প্রয়োজন'),
+          content: const Text('নিবন্ধন সম্পন্ন করতে আপনার বিশ্ববিদ্যালয় আইডি কার্ডের ছবি আপলোড করা বাধ্যতামূলক।'),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('ঠিক আছে')),
+          ],
+        ),
+      );
+      return;
+    }
+
     if (_formKey.currentState!.validate()) {
       if (widget.role == 'student') {
-        final req = StudentRegisterRequest(
+        ref.read(authProvider.notifier).studentRegister(
           name: _nameController.text.trim(),
           email: _emailController.text.trim(),
           password: _passwordController.text,
           studentId: _studentIdController.text.trim(),
           department: _departmentController.text.trim(),
           varsityBatch: _batchController.text.trim(),
+          idCard: _idCardImage!,
         );
-        ref.read(authProvider.notifier).studentRegister(req);
       } else {
-        final req = TeacherRegisterRequest(
+        ref.read(authProvider.notifier).teacherRegister(
           name: _nameController.text.trim(),
           email: _emailController.text.trim(),
           password: _passwordController.text,
+          teacherId: _teacherIdController.text.trim(),
           department: _departmentController.text.trim(),
+          designation: _designationController.text.trim(),
+          phone: _phoneController.text.trim(),
+          idCard: _idCardImage!,
         );
-        ref.read(authProvider.notifier).teacherRegister(req);
       }
     }
   }

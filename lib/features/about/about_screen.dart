@@ -30,6 +30,14 @@ class AboutScreen extends StatelessWidget {
                   const SizedBox(height: AppTheme.space24),
                   _buildDeveloperCard(
                     context,
+                    name: 'Raihan Khan',
+                    role: 'Project Consultant',
+                    info: 'Platform Engineer at Marko Pro\nCSE 10 Batch, Comilla University',
+                    imagePath: 'assets/images/raihan.jpeg',
+                  ),
+                  const SizedBox(height: AppTheme.space24),
+                  _buildDeveloperCard(
+                    context,
                     name: 'Md. Atikur Rahman',
                     role: 'Advisor',
                     info: 'Lecturer, Dept. of CSE, Comilla University',

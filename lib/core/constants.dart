@@ -3,7 +3,8 @@ class ApiConstants {
 
   static String get baseUrl {
     const define = String.fromEnvironment('API_BASE_URL',
-        defaultValue: 'http://localhost:8081/api');
+        defaultValue:
+            'https://cou-bus-tracker-backend-admin-frontend.onrender.com/api');
     return define;
   }
 
@@ -12,8 +13,8 @@ class ApiConstants {
     return '${uri.scheme}://${uri.host}:${uri.port}';
   }
 
-  static const Duration connectTimeout = Duration(seconds: 15);
-  static const Duration receiveTimeout = Duration(seconds: 15);
+  static const Duration connectTimeout = Duration(seconds: 60);
+  static const Duration receiveTimeout = Duration(seconds: 60);
 
   static const Duration cacheMaxAge = Duration(minutes: 5);
 }
@@ -29,8 +30,12 @@ class ApiEndpoints {
   static const String studentLogin = '/auth/student/login';
   static const String teacherRegister = '/auth/teacher/register';
   static const String teacherLogin = '/auth/teacher/login';
+  static const String adminLogin = '/auth/admin/login';
+  static const String googleLogin = '/auth/google/login';
   static const String studentProfile = '/auth/student/me';
+  static const String teacherProfile = '/auth/teacher/me';
   static const String studentUploadIdCard = '/auth/student/upload-id-card';
+  static const String teacherUploadIdCard = '/auth/teacher/upload-id-card';
 }
 
 class StorageKeys {
@@ -39,6 +44,8 @@ class StorageKeys {
   static const String displayName = 'display_name';
   static const String userEmail = 'user_email';
   static const String userId = 'user_id';
+  static const String isVerified = 'is_verified';
+  static const String isEduMail = 'is_edu_mail';
   static const String themeMode = 'theme_mode';
   static const String languageCode = 'language_code';
   static const String cachedBuses = 'cached_buses';
