@@ -1,8 +1,3 @@
-import 'package:json_annotation/json_annotation.dart';
-
-part 'auth_response.g.dart';
-
-@JsonSerializable()
 class AuthResponse {
   final String? accessToken;
   final String? tokenType;
@@ -24,9 +19,30 @@ class AuthResponse {
     this.isEduMail,
   });
 
-  factory AuthResponse.fromJson(Map<String, dynamic> json) =>
-      _$AuthResponseFromJson(json);
-  Map<String, dynamic> toJson() => _$AuthResponseToJson(this);
+  factory AuthResponse.fromJson(Map<String, dynamic> json) {
+    return AuthResponse(
+      accessToken: json['accessToken'] as String?,
+      tokenType: json['tokenType'] as String?,
+      role: json['role'] as String?,
+      id: (json['id'] as num?)?.toInt(),
+      name: json['name'] as String?,
+      email: json['email'] as String?,
+      // Backend uses both "isEmailVerified" (OTP flow) and "isVerified" (login)
+      isVerified: (json['isEmailVerified'] ?? json['isVerified']) as bool?,
+      isEduMail: json['isEduMail'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'accessToken': accessToken,
+        'tokenType': tokenType,
+        'role': role,
+        'id': id,
+        'name': name,
+        'email': email,
+        'isVerified': isVerified,
+        'isEduMail': isEduMail,
+      };
 
   String get userDisplayName => name ?? 'ব্যবহারকারী';
 }

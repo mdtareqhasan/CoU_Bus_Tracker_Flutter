@@ -32,7 +32,7 @@ class AboutScreen extends StatelessWidget {
                     context,
                     name: 'Raihan Khan',
                     role: 'Project Consultant',
-                    info: 'Platform Engineer at Marko Pro\nCSE 10 Batch, Comilla University',
+                    info: 'Senior Platform Engineer at Marko Pro,Thailand\nCSE 10 Batch, Comilla University',
                     imagePath: 'assets/images/raihan.jpeg',
                   ),
                   const SizedBox(height: AppTheme.space24),

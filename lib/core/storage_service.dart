@@ -23,6 +23,7 @@ class StorageService {
 
   Future<void> saveSession({
     required String token,
+    String? tokenType,
     required String role,
     required String name,
     required String email,
@@ -31,6 +32,9 @@ class StorageService {
     bool isEduMail = false,
   }) async {
     await _secureStorage.write(key: StorageKeys.accessToken, value: token);
+    if (tokenType != null && tokenType.isNotEmpty) {
+      await _secureStorage.write(key: StorageKeys.tokenType, value: tokenType);
+    }
     await _prefs.setString(StorageKeys.userRole, role);
     await _prefs.setString(StorageKeys.displayName, name);
     await _prefs.setString(StorageKeys.userEmail, email);
@@ -44,12 +48,38 @@ class StorageService {
     return await _secureStorage.read(key: StorageKeys.accessToken);
   }
 
+  Future<String?> getTokenType() async {
+    return await _secureStorage.read(key: StorageKeys.tokenType);
+  }
+
   String? getRole() => _prefs.getString(StorageKeys.userRole);
   String? getDisplayName() => _prefs.getString(StorageKeys.displayName);
   String? getUserEmail() => _prefs.getString(StorageKeys.userEmail);
   int? getUserId() => _prefs.getInt(StorageKeys.userId);
   bool isVerified() => _prefs.getBool(StorageKeys.isVerified) ?? false;
   bool isEduMail() => _prefs.getBool(StorageKeys.isEduMail) ?? false;
+
+  /// Pending OTP verification session. Stored securely so it survives app
+  /// restart. The OTP value itself is NEVER persisted.
+  Future<void> setPendingVerification(String? email, String? role) async {
+    if (email == null) {
+      await _secureStorage.delete(key: StorageKeys.verificationEmail);
+      await _secureStorage.delete(key: StorageKeys.verificationRole);
+    } else {
+      await _secureStorage.write(
+          key: StorageKeys.verificationEmail, value: email);
+      await _secureStorage.write(
+          key: StorageKeys.verificationRole, value: role ?? 'STUDENT');
+    }
+  }
+
+  Future<String?> getPendingEmail() async {
+    return await _secureStorage.read(key: StorageKeys.verificationEmail);
+  }
+
+  Future<String?> getPendingRole() async {
+    return await _secureStorage.read(key: StorageKeys.verificationRole);
+  }
 
   bool isLoggedIn() {
     // Explicitly check for both token and the boolean flag
@@ -65,6 +95,9 @@ class StorageService {
 
   Future<void> clearSession() async {
     await _secureStorage.delete(key: StorageKeys.accessToken);
+    await _secureStorage.delete(key: StorageKeys.tokenType);
+    await _secureStorage.delete(key: StorageKeys.verificationEmail);
+    await _secureStorage.delete(key: StorageKeys.verificationRole);
     await _prefs.remove(StorageKeys.userRole);
     await _prefs.remove(StorageKeys.displayName);
     await _prefs.remove(StorageKeys.userEmail);
@@ -84,14 +117,16 @@ class StorageService {
     await _prefs.setString(StorageKeys.languageCode, code);
   }
 
-  String getLanguageCode() => _prefs.getString(StorageKeys.languageCode) ?? 'bn';
+  String getLanguageCode() =>
+      _prefs.getString(StorageKeys.languageCode) ?? 'bn';
 
   // --- Caching Support ---
 
   /// Save raw JSON string to local storage
   Future<void> saveCache(String key, String json) async {
     await _prefs.setString(key, json);
-    await _prefs.setInt('${key}_timestamp', DateTime.now().millisecondsSinceEpoch);
+    await _prefs.setInt(
+        '${key}_timestamp', DateTime.now().millisecondsSinceEpoch);
   }
 
   /// Get raw JSON string from local storage
@@ -103,7 +138,7 @@ class StorageService {
   bool isCacheValid(String key, {Duration maxAge = const Duration(hours: 24)}) {
     final timestamp = _prefs.getInt('${key}_timestamp');
     if (timestamp == null) return false;
-    
+
     final cacheDate = DateTime.fromMillisecondsSinceEpoch(timestamp);
     final diff = DateTime.now().difference(cacheDate);
     return diff < maxAge;

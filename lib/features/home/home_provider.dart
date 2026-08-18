@@ -11,18 +11,21 @@ import '../buses/bus_repository.dart';
 import '../schedules/schedule_repository.dart';
 import '../notices/notice_repository.dart';
 import '../../core/utils/time_utils.dart';
+import '../buses/buses_provider.dart';
 
 class DashboardState {
   final AsyncValue<List<Bus>> buses;
   final AsyncValue<List<Schedule>> schedules;
   final AsyncValue<List<Notice>> notices;
   final DateTime? lastUpdated;
+  final String? userRole;
 
   const DashboardState({
     this.buses = const AsyncValue.loading(),
     this.schedules = const AsyncValue.loading(),
     this.notices = const AsyncValue.loading(),
     this.lastUpdated,
+    this.userRole,
   });
 
   DashboardState copyWith({
@@ -30,29 +33,49 @@ class DashboardState {
     AsyncValue<List<Schedule>>? schedules,
     AsyncValue<List<Notice>>? notices,
     DateTime? lastUpdated,
+    String? userRole,
   }) {
     return DashboardState(
       buses: buses ?? this.buses,
       schedules: schedules ?? this.schedules,
       notices: notices ?? this.notices,
       lastUpdated: lastUpdated ?? this.lastUpdated,
+      userRole: userRole ?? this.userRole,
     );
   }
 
-  int get activeBusCount => buses.valueOrNull?.length ?? 0;
-  int get todayScheduleCount => schedules.valueOrNull?.length ?? 0;
-  int get trackingBusCount =>
-      buses.valueOrNull?.where((b) => b.trackerUrl != null && b.trackerUrl!.isNotEmpty).length ?? 0;
+  List<Bus> get _roleFilteredBuses {
+    final allowed = allowedCategoriesForRole(userRole);
+    return (buses.valueOrNull ?? []).where((b) {
+      final cat = b.category?.toUpperCase();
+      return cat != null && allowed.contains(cat);
+    }).toList();
+  }
+
+  List<Schedule> get filteredSchedules {
+    final allowed = allowedCategoriesForRole(userRole);
+    return (schedules.valueOrNull ?? []).where((s) {
+      final cat = s.category?.toUpperCase();
+      return cat != null && allowed.contains(cat);
+    }).toList();
+  }
+
+  int get activeBusCount => _roleFilteredBuses.length;
+  int get todayScheduleCount => filteredSchedules.length;
+  int get trackingBusCount => _roleFilteredBuses
+      .where((b) => b.trackerUrl != null && b.trackerUrl!.isNotEmpty)
+      .length;
   int get activeNoticeCount => notices.valueOrNull?.length ?? 0;
 
   bool get isLoading =>
-      buses is AsyncLoading || schedules is AsyncLoading || notices is AsyncLoading;
+      buses is AsyncLoading ||
+      schedules is AsyncLoading ||
+      notices is AsyncLoading;
 
   bool get hasError =>
       buses is AsyncError || schedules is AsyncError || notices is AsyncError;
 
-  bool get hasData =>
-      buses.hasValue || schedules.hasValue || notices.hasValue;
+  bool get hasData => buses.hasValue || schedules.hasValue || notices.hasValue;
 }
 
 class DashboardNotifier extends StateNotifier<DashboardState> {
@@ -61,8 +84,13 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
   final NoticeRepository _noticeRepo;
   final StorageService _storage;
 
-  DashboardNotifier(this._busRepo, this._scheduleRepo, this._noticeRepo, this._storage)
+  DashboardNotifier(
+      this._busRepo, this._scheduleRepo, this._noticeRepo, this._storage)
       : super(const DashboardState());
+
+  void setUserRole(String? role) {
+    state = state.copyWith(userRole: role);
+  }
 
   Future<void> loadAll() async {
     // 1. Try loading from cache first
@@ -97,7 +125,11 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     if (buses != null || schedules != null || notices != null) {
       state = state.copyWith(
         buses: buses != null ? AsyncValue.data(buses) : state.buses,
-        schedules: schedules != null ? AsyncValue.data(schedules.where((s) => TimeUtils.isScheduleForToday(s.days)).toList()) : state.schedules,
+        schedules: schedules != null
+            ? AsyncValue.data(schedules
+                .where((s) => TimeUtils.isScheduleForToday(s.days))
+                .toList())
+            : state.schedules,
         notices: notices != null ? AsyncValue.data(notices) : state.notices,
       );
     }
@@ -125,7 +157,9 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
       final data = (scheduleResult as Success<List<Schedule>>).data;
       await _storage.saveCache(StorageKeys.cachedSchedules, jsonEncode(data));
       state = state.copyWith(
-          schedules: AsyncValue.data(data.where((s) => TimeUtils.isScheduleForToday(s.days)).toList()));
+          schedules: AsyncValue.data(data
+              .where((s) => TimeUtils.isScheduleForToday(s.days))
+              .toList()));
     }
 
     if (noticeResult is Success) {

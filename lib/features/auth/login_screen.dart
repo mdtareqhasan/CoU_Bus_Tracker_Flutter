@@ -36,6 +36,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         context.go('/home');
       } else if (next.status == AuthStateStatus.needsRegistration) {
         context.go('/auth/register?role=${widget.role}');
+      } else if (next.status == AuthStateStatus.needsVerification) {
+        context.pushReplacement(
+          '/auth/otp?email=${next.email ?? _emailController.text.trim()}&role=${widget.role.toUpperCase()}',
+        );
       } else if (next.status == AuthStateStatus.error && next.error != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(next.error!), backgroundColor: AppTheme.error),
@@ -46,109 +50,121 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final roleTitle =
         widget.role == 'student' ? 'শিক্ষার্থী লগইন' : 'শিক্ষক লগইন';
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
-      child: Scaffold(
-        backgroundColor: AppTheme.backgroundLight,
-        body: CustomScrollView(
-          slivers: [
-            _buildSliverAppBar(context, roleTitle),
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: Padding(
-                padding: const EdgeInsets.all(AppTheme.space24),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const SizedBox(height: AppTheme.space24),
-                      _buildHeaderIllustration(),
-                      const SizedBox(height: AppTheme.space32),
-                      Text(
-                        roleTitle,
-                        textAlign: TextAlign.center,
-                        style:
-                            Theme.of(context).textTheme.headlineSmall?.copyWith(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) context.go('/auth/role');
+      },
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.light,
+        child: Scaffold(
+          backgroundColor: AppTheme.backgroundLight,
+          body: Container(
+            height: double.infinity,
+            width: double.infinity,
+            color: AppTheme.backgroundLight,
+            child: CustomScrollView(
+              slivers: [
+                _buildSliverAppBar(context, roleTitle),
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppTheme.space24),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SizedBox(height: AppTheme.space24),
+                          _buildHeaderIllustration(),
+                          const SizedBox(height: AppTheme.space32),
+                          Text(
+                            roleTitle,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(
                                   fontWeight: FontWeight.bold,
                                   color: AppTheme.textPrimary,
                                 ),
-                      )
-                          .animate()
-                          .fadeIn(delay: 200.ms)
-                          .slideY(begin: 0.2, end: 0),
-                      const SizedBox(height: AppTheme.space8),
-                      const Text(
-                        'আপনার অ্যাকাউন্টে লগইন করুন',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: AppTheme.textSecondary),
-                      ).animate().fadeIn(delay: 300.ms),
-                      const SizedBox(height: AppTheme.space40),
-                      _buildTextField(
-                        controller: _emailController,
-                        label: 'ইমেইল',
-                        icon: Icons.email_outlined,
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (v) {
-                          if (v == null || v.isEmpty) return 'ইমেইল দিন';
-                          if (!v.contains('@')) return 'সঠিক ইমেইল দিন';
-                          return null;
-                        },
-                      )
-                          .animate()
-                          .fadeIn(delay: 400.ms)
-                          .slideX(begin: 0.1, end: 0),
-                      const SizedBox(height: AppTheme.space16),
-                      _buildTextField(
-                        controller: _passwordController,
-                        label: 'পাসওয়ার্ড',
-                        icon: Icons.lock_outline_rounded,
-                        obscureText: _obscurePassword,
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                              _obscurePassword
-                                  ? Icons.visibility_outlined
-                                  : Icons.visibility_off_outlined,
-                              color: AppTheme.textHint),
-                          onPressed: () => setState(
-                              () => _obscurePassword = !_obscurePassword),
-                        ),
-                        validator: (v) {
-                          if (v == null || v.isEmpty) return 'পাসওয়ার্ড দিন';
-                          return null;
-                        },
-                      )
-                          .animate()
-                          .fadeIn(delay: 500.ms)
-                          .slideX(begin: 0.1, end: 0),
-                      const SizedBox(height: AppTheme.space32),
-                      _buildLoginButton(authState),
-                      const SizedBox(height: AppTheme.space16),
-                      TextButton(
-                        onPressed: () =>
-                            context.go('/auth/register?role=${widget.role}'),
-                        child: Text.rich(
-                          TextSpan(
-                            text: 'অ্যাকাউন্ট নেই? ',
-                            style:
-                                const TextStyle(color: AppTheme.textSecondary),
-                            children: [
+                          )
+                              .animate()
+                              .fadeIn(delay: 200.ms)
+                              .slideY(begin: 0.2, end: 0),
+                          const SizedBox(height: AppTheme.space8),
+                          const Text(
+                            'আপনার অ্যাকাউন্টে লগইন করুন',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: AppTheme.textSecondary),
+                          ).animate().fadeIn(delay: 300.ms),
+                          const SizedBox(height: AppTheme.space40),
+                          _buildTextField(
+                            controller: _emailController,
+                            label: 'ইমেইল',
+                            icon: Icons.email_outlined,
+                            keyboardType: TextInputType.emailAddress,
+                            validator: (v) {
+                              if (v == null || v.isEmpty) return 'ইমেইল দিন';
+                              if (!v.contains('@')) return 'সঠিক ইমেইল দিন';
+                              return null;
+                            },
+                          )
+                              .animate()
+                              .fadeIn(delay: 400.ms)
+                              .slideX(begin: 0.1, end: 0),
+                          const SizedBox(height: AppTheme.space16),
+                          _buildTextField(
+                            controller: _passwordController,
+                            label: 'পাসওয়ার্ড',
+                            icon: Icons.lock_outline_rounded,
+                            obscureText: _obscurePassword,
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility_off_outlined,
+                                  color: AppTheme.textHint),
+                              onPressed: () => setState(
+                                  () => _obscurePassword = !_obscurePassword),
+                            ),
+                            validator: (v) {
+                              if (v == null || v.isEmpty) return 'পাসওয়ার্ড দিন';
+                              return null;
+                            },
+                          )
+                              .animate()
+                              .fadeIn(delay: 500.ms)
+                              .slideX(begin: 0.1, end: 0),
+                          const SizedBox(height: AppTheme.space32),
+                          _buildLoginButton(authState),
+                          const SizedBox(height: AppTheme.space16),
+                          TextButton(
+                            onPressed: () =>
+                                context.go('/auth/register?role=${widget.role}'),
+                            child: Text.rich(
                               TextSpan(
-                                text: 'নিবন্ধন করুন',
-                                style: TextStyle(
-                                    color: AppTheme.primaryBlue,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ).animate().fadeIn(delay: 700.ms),
-                    ],
+                                  text: 'অ্যাকাউন্ট নেই? ',
+                                  style: const TextStyle(
+                                      color: AppTheme.textSecondary),
+                                  children: [
+                                    TextSpan(
+                                      text: 'নিবন্ধন করুন',
+                                      style: TextStyle(
+                                          color: AppTheme.primaryBlue,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ]),
+                            ),
+                          ).animate().fadeIn(delay: 700.ms),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

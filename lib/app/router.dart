@@ -11,12 +11,14 @@ import '../features/notices/notice_screen.dart';
 import '../features/auth/role_screen.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/register_screen.dart';
+import '../features/auth/email_otp_verification_screen.dart';
 import '../features/auth/upload_id_screen.dart';
 import '../features/profile/profile_screen.dart';
 import '../features/about/about_screen.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
-final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> _shellNavigatorKey =
+    GlobalKey<NavigatorState>();
 
 final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
@@ -62,8 +64,8 @@ final appRouter = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
         final id = int.parse(state.pathParameters['id']!);
-        final scheduleId = state.uri.queryParameters['scheduleId'] != null 
-            ? int.parse(state.uri.queryParameters['scheduleId']!) 
+        final scheduleId = state.uri.queryParameters['scheduleId'] != null
+            ? int.parse(state.uri.queryParameters['scheduleId']!)
             : null;
         return BusDetailScreen(busId: id, initialScheduleId: scheduleId);
       },
@@ -96,6 +98,15 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final role = state.uri.queryParameters['role'] ?? 'student';
         return RegisterScreen(role: role);
+      },
+    ),
+    GoRoute(
+      path: '/auth/otp',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final email = state.uri.queryParameters['email'] ?? '';
+        final role = state.uri.queryParameters['role'] ?? 'student';
+        return EmailOtpVerificationScreen(email: email, role: role);
       },
     ),
     GoRoute(

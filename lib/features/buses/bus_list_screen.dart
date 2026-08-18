@@ -7,7 +7,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../app/theme.dart';
 import 'buses_provider.dart';
-import '../../shared/models/bus.dart';
+import '../auth/auth_provider.dart';
 import '../../shared/widgets/bus_card.dart';
 
 class BusListScreen extends ConsumerStatefulWidget {
@@ -24,6 +24,8 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authState = ref.read(authProvider);
+      ref.read(busListProvider.notifier).setUserRole(authState.role);
       ref.read(busListProvider.notifier).loadBuses();
     });
   }
@@ -62,7 +64,8 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
       ),
       decoration: const BoxDecoration(
         gradient: AppTheme.primaryGradient,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(AppTheme.radiusExtraLarge)),
+        borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(AppTheme.radiusExtraLarge)),
       ),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: AppTheme.space16),
@@ -70,12 +73,16 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 4)),
+            BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4)),
           ],
         ),
         child: TextField(
           controller: _searchController,
-          onChanged: (v) => ref.read(busListProvider.notifier).setSearchQuery(v),
+          onChanged: (v) =>
+              ref.read(busListProvider.notifier).setSearchQuery(v),
           style: const TextStyle(color: AppTheme.textPrimary),
           decoration: const InputDecoration(
             hintText: 'বাস খুঁজুন...',
@@ -89,7 +96,7 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
   }
 
   Widget _buildCategoryChips(BusListState state) {
-    final categories = {
+    final allCategories = {
       null: 'সব',
       'BLUE': 'নীল',
       'RED': 'লাল',
@@ -97,6 +104,14 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
       'OFFICER': 'অফিসার',
       'STAFF': 'স্টাফ',
     };
+
+    final allowed = allowedCategoriesForRole(state.userRole);
+    final categories = <String?, String>{null: 'সব'};
+    for (final entry in allCategories.entries) {
+      if (entry.key == null || allowed.contains(entry.key)) {
+        categories[entry.key] = entry.value;
+      }
+    }
 
     return Container(
       height: 64,
@@ -112,10 +127,11 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
             child: ChoiceChip(
               label: Text(entry.value),
               selected: isSelected,
-              onSelected: (_) => ref.read(busListProvider.notifier).setCategory(entry.key),
+              onSelected: (_) =>
+                  ref.read(busListProvider.notifier).setCategory(entry.key),
               selectedColor: AppTheme.primaryBlue,
-              backgroundColor: Theme.of(context).brightness == Brightness.dark 
-                  ? AppTheme.surfaceDark 
+              backgroundColor: Theme.of(context).brightness == Brightness.dark
+                  ? AppTheme.surfaceDark
                   : Colors.white,
               labelStyle: TextStyle(
                 color: isSelected ? Colors.white : AppTheme.textSecondary,
@@ -124,8 +140,10 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
               showCheckmark: false,
               elevation: isSelected ? 4 : 0,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            ).animate(target: isSelected ? 1 : 0)
-             .scale(begin: const Offset(1, 1), end: const Offset(1.05, 1.05), duration: 200.ms),
+            ).animate(target: isSelected ? 1 : 0).scale(
+                begin: const Offset(1, 1),
+                end: const Offset(1.05, 1.05),
+                duration: 200.ms),
           );
         }).toList(),
       ),
@@ -151,14 +169,16 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
       onRefresh: () => ref.read(busListProvider.notifier).loadBuses(),
       child: AnimationLimiter(
         child: ListView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: AppTheme.space24, vertical: AppTheme.space8),
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppTheme.space24, vertical: AppTheme.space8),
           physics: const BouncingScrollPhysics(),
           itemCount: buses.length,
           itemBuilder: (context, index) {
             final bus = buses[index];
-            final busSchedules = state.schedules.where((s) => s.busId == bus.id);
-            final route = busSchedules.isNotEmpty 
-                ? busSchedules.first.routeDisplay 
+            final busSchedules =
+                state.schedules.where((s) => s.busId == bus.id);
+            final route = busSchedules.isNotEmpty
+                ? busSchedules.first.routeDisplay
                 : bus.route ?? 'রুট তথ্য নেই';
 
             return AnimationConfiguration.staggeredList(
@@ -207,9 +227,12 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline_rounded, size: 64, color: AppTheme.error),
+            const Icon(Icons.error_outline_rounded,
+                size: 64, color: AppTheme.error),
             const SizedBox(height: 16),
-            Text(message, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: () => ref.read(busListProvider.notifier).loadBuses(),
@@ -228,15 +251,18 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.directions_bus_rounded, size: 80, color: AppTheme.textHint.withOpacity(0.3)),
+          Icon(Icons.directions_bus_rounded,
+              size: 80, color: AppTheme.textHint.withOpacity(0.3)),
           const SizedBox(height: 16),
           Text(
             'কোনো বাস পাওয়া যায়নি',
-            style: TextStyle(fontSize: 16, color: AppTheme.textSecondary, fontWeight: FontWeight.w600),
+            style: TextStyle(
+                fontSize: 16,
+                color: AppTheme.textSecondary,
+                fontWeight: FontWeight.w600),
           ),
         ],
       ),
     );
   }
 }
-

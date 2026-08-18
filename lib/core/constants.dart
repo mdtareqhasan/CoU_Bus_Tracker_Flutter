@@ -13,8 +13,9 @@ class ApiConstants {
     return '${uri.scheme}://${uri.host}:${uri.port}';
   }
 
-  static const Duration connectTimeout = Duration(seconds: 60);
-  static const Duration receiveTimeout = Duration(seconds: 60);
+  static const Duration connectTimeout = Duration(seconds: 30);
+  static const Duration sendTimeout = Duration(seconds: 60);
+  static const Duration receiveTimeout = Duration(seconds: 90);
 
   static const Duration cacheMaxAge = Duration(minutes: 5);
 }
@@ -36,10 +37,13 @@ class ApiEndpoints {
   static const String teacherProfile = '/auth/teacher/me';
   static const String studentUploadIdCard = '/auth/student/upload-id-card';
   static const String teacherUploadIdCard = '/auth/teacher/upload-id-card';
+  static const String emailVerify = '/auth/email-verification/verify';
+  static const String emailResend = '/auth/email-verification/resend';
 }
 
 class StorageKeys {
   static const String accessToken = 'access_token';
+  static const String tokenType = 'token_type';
   static const String userRole = 'user_role';
   static const String displayName = 'display_name';
   static const String userEmail = 'user_email';
@@ -47,6 +51,8 @@ class StorageKeys {
   static const String isVerified = 'is_verified';
   static const String isEduMail = 'is_edu_mail';
   static const String themeMode = 'theme_mode';
+  static const String verificationEmail = 'pending_verification_email';
+  static const String verificationRole = 'pending_verification_role';
   static const String languageCode = 'language_code';
   static const String cachedBuses = 'cached_buses';
   static const String cachedSchedules = 'cached_schedules';

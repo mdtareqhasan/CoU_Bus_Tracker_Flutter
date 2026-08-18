@@ -9,6 +9,7 @@ import '../../app/theme.dart';
 import '../../shared/widgets/stat_card.dart';
 import '../../shared/widgets/schedule_card.dart';
 import 'home_provider.dart';
+import '../auth/auth_provider.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -22,6 +23,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authState = ref.read(authProvider);
+      ref.read(dashboardProvider.notifier).setUserRole(authState.role);
       ref.read(dashboardProvider.notifier).loadAll();
     });
   }
@@ -44,11 +47,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 _buildErrorCard(state)
               else ...[
                 _buildModernStatGrid(context, state),
-                _buildSectionHeader(
-                  context, 
-                  title: 'আজকের সময়সূচি', 
-                  onSeeAll: () => context.go('/schedules')
-                ),
+                _buildSectionHeader(context,
+                    title: 'আজকের সময়সূচি',
+                    onSeeAll: () => context.go('/schedules')),
                 _buildSchedulePreviewList(context, state),
                 const SliverToBoxAdapter(child: SizedBox(height: 100)),
               ],
@@ -136,7 +137,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildMenuButton(BuildContext context) {
     return PopupMenuButton<String>(
       offset: const Offset(0, 50),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusMedium)),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppTheme.radiusMedium)),
       tooltip: 'মেনু',
       icon: Container(
         padding: const EdgeInsets.all(AppTheme.space8),
@@ -156,7 +158,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           value: 'about',
           child: Row(
             children: [
-              Icon(Icons.info_outline_rounded, size: 20, color: AppTheme.primaryBlue),
+              Icon(Icons.info_outline_rounded,
+                  size: 20, color: AppTheme.primaryBlue),
               SizedBox(width: 12),
               Text('About Us', style: TextStyle(fontWeight: FontWeight.bold)),
             ],
@@ -168,7 +171,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildHeaderInfoCard(DashboardState state) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppTheme.space16, vertical: AppTheme.space12),
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppTheme.space16, vertical: AppTheme.space12),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.12),
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
@@ -177,7 +181,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(2),
-            decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+            decoration: const BoxDecoration(
+                color: Colors.white, shape: BoxShape.circle),
             child: ClipOval(
               child: Image.asset(
                 'assets/images/buslogo.jpeg',
@@ -191,7 +196,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           Expanded(
             child: Text(
               state.hasData
-                  ? '${state.buses.valueOrNull?.length ?? 0} টি বাস সক্রিয় আছে'
+                  ? '${state.activeBusCount} টি বাস সক্রিয় আছে'
                   : 'CoU যাত্রী',
               style: const TextStyle(
                 color: Colors.white,
@@ -234,14 +239,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
 
     final stats = [
-      {'label': 'সক্রিয় বাস', 'value': state.activeBusCount.toString(), 'icon': Icons.directions_bus_rounded, 'color': AppTheme.primaryBlue},
-      {'label': 'আজকের ট্রিপ', 'value': state.todayScheduleCount.toString(), 'icon': Icons.schedule_rounded, 'color': Colors.deepPurple},
-      {'label': 'লাইভ ট্র্যাকিং', 'value': state.trackingBusCount.toString(), 'icon': Icons.location_on_rounded, 'color': Colors.teal},
-      {'label': 'জরুরি নোটিশ', 'value': state.activeNoticeCount.toString(), 'icon': Icons.notifications_rounded, 'color': Colors.orange},
+      {
+        'label': 'সক্রিয় বাস',
+        'value': state.activeBusCount.toString(),
+        'icon': Icons.directions_bus_rounded,
+        'color': AppTheme.primaryBlue
+      },
+      {
+        'label': 'আজকের ট্রিপ',
+        'value': state.todayScheduleCount.toString(),
+        'icon': Icons.schedule_rounded,
+        'color': Colors.deepPurple
+      },
+      {
+        'label': 'লাইভ ট্র্যাকিং',
+        'value': state.trackingBusCount.toString(),
+        'icon': Icons.location_on_rounded,
+        'color': Colors.teal
+      },
+      {
+        'label': 'জরুরি নোটিশ',
+        'value': state.activeNoticeCount.toString(),
+        'icon': Icons.notifications_rounded,
+        'color': Colors.orange
+      },
     ];
 
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: AppTheme.space24, vertical: AppTheme.space24),
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppTheme.space24, vertical: AppTheme.space24),
       sliver: SliverGrid(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
@@ -259,9 +285,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               color: stat['color'] as Color,
               onTap: () {
                 final label = stat['label'];
-                if (label == 'সক্রিয় বাস' || label == 'লাইভ ট্র্যাকিং') context.go('/buses');
-                else if (label == 'আজকের ট্রিপ') context.go('/schedules');
-                else context.go('/notices');
+                if (label == 'সক্রিয় বাস' || label == 'লাইভ ট্র্যাকিং')
+                  context.go('/buses');
+                else if (label == 'আজকের ট্রিপ')
+                  context.go('/schedules');
+                else
+                  context.go('/notices');
               },
             );
           },
@@ -271,10 +300,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, {required String title, required VoidCallback onSeeAll}) {
+  Widget _buildSectionHeader(BuildContext context,
+      {required String title, required VoidCallback onSeeAll}) {
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppTheme.space24, vertical: AppTheme.space8),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppTheme.space24, vertical: AppTheme.space8),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -296,8 +327,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildSchedulePreviewList(BuildContext context, DashboardState state) {
-    final schedules = state.schedules.valueOrNull ?? [];
-    if (schedules.isEmpty) return const SliverToBoxAdapter(child: SizedBox.shrink());
+    final schedules = state.filteredSchedules;
+    if (schedules.isEmpty)
+      return const SliverToBoxAdapter(child: SizedBox.shrink());
 
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: AppTheme.space24),
@@ -306,9 +338,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           (context, index) {
             final s = schedules[index];
             return ScheduleCard(
-              schedule: s, 
-              onTap: () => context.push('/bus/${s.busId}?scheduleId=${s.id}')
-            ).animate().fadeIn(delay: (index * 100).ms).slideX(begin: 0.1, end: 0);
+                    schedule: s,
+                    onTap: () =>
+                        context.push('/bus/${s.busId}?scheduleId=${s.id}'))
+                .animate()
+                .fadeIn(delay: (index * 100).ms)
+                .slideX(begin: 0.1, end: 0);
           },
           childCount: schedules.length > 5 ? 5 : schedules.length,
         ),
@@ -317,7 +352,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildConnectionStrip(DashboardState state) {
-    if (!state.hasError) return const SliverToBoxAdapter(child: SizedBox(height: 12));
+    if (!state.hasError)
+      return const SliverToBoxAdapter(child: SizedBox(height: 12));
     return SliverToBoxAdapter(
       child: Container(
         margin: const EdgeInsets.all(AppTheme.space24),
@@ -334,7 +370,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             const Expanded(
               child: Text(
                 'অফলাইন • সংরক্ষিত তথ্য দেখানো হচ্ছে',
-                style: TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold, fontSize: 13),
+                style: TextStyle(
+                    color: AppTheme.error,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13),
               ),
             ),
           ],
@@ -351,9 +390,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           children: [
             Icon(Icons.error_outline_rounded, color: AppTheme.error, size: 64),
             const SizedBox(height: 16),
-            const Text('তথ্য লোড করা যায়নি', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text('তথ্য লোড করা যায়নি',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            const Text('ইন্টারনেট সংযোগ পরীক্ষা করুন', style: TextStyle(color: AppTheme.textSecondary)),
+            const Text('ইন্টারনেট সংযোগ পরীক্ষা করুন',
+                style: TextStyle(color: AppTheme.textSecondary)),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () => ref.read(dashboardProvider.notifier).refresh(),

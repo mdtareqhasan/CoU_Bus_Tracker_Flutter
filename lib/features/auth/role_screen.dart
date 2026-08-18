@@ -13,65 +13,90 @@ class RoleScreen extends StatelessWidget {
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
         backgroundColor: AppTheme.backgroundLight,
-        body: CustomScrollView(
-          slivers: [
-            _buildSliverAppBar(context),
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: Padding(
-                padding: const EdgeInsets.all(AppTheme.space32),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildIllustration(),
-                    const SizedBox(height: AppTheme.space32),
-                    Text(
-                      'আপনার ভূমিকা নির্বাচন করুন',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2, end: 0),
-                    const SizedBox(height: AppTheme.space8),
-                    const Text(
-                      'লগইন বা নিবন্ধনের জন্য ভূমিকা বাছাই করুন',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: AppTheme.textSecondary),
-                    ).animate().fadeIn(delay: 300.ms),
-                    const SizedBox(height: AppTheme.space48),
-                    _buildRoleCard(
-                      context,
-                      icon: Icons.school_rounded,
-                      label: 'শিক্ষার্থী',
-                      subtitle: 'ছাত্র হিসেবে লগইন বা নিবন্ধন করুন',
-                      onTap: () => context.go('/auth/login?role=student'),
-                      delay: 400.ms,
-                    ),
-                    const SizedBox(height: AppTheme.space16),
-                    _buildRoleCard(
-                      context,
-                      icon: Icons.psychology_rounded,
-                      label: 'শিক্ষক',
-                      subtitle: 'শিক্ষক হিসেবে লগইন বা নিবন্ধন করুন',
-                      onTap: () => context.go('/auth/login?role=teacher'),
-                      delay: 500.ms,
-                    ),
-                  ],
-                ),
-              ),
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              stops: [0.0, 0.3],
+              colors: [
+                AppTheme.primaryBlue,
+                AppTheme.backgroundLight,
+              ],
             ),
-          ],
+          ),
+          child: SafeArea(
+            bottom: false,
+            child: Column(
+              children: [
+                const SizedBox(height: 12),
+                Text(
+                  'আপনার ভূমিকা',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Expanded(
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: AppTheme.backgroundLight,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(32),
+                        topRight: Radius.circular(32),
+                      ),
+                    ),
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.all(AppTheme.space32),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 16),
+                          _buildIllustration(),
+                          const SizedBox(height: AppTheme.space32),
+                          Text(
+                            'আপনার ভূমিকা নির্বাচন করুন',
+                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2, end: 0),
+                          const SizedBox(height: AppTheme.space8),
+                          const Text(
+                            'লগইন বা নিবন্ধনের জন্য ভূমিকা বাছাই করুন',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: AppTheme.textSecondary),
+                          ).animate().fadeIn(delay: 300.ms),
+                          const SizedBox(height: AppTheme.space48),
+                          _buildRoleCard(
+                            context,
+                            icon: Icons.school_rounded,
+                            label: 'শিক্ষার্থী',
+                            subtitle: 'ছাত্র হিসেবে লগইন বা নিবন্ধন করুন',
+                            onTap: () => context.go('/auth/login?role=student'),
+                            delay: 400.ms,
+                          ),
+                          const SizedBox(height: AppTheme.space16),
+                          _buildRoleCard(
+                            context,
+                            icon: Icons.psychology_rounded,
+                            label: 'শিক্ষক',
+                            subtitle: 'শিক্ষক হিসেবে লগইন বা নিবন্ধন করুন',
+                            onTap: () => context.go('/auth/login?role=teacher'),
+                            delay: 500.ms,
+                          ),
+                          const SizedBox(height: 32),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
-    );
-  }
-
-  Widget _buildSliverAppBar(BuildContext context) {
-    return SliverAppBar(
-      pinned: true,
-      backgroundColor: AppTheme.primaryBlue,
-      automaticallyImplyLeading: false,
-      title: const Text('আপনার ভূমিকা', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
-      flexibleSpace: Container(decoration: const BoxDecoration(gradient: AppTheme.primaryGradient)),
     );
   }
 

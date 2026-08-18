@@ -3,12 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../../core/result.dart';
 import '../../core/storage_service.dart';
+import '../../core/error_handler.dart';
 import '../../shared/models/auth_response.dart';
 import '../../shared/models/login_request.dart';
 import 'auth_repository.dart';
 import '../providers.dart';
 
-enum AuthStateStatus { initial, loading, authenticated, unauthenticated, error, needsRegistration }
+enum AuthStateStatus {
+  initial,
+  loading,
+  authenticated,
+  unauthenticated,
+  error,
+  needsRegistration,
+  needsVerification,
+}
 
 class AuthState {
   final AuthStateStatus status;
@@ -20,6 +29,9 @@ class AuthState {
   final bool isEduMail;
   final String? error;
 
+  /// Uppercase role (STUDENT / TEACHER) pending OTP verification.
+  final String? pendingRole;
+
   const AuthState({
     this.status = AuthStateStatus.initial,
     this.role,
@@ -29,6 +41,7 @@ class AuthState {
     this.isVerified = false,
     this.isEduMail = false,
     this.error,
+    this.pendingRole,
   });
 
   AuthState copyWith({
@@ -40,6 +53,7 @@ class AuthState {
     bool? isVerified,
     bool? isEduMail,
     String? error,
+    String? pendingRole,
   }) {
     return AuthState(
       status: status ?? this.status,
@@ -50,6 +64,7 @@ class AuthState {
       isVerified: isVerified ?? this.isVerified,
       isEduMail: isEduMail ?? this.isEduMail,
       error: error,
+      pendingRole: pendingRole ?? this.pendingRole,
     );
   }
 
@@ -61,7 +76,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRepository _authRepo;
   final StorageService _storage;
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    serverClientId: '111634412431-th7l3d7cqtmrpqhrn16hvs55j2f6f9qa.apps.googleusercontent.com',
+    serverClientId:
+        '111634412431-th7l3d7cqtmrpqhrn16hvs55j2f6f9qa.apps.googleusercontent.com',
   );
 
   AuthNotifier(this._authRepo, this._storage) : super(const AuthState()) {
@@ -81,7 +97,19 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isEduMail: _storage.isEduMail(),
       );
     } else {
-      state = state.copyWith(status: AuthStateStatus.unauthenticated);
+      // No token yet: restore a pending OTP verification session if present.
+      final pendingEmail = await _storage.getPendingEmail();
+      if (pendingEmail != null) {
+        final pendingRole = await _storage.getPendingRole();
+        state = state.copyWith(
+          status: AuthStateStatus.needsVerification,
+          email: pendingEmail,
+          role: pendingRole,
+          pendingRole: pendingRole?.toUpperCase(),
+        );
+      } else {
+        state = state.copyWith(status: AuthStateStatus.unauthenticated);
+      }
     }
   }
 
@@ -98,7 +126,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final idToken = authentication.idToken;
 
       if (idToken == null) {
-        state = state.copyWith(status: AuthStateStatus.error, error: 'Google ID Token not found');
+        state = state.copyWith(
+            status: AuthStateStatus.error, error: 'Google ID Token not found');
         return;
       }
 
@@ -108,7 +137,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         case Success(:final data):
           await _handleAuthSuccess(data, role.toLowerCase());
         case Failure(:final message):
-          if (message.contains('register first')) {
+          if (_isRegisterFirstMessage(message)) {
             state = state.copyWith(
               status: AuthStateStatus.needsRegistration,
               email: account.email,
@@ -116,17 +145,23 @@ class AuthNotifier extends StateNotifier<AuthState> {
               error: message,
             );
           } else {
-            state = state.copyWith(status: AuthStateStatus.error, error: message);
+            state =
+                state.copyWith(status: AuthStateStatus.error, error: message);
           }
         default:
-          state = state.copyWith(status: AuthStateStatus.error, error: 'Unknown response');
+          state = state.copyWith(
+              status: AuthStateStatus.error, error: 'Unknown response');
       }
     } catch (e) {
-      state = state.copyWith(status: AuthStateStatus.error, error: e.toString());
+      state =
+          state.copyWith(status: AuthStateStatus.error, error: e.toString());
     }
   }
 
-  Future<void> login({required String email, required String password, required String role}) async {
+  Future<void> login(
+      {required String email,
+      required String password,
+      required String role}) async {
     state = state.copyWith(status: AuthStateStatus.loading, error: null);
 
     final req = LoginRequest(email: email, password: password);
@@ -144,10 +179,72 @@ class AuthNotifier extends StateNotifier<AuthState> {
       case Success(:final data):
         await _handleAuthSuccess(data, role.toLowerCase());
       case Failure(:final message):
-        state = state.copyWith(status: AuthStateStatus.error, error: message);
+        if (_isVerifyEmailMessage(message)) {
+          state = state.copyWith(
+            status: AuthStateStatus.needsVerification,
+            email: email,
+            pendingRole: _toUpperRole(role),
+            error: ErrorHandler.verifyEmailFirst,
+          );
+        } else {
+          state = state.copyWith(status: AuthStateStatus.error, error: message);
+        }
       default:
-        state = state.copyWith(status: AuthStateStatus.error, error: 'Unknown response');
+        state = state.copyWith(
+            status: AuthStateStatus.error, error: 'Unknown response');
     }
+  }
+
+  /// Verifies the six-digit OTP and, on success, saves the session.
+  Future<void> verifyOtp({
+    required String email,
+    required String role,
+    required String otp,
+  }) async {
+    state = state.copyWith(status: AuthStateStatus.loading, error: null);
+
+    try {
+      final result = await _authRepo.verifyEmailOtp(
+        email: email,
+        role: role,
+        otp: otp,
+      );
+
+      switch (result) {
+        case Success(:final data):
+          if (data.accessToken == null || data.accessToken!.isEmpty) {
+            state = state.copyWith(
+              status: AuthStateStatus.error,
+              error:
+                  'ভেরিফিকেশন সফল হলেও টোকেন পাওয়া যায়নি। আবার চেষ্টা করুন।',
+            );
+            return;
+          }
+          await _handleAuthSuccess(data, _toLowerRole(role));
+        case Failure(:final message):
+          state = state.copyWith(status: AuthStateStatus.error, error: message);
+        default:
+          state = state.copyWith(
+              status: AuthStateStatus.error, error: 'Unknown response');
+      }
+    } catch (e) {
+      state =
+          state.copyWith(status: AuthStateStatus.error, error: e.toString());
+    } finally {
+      // Always leave the loading state, including on timeout/connection errors,
+      // so the user can retry. The pending OTP session is NOT deleted here.
+      if (state.status == AuthStateStatus.loading) {
+        state = state.copyWith(status: AuthStateStatus.error);
+      }
+    }
+  }
+
+  /// Resends the OTP. Returns a Result so the screen can manage its own countdown.
+  Future<Result<String>> resendOtp({
+    required String email,
+    required String role,
+  }) async {
+    return _authRepo.resendEmailOtp(email: email, role: role);
   }
 
   Future<void> studentRegister({
@@ -162,24 +259,37 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }) async {
     state = state.copyWith(status: AuthStateStatus.loading, error: null);
 
-    final result = await _authRepo.studentRegister(
-      name: name,
-      email: email,
-      password: password,
-      googleIdToken: googleIdToken,
-      studentId: studentId,
-      department: department,
-      varsityBatch: varsityBatch,
-      idCard: idCard,
-    );
+    try {
+      final result = await _authRepo.studentRegister(
+        name: name,
+        email: email,
+        password: password,
+        googleIdToken: googleIdToken,
+        studentId: studentId,
+        department: department,
+        varsityBatch: varsityBatch,
+        idCard: idCard,
+      );
 
-    switch (result) {
-      case Success(:final data):
-        await _handleAuthSuccess(data, 'student');
-      case Failure(:final message):
-        state = state.copyWith(status: AuthStateStatus.error, error: message);
-      default:
-        state = state.copyWith(status: AuthStateStatus.error, error: 'Unknown response');
+      switch (result) {
+        case Success(:final data):
+          await _handleRegisterSuccess(data, 'student',
+              fallbackEmail: email.trim());
+        case Failure(:final message):
+          state = state.copyWith(status: AuthStateStatus.error, error: message);
+        default:
+          state = state.copyWith(
+              status: AuthStateStatus.error, error: 'Unknown response');
+      }
+    } catch (e) {
+      state =
+          state.copyWith(status: AuthStateStatus.error, error: e.toString());
+    } finally {
+      // Always leave the loading state on success, DioException, timeout,
+      // validation error, or any unexpected exception.
+      if (state.status == AuthStateStatus.loading) {
+        state = state.copyWith(status: AuthStateStatus.error);
+      }
     }
   }
 
@@ -196,31 +306,48 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }) async {
     state = state.copyWith(status: AuthStateStatus.loading, error: null);
 
-    final result = await _authRepo.teacherRegister(
-      name: name,
-      email: email,
-      password: password,
-      googleIdToken: googleIdToken,
-      teacherId: teacherId,
-      department: department,
-      designation: designation,
-      phone: phone,
-      idCard: idCard,
-    );
+    try {
+      final result = await _authRepo.teacherRegister(
+        name: name,
+        email: email,
+        password: password,
+        googleIdToken: googleIdToken,
+        teacherId: teacherId,
+        department: department,
+        designation: designation,
+        phone: phone,
+        idCard: idCard,
+      );
 
-    switch (result) {
-      case Success(:final data):
-        await _handleAuthSuccess(data, 'teacher');
-      case Failure(:final message):
-        state = state.copyWith(status: AuthStateStatus.error, error: message);
-      default:
-        state = state.copyWith(status: AuthStateStatus.error, error: 'Unknown response');
+      switch (result) {
+        case Success(:final data):
+          await _handleRegisterSuccess(data, 'teacher',
+              fallbackEmail: email.trim());
+        case Failure(:final message):
+          state = state.copyWith(status: AuthStateStatus.error, error: message);
+        default:
+          state = state.copyWith(
+              status: AuthStateStatus.error, error: 'Unknown response');
+      }
+    } catch (e) {
+      state =
+          state.copyWith(status: AuthStateStatus.error, error: e.toString());
+    } finally {
+      // Always leave the loading state on success, DioException, timeout,
+      // validation error, or any unexpected exception.
+      if (state.status == AuthStateStatus.loading) {
+        state = state.copyWith(status: AuthStateStatus.error);
+      }
     }
   }
 
   Future<void> _handleAuthSuccess(AuthResponse data, String role) async {
+    // Clear pending verification as we are now logged in
+    await _storage.setPendingVerification(null, null);
+
     await _storage.saveSession(
       token: data.accessToken!,
+      tokenType: data.tokenType,
       role: data.role?.toLowerCase() ?? role,
       name: data.name ?? 'User',
       email: data.email ?? '',
@@ -237,6 +364,66 @@ class AuthNotifier extends StateNotifier<AuthState> {
       isVerified: data.isVerified ?? false,
       isEduMail: data.isEduMail ?? false,
     );
+  }
+
+  /// Registration returns no token until the email OTP is verified.
+  /// If the response has no access token, we save a pending OTP session and
+  /// hold the user at the OTP screen. We never log the user in here.
+  Future<void> _handleRegisterSuccess(
+    AuthResponse data,
+    String role, {
+    String? fallbackEmail,
+  }) async {
+    final hasToken = data.accessToken != null && data.accessToken!.isNotEmpty;
+    final verified = data.isVerified ?? false;
+
+    if (!hasToken || !verified) {
+      final email =
+          data.email?.trim().isNotEmpty == true ? data.email : fallbackEmail;
+
+      // Persist a pending OTP session (email + role) in secure storage so it
+      // survives app restart. The OTP itself is never stored.
+      if (email != null && email.isNotEmpty) {
+        await _storage.setPendingVerification(email, _toUpperRole(role));
+      }
+
+      state = state.copyWith(
+        status: AuthStateStatus.needsVerification,
+        role: role,
+        email: email,
+        displayName: data.name,
+        userId: data.id,
+        pendingRole: _toUpperRole(role),
+        error: null,
+      );
+      return;
+    }
+
+    await _handleAuthSuccess(data, role);
+  }
+
+  String _toUpperRole(String role) => role.trim().toUpperCase();
+  String _toLowerRole(String role) => role.trim().toLowerCase();
+
+  bool _isVerifyEmailMessage(String message) {
+    final m = message.toLowerCase();
+    return m.contains('verify your email') ||
+        m.contains('verify email') ||
+        m.contains('email is not verified') ||
+        m.contains('please verify') ||
+        m.contains('not verified') ||
+        // Matches the friendly Bengali translation from ErrorHandler.friendly
+        m == ErrorHandler.verifyEmailFirst.toLowerCase() ||
+        m.contains('ইমেইল যাচাই');
+  }
+
+  bool _isRegisterFirstMessage(String message) {
+    final m = message.toLowerCase();
+    return m.contains('register first') ||
+        m.contains('not registered') ||
+        // Matches the friendly Bengali translation from ErrorHandler.friendly
+        m == ErrorHandler.friendly('register first').toLowerCase() ||
+        m.contains('নিবন্ধন');
   }
 
   Future<void> logout() async {

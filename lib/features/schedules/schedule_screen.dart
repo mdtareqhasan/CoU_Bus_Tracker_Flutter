@@ -7,6 +7,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../app/theme.dart';
 import 'schedules_provider.dart';
+import '../auth/auth_provider.dart';
+import '../buses/buses_provider.dart';
 import '../../shared/models/schedule.dart';
 import '../../core/utils/time_utils.dart';
 import '../../shared/widgets/schedule_card.dart';
@@ -38,53 +40,58 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(scheduleListProvider);
+    final role = ref.watch(authProvider).role;
+    final allowedCategories = allowedCategoriesForRole(role);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
-        body: DefaultTabController(
-          length: 2,
-          child: Column(
-            children: [
-              _buildSearchBar(state),
-              _buildTabBar(),
-              Expanded(
-                child: TabBarView(
-                  physics: const BouncingScrollPhysics(),
-                  children: [
-                    _buildScheduleList(state, isTeacher: false),
-                    _buildScheduleList(state, isTeacher: true),
-                  ],
-                ),
-              ),
-            ],
-          ),
+        body: Column(
+          children: [
+            _buildSearchBar(state),
+            _buildRoleBanner(allowedCategories),
+            Expanded(
+              child: _buildScheduleList(state, allowedCategories),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildTabBar() {
+  Widget _buildRoleBanner(Set<String> allowedCategories) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: AppTheme.space24, vertical: AppTheme.space8),
+      margin: const EdgeInsets.symmetric(
+          horizontal: AppTheme.space24, vertical: AppTheme.space8),
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark 
-            ? AppTheme.surfaceDark 
+        color: Theme.of(context).brightness == Brightness.dark
+            ? AppTheme.surfaceDark
             : AppTheme.accentBlue.withOpacity(0.3),
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
       ),
-      child: TabBar(
-        indicator: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-          gradient: AppTheme.primaryGradient,
-        ),
-        indicatorSize: TabBarIndicatorSize.tab,
-        labelColor: Colors.white,
-        unselectedLabelColor: AppTheme.textSecondary,
-        dividerColor: Colors.transparent,
-        tabs: const [
-          Tab(text: 'শিক্ষার্থী বাস'),
-          Tab(text: 'শিক্ষক বাস'),
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppTheme.space16, vertical: AppTheme.space8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.directions_bus_filled_rounded,
+            size: 18,
+            color: AppTheme.primaryBlue,
+          ),
+          const SizedBox(width: AppTheme.space8),
+          Flexible(
+            child: Text(
+              allowedCategories.contains('TEACHER')
+                  ? 'শিক্ষক বাস'
+                  : 'শিক্ষার্থী বাস',
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: AppTheme.textPrimary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -100,7 +107,8 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
       ),
       decoration: const BoxDecoration(
         gradient: AppTheme.primaryGradient,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(AppTheme.radiusExtraLarge)),
+        borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(AppTheme.radiusExtraLarge)),
       ),
       child: Column(
         children: [
@@ -108,13 +116,17 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
             children: [
               IconButton(
                 onPressed: () => context.pop(),
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
+                icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                    color: Colors.white, size: 20),
               ),
               const Expanded(
                 child: Text(
                   'সময়সূচি',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(width: 48), // Balancing back button
@@ -129,7 +141,8 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
             ),
             child: TextField(
               controller: _searchController,
-              onChanged: (v) => ref.read(scheduleListProvider.notifier).setSearchQuery(v),
+              onChanged: (v) =>
+                  ref.read(scheduleListProvider.notifier).setSearchQuery(v),
               style: const TextStyle(color: AppTheme.textPrimary),
               decoration: const InputDecoration(
                 hintText: 'শিডিউল খুঁজুন (সময় বা রুট)...',
@@ -176,7 +189,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                 ),
               ),
               selected: isSelected,
-              onSelected: (_) => ref.read(scheduleListProvider.notifier).setDayTypeFilter(entry.key),
+              onSelected: (_) => ref
+                  .read(scheduleListProvider.notifier)
+                  .setDayTypeFilter(entry.key),
               selectedColor: color,
               backgroundColor: color.withOpacity(0.15),
               side: BorderSide(
@@ -207,7 +222,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
         physics: const BouncingScrollPhysics(),
         children: directions.entries.map((entry) {
           final isSelected = state.directionFilter == entry.key;
-          
+
           Color chipColor;
           if (entry.key == 'UP') {
             chipColor = AppTheme.success;
@@ -223,19 +238,19 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
             padding: const EdgeInsets.only(right: AppTheme.space8),
             child: ChoiceChip(
               label: Text(
-                entry.value, 
+                entry.value,
                 style: TextStyle(
                   fontSize: 12,
-                  color: isSelected 
-                      ? Colors.white
-                      : chipColor,
+                  color: isSelected ? Colors.white : chipColor,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                 ),
               ),
               selected: isSelected,
               onSelected: (selected) {
                 if (selected) {
-                  ref.read(scheduleListProvider.notifier).setDirectionFilter(entry.key);
+                  ref
+                      .read(scheduleListProvider.notifier)
+                      .setDirectionFilter(entry.key);
                 }
               },
               selectedColor: chipColor,
@@ -253,7 +268,8 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
     );
   }
 
-  Widget _buildScheduleList(ScheduleListState state, {required bool isTeacher}) {
+  Widget _buildScheduleList(
+      ScheduleListState state, Set<String> allowedCategories) {
     if (state.isLoading) {
       return _buildLoadingSkeleton();
     }
@@ -264,8 +280,8 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
 
     final allFiltered = state.filteredSchedules;
     final schedules = allFiltered.where((s) {
-      final isTeacherBus = s.category?.toUpperCase() == 'TEACHER';
-      return isTeacher ? isTeacherBus : !isTeacherBus;
+      final category = s.category?.toUpperCase() ?? '';
+      return allowedCategories.contains(category);
     }).toList();
 
     if (schedules.isEmpty) {
@@ -278,13 +294,14 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
       final time = s.departureTime ?? 'N/A';
       groupedSchedules.putIfAbsent(time, () => []).add(s);
     }
-    
+
     final sortedTimes = groupedSchedules.keys.toList()..sort();
 
     return RefreshIndicator(
       onRefresh: () => ref.read(scheduleListProvider.notifier).loadSchedules(),
       child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: AppTheme.space24, vertical: AppTheme.space8),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppTheme.space24, vertical: AppTheme.space8),
         physics: const BouncingScrollPhysics(),
         itemCount: sortedTimes.length,
         itemBuilder: (context, index) {
@@ -299,7 +316,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   Widget _buildTimeGroup(String time, List<Schedule> schedules, int index) {
     final bengaliTime = TimeUtils.formatTimeBengali(time);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: AppTheme.space16),
       decoration: BoxDecoration(
@@ -320,7 +337,8 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                   color: AppTheme.primaryBlue.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.access_time_filled_rounded, color: AppTheme.primaryBlue, size: 20),
+                child: const Icon(Icons.access_time_filled_rounded,
+                    color: AppTheme.primaryBlue, size: 20),
               ),
               const SizedBox(width: AppTheme.space16),
               Column(
@@ -340,7 +358,8 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
           ),
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppTheme.space16, vertical: AppTheme.space8),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: AppTheme.space16, vertical: AppTheme.space8),
               child: AnimationLimiter(
                 child: Column(
                   children: List.generate(schedules.length, (i) {
@@ -354,9 +373,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                           child: Padding(
                             padding: const EdgeInsets.only(bottom: 8),
                             child: ScheduleCard(
-                              schedule: s, 
-                              onTap: () => context.push('/bus/${s.busId}?scheduleId=${s.id}')
-                            ),
+                                schedule: s,
+                                onTap: () => context.push(
+                                    '/bus/${s.busId}?scheduleId=${s.id}')),
                           ),
                         ),
                       ),
@@ -400,7 +419,8 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
           Text(message, style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 24),
           ElevatedButton(
-            onPressed: () => ref.read(scheduleListProvider.notifier).loadSchedules(),
+            onPressed: () =>
+                ref.read(scheduleListProvider.notifier).loadSchedules(),
             child: const Text('আবার চেষ্টা করুন'),
           ),
         ],
@@ -413,12 +433,14 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.schedule_rounded, size: 80, color: AppTheme.textHint.withOpacity(0.3)),
+          Icon(Icons.schedule_rounded,
+              size: 80, color: AppTheme.textHint.withOpacity(0.3)),
           const SizedBox(height: 16),
-          const Text('আজকে কোনো শিডিউল নেই', style: TextStyle(color: AppTheme.textSecondary, fontWeight: FontWeight.bold)),
+          const Text('আজকে কোনো শিডিউল নেই',
+              style: TextStyle(
+                  color: AppTheme.textSecondary, fontWeight: FontWeight.bold)),
         ],
       ),
     );
   }
 }
-
