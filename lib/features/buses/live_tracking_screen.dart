@@ -126,16 +126,22 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
       final lngVal = double.tryParse(parts[3]);
 
       String translatedStatus = status;
-      if (status.toLowerCase().contains('moving') || status.toLowerCase().contains('running')) {
-        translatedStatus = 'চলমান';
+      if (status.toLowerCase().contains('moving') ||
+          status.toLowerCase().contains('running')) {
+        translatedStatus = 'Running';
       } else if (status.toLowerCase().contains('stopped')) {
-        translatedStatus = 'থেমে আছে';
+        translatedStatus = 'Stopped';
       }
 
       String distanceStr = '-- km';
       // Only calculate if coordinates are valid (not 0.0)
-      if (_userPosition != null && latVal != null && lngVal != null && latVal != 0 && lngVal != 0) {
-        double dist = Geolocator.distanceBetween(_userPosition!.latitude, _userPosition!.longitude, latVal, lngVal);
+      if (_userPosition != null &&
+          latVal != null &&
+          lngVal != null &&
+          latVal != 0 &&
+          lngVal != 0) {
+        double dist = Geolocator.distanceBetween(
+            _userPosition!.latitude, _userPosition!.longitude, latVal, lngVal);
         if (dist < 1000) {
           distanceStr = '${dist.toStringAsFixed(0)} m';
         } else {
@@ -211,7 +217,24 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
         style.innerHTML = `
           input[type="checkbox"], label:has(input[type="checkbox"]),
           .leaflet-control-container .leaflet-bottom.leaflet-left,
-          [class*="check"], [class*="option"], .refresh-dropdown { display: none !important; }
+          [class*="check"], [class*="option"] { display: none !important; }
+          
+          /* Ensure refresh dropdown is fully visible at bottom left */
+          .refresh-dropdown, select { 
+            display: block !important; 
+            position: fixed !important;
+            bottom: 40px !important; 
+            left: 20px !important;
+            z-index: 1000 !important;
+            background: white !important;
+            border-radius: 10px !important;
+            padding: 8px !important;
+            border: 2.5px solid #3886D8 !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+            font-weight: bold !important;
+            font-size: 14px !important;
+            color: #1A1F2E !important;
+          }
         `;
         document.head.appendChild(style);
       })();
@@ -297,89 +320,164 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
   }
 
   Widget _buildSliverAppBar() {
-    final isMoving = _status == 'চলমান';
+    final isMoving = _status == 'Running';
     return SliverAppBar(
       pinned: true,
       backgroundColor: AppTheme.primaryBlue,
-      leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white), onPressed: () => Navigator.of(context).pop()),
+      expandedHeight: 110,
+      leading: IconButton(
+          icon:
+              const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop()),
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(children: [
-            Text(widget.busName, style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+            Text(widget.busName,
+                style: const TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold)),
             const SizedBox(width: 8),
             _buildStatusBadge(isMoving),
           ]),
-          Text('আপডেট হচ্ছে...', style: const TextStyle(fontSize: 11, color: Colors.white60)),
         ],
       ),
-      actions: [IconButton(icon: const Icon(Icons.refresh_rounded, color: Colors.white), onPressed: () => _controller.reload())],
-      flexibleSpace: Container(decoration: const BoxDecoration(gradient: AppTheme.primaryGradient)),
+      flexibleSpace: FlexibleSpaceBar(
+        background: Container(
+          decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
+          padding: const EdgeInsets.fromLTRB(16, 85, 16, 4),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.tips_and_updates_rounded,
+                    color: Colors.white, size: 14),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'দ্রুত আপডেট পেতে নিচের বাম পাশের ড্রপডাউন থেকে ৫ সেঃ সিলেক্ট করুন',
+                    style: TextStyle(
+                        fontSize: 10.5,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        height: 1.2),
+                    maxLines: 2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      actions: [
+        IconButton(
+            icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+            onPressed: () => _controller.reload())
+      ],
     );
   }
 
   Widget _buildStatusBadge(bool isMoving) {
     final color = isMoving ? Colors.greenAccent : Colors.orangeAccent;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(color: color.withOpacity(0.2), borderRadius: BorderRadius.circular(4), border: Border.all(color: color.withOpacity(0.5), width: 0.5)),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+          color: color.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withOpacity(0.5), width: 0.5)),
       child: Row(children: [
-        Container(width: 6, height: 6, decoration: BoxDecoration(color: color, shape: BoxShape.circle)).animate(onPlay: (c) => c.repeat()).fade(duration: 800.ms, begin: 0.4, end: 1),
-        const SizedBox(width: 4),
-        Text(isMoving ? 'LIVE' : 'IDLE', style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
+        Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle))
+            .animate(onPlay: (c) => c.repeat())
+            .fade(duration: 800.ms, begin: 0.4, end: 1),
+        const SizedBox(width: 6),
+        Text(isMoving ? 'RUNNING' : 'STOPPED',
+            style: const TextStyle(
+                color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
       ]),
     );
   }
 
   Widget _buildStatusOverlay() {
-    final isMoving = _status == 'চলমান';
+    final isMoving = _status == 'Running';
     final statusColor = isMoving ? Colors.greenAccent : Colors.orangeAccent;
 
-    return Positioned(
-      bottom: 32,
-      left: 16,
-      right: 16,
-      child: Row(
-        children: [
-          // Info Panel
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1A1F2E).withOpacity(0.9),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Colors.white.withOpacity(0.1), width: 1.5),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.4), blurRadius: 20, offset: const Offset(0, 8))],
-              ),
-              child: Row(
-                children: [
-                  _buildIconBox(isMoving ? Icons.directions_bus_rounded : Icons.pause_circle_rounded, statusColor),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(_status, style: TextStyle(color: statusColor, fontWeight: FontWeight.w900, fontSize: 20, letterSpacing: 0.5)),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            const Icon(Icons.near_me_rounded, color: Colors.white54, size: 16),
-                            const SizedBox(width: 8),
-                            const Text('আপনার থেকে: ', style: TextStyle(color: Colors.white70, fontSize: 14)),
-                            Text(_distance, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+    return Stack(
+      children: [
+        // Top Left Info Card
+        Positioned(
+          top: 16,
+          left: 16,
+          child: Container(
+            width: 190,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1A1F2E).withOpacity(0.9),
+              borderRadius: BorderRadius.circular(20),
+              border:
+                  Border.all(color: Colors.white.withOpacity(0.1), width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5))
+              ],
             ),
-          ),
-          const SizedBox(width: 12),
-          // Speed Panel
-          Container(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                        isMoving
+                            ? Icons.directions_bus_rounded
+                            : Icons.pause_circle_rounded,
+                        color: statusColor,
+                        size: 22),
+                    const SizedBox(width: 10),
+                    Text(_status.toUpperCase(),
+                        style: TextStyle(
+                            color: statusColor,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 18,
+                            letterSpacing: 0.5)),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    const Icon(Icons.near_me_rounded,
+                        color: Colors.white54, size: 14),
+                    const SizedBox(width: 6),
+                    const Text('Distance: ',
+                        style: TextStyle(color: Colors.white70, fontSize: 12)),
+                    Text(_distance,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ],
+            ),
+          ).animate().fadeIn(duration: 400.ms).slideX(begin: -0.2, end: 0),
+        ),
+
+        // Bottom Right Speedometer (Reverted size and position)
+        Positioned(
+          bottom: 32,
+          right: 16,
+          child: Container(
             width: 95,
             height: 95,
             decoration: BoxDecoration(
@@ -417,10 +515,15 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                 ),
               ],
             ),
-          ).animate(target: isMoving ? 1 : 0).scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1), curve: Curves.elasticOut),
-        ],
-      ),
-    ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.3, end: 0);
+          )
+              .animate(target: isMoving ? 1 : 0)
+              .scale(
+                  begin: const Offset(0.9, 0.9),
+                  end: const Offset(1, 1),
+                  curve: Curves.elasticOut),
+        ),
+      ],
+    );
   }
 
   Widget _buildIconBox(IconData icon, Color color) {
