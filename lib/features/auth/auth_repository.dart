@@ -15,6 +15,31 @@ class AuthRepository {
 
   AuthRepository(this._apiClient);
 
+  /// Calls the profile endpoint to verify the stored token is still valid.
+  /// Returns Success if the token is accepted (HTTP200), or Failure if the
+  /// token is revoked / the user was deleted (HTTP401/403) or the backend
+  /// is unreachable. The caller should treat any Failure as "session invalid".
+  Future<Result<bool>> validateToken(String role) {
+    final endpoint = role.toLowerCase() == 'teacher'
+        ? ApiEndpoints.teacherProfile
+        : ApiEndpoints.studentProfile;
+    return _getProfile(endpoint);
+  }
+
+  Future<Result<bool>> _getProfile(String endpoint) async {
+    try {
+      final response = await _apiClient.dio.get<dynamic>(endpoint);
+      if (response.statusCode == 200) {
+        return const Success(true);
+      }
+      return Failure(message: _extractErrorMessage(response));
+    } on DioException catch (e) {
+      return Failure(message: _handleDioError(e));
+    } catch (e) {
+      return Failure(message: ErrorHandler.defaultError);
+    }
+  }
+
   Future<Result<AuthResponse>> studentLogin(LoginRequest request) async {
     return _login(ApiEndpoints.studentLogin, request);
   }

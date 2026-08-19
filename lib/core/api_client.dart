@@ -58,6 +58,15 @@ class ApiClient {
 class AuthInterceptor extends Interceptor {
   final StorageService _storage;
 
+  /// Fired once when an authenticated request gets 401/403 (e.g. the user was
+  /// deleted/rejected from the admin panel). The app wires this up to reset the
+  /// in-memory auth state, show a session-expired message, and navigate to the
+  /// login screen. Only requests that carried an auth token trigger it, so a
+  /// plain wrong-password login 401 does not.
+  static void Function()? onSessionExpired;
+
+  static bool _handlingExpiry = false;
+
   AuthInterceptor(this._storage);
 
   @override
@@ -72,10 +81,27 @@ class AuthInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
-    if (err.response?.statusCode == 401 || err.response?.statusCode == 403) {
-      await _storage.clearSession();
+    final statusCode = err.response?.statusCode;
+    final hadAuthHeader = err.requestOptions.headers['Authorization'] != null;
+
+    if ((statusCode == 401 || statusCode == 403) && hadAuthHeader) {
+      await _handleSessionExpiry();
     }
     handler.next(err);
+  }
+
+  Future<void> _handleSessionExpiry() async {
+    if (_handlingExpiry) return;
+    _handlingExpiry = true;
+    try {
+      // Remove every piece of local data: auth session (secure storage),
+      // user profile prefs, and cached bus/schedule/notice data.
+      await _storage.clearSession();
+      await _storage.clearAllCache();
+      onSessionExpired?.call();
+    } finally {
+      _handlingExpiry = false;
+    }
   }
 }
 

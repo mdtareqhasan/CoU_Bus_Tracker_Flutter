@@ -86,17 +86,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> _checkExistingSession() async {
     final hasToken = await _storage.hasToken();
-    if (hasToken) {
-      state = state.copyWith(
-        status: AuthStateStatus.authenticated,
-        role: _storage.getRole(),
-        displayName: _storage.getDisplayName(),
-        email: _storage.getUserEmail(),
-        userId: _storage.getUserId(),
-        isVerified: _storage.isVerified(),
-        isEduMail: _storage.isEduMail(),
-      );
-    } else {
+    if (!hasToken) {
       // No token yet: restore a pending OTP verification session if present.
       final pendingEmail = await _storage.getPendingEmail();
       if (pendingEmail != null) {
@@ -110,7 +100,40 @@ class AuthNotifier extends StateNotifier<AuthState> {
       } else {
         state = state.copyWith(status: AuthStateStatus.unauthenticated);
       }
+      return;
     }
+
+    // A token exists locally. Validate it against the backend before
+    // trusting it. If the user was deleted/rejected in the admin panel,
+    // the profile endpoint returns 401/403 and we clear everything.
+    final role = _storage.getRole() ?? 'student';
+    final result = await _authRepo.validateToken(role);
+
+    if (result case Failure(:final statusCode)) {
+      final isAuthError = statusCode == 401 ||
+          statusCode == 403 ||
+          (result as Failure).message.toLowerCase().contains('সেশন শেষ');
+
+      if (isAuthError) {
+        // Token invalid / user deleted → full cleanup.
+        await _storage.clearSession();
+        await _storage.clearAllCache();
+        state = const AuthState(status: AuthStateStatus.unauthenticated);
+        return;
+      }
+      // Network / server error → allow offline access with cached data.
+    }
+
+    // Token accepted (or backend unreachable) → mark authenticated.
+    state = state.copyWith(
+      status: AuthStateStatus.authenticated,
+      role: _storage.getRole(),
+      displayName: _storage.getDisplayName(),
+      email: _storage.getUserEmail(),
+      userId: _storage.getUserId(),
+      isVerified: _storage.isVerified(),
+      isEduMail: _storage.isEduMail(),
+    );
   }
 
   Future<void> googleLogin(String role) async {
@@ -429,6 +452,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> logout() async {
     await _storage.clearSession();
     await _googleSignIn.signOut();
+    state = const AuthState(status: AuthStateStatus.unauthenticated);
+  }
+
+  /// Called when the backend returns 401/403 on an authenticated request
+  /// (e.g. the user was deleted/rejected in the admin panel). The Dio
+  /// interceptor has already wiped all secure storage and caches, so here we
+  /// only reset the in-memory state so the whole UI reflects the logout.
+  void forceLogout() {
     state = const AuthState(status: AuthStateStatus.unauthenticated);
   }
 }
