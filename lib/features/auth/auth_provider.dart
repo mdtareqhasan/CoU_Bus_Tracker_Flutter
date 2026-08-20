@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -121,7 +122,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         state = const AuthState(status: AuthStateStatus.unauthenticated);
         return;
       }
-      // Network / server error → allow offline access with cached data.
+      // Network / server error → keep authenticated with cached data.
     }
 
     // Token accepted (or backend unreachable) → mark authenticated.

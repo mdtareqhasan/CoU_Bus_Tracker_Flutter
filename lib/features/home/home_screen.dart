@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import '../../app/theme.dart';
 import '../../shared/widgets/stat_card.dart';
 import '../../shared/widgets/schedule_card.dart';
@@ -19,6 +21,9 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool _connectionDialogShown = false;
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySub;
+
   @override
   void initState() {
     super.initState();
@@ -26,7 +31,77 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       final authState = ref.read(authProvider);
       ref.read(dashboardProvider.notifier).setUserRole(authState.role);
       ref.read(dashboardProvider.notifier).loadAll();
+      _startConnectivityListener();
     });
+  }
+
+  void _startConnectivityListener() {
+    _connectivitySub = Connectivity().onConnectivityChanged.listen((results) {
+      final hasConnection = results.any((r) => r != ConnectivityResult.none);
+      if (hasConnection && mounted) {
+        // Back online → dismiss dialog and refresh data.
+        if (_connectionDialogShown) {
+          Navigator.of(context, rootNavigator: true).pop();
+          _connectionDialogShown = false;
+        }
+        ref.read(dashboardProvider.notifier).refresh();
+      } else if (!hasConnection && mounted && !_connectionDialogShown) {
+        // Went offline → show dialog.
+        _showNoInternetDialog();
+      }
+    });
+  }
+
+  void _showNoInternetDialog() {
+    _connectionDialogShown = true;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.wifi_off_rounded, color: AppTheme.error, size: 28),
+            const SizedBox(width: AppTheme.space12),
+            const Expanded(
+              child: Text(
+                'ইন্টারনেট সংযোগ নেই',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        content: const Text(
+          'ইন্টারনেট সংযোগ চালু করে রিলোড করুন।\n\n'
+          'আপনার আগের ডেটা ক্যাশে সংরক্ষিত আছে।',
+          style: TextStyle(height: 1.5),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              _connectionDialogShown = false;
+              ref.read(dashboardProvider.notifier).refresh();
+            },
+            child: const Text(
+              'রিলোড করুন',
+              style: TextStyle(
+                color: AppTheme.primaryBlue,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _connectivitySub?.cancel();
+    super.dispose();
   }
 
   @override
@@ -43,16 +118,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             slivers: [
               _buildModernHeader(context, state),
               _buildConnectionStrip(state),
-              if (state.hasError && !state.hasData)
-                _buildErrorCard(state)
-              else ...[
-                _buildModernStatGrid(context, state),
-                _buildSectionHeader(context,
-                    title: 'আজকের সময়সূচি',
-                    onSeeAll: () => context.go('/schedules')),
-                _buildSchedulePreviewList(context, state),
-                const SliverToBoxAdapter(child: SizedBox(height: 100)),
-              ],
+              _buildModernStatGrid(context, state),
+              _buildSectionHeader(context,
+                  title: 'আজকের সময়সূচি',
+                  onSeeAll: () => context.go('/schedules')),
+              _buildSchedulePreviewList(context, state),
+              const SliverToBoxAdapter(child: SizedBox(height: 100)),
             ],
           ),
         ),
@@ -375,31 +446,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     fontWeight: FontWeight.bold,
                     fontSize: 13),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildErrorCard(DashboardState state) {
-    return SliverFillRemaining(
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error_outline_rounded, color: AppTheme.error, size: 64),
-            const SizedBox(height: 16),
-            const Text('তথ্য লোড করা যায়নি',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            const Text('ইন্টারনেট সংযোগ পরীক্ষা করুন',
-                style: TextStyle(color: AppTheme.textSecondary)),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () => ref.read(dashboardProvider.notifier).refresh(),
-              style: ElevatedButton.styleFrom(minimumSize: const Size(200, 50)),
-              child: const Text('আবার চেষ্টা করুন'),
             ),
           ],
         ),

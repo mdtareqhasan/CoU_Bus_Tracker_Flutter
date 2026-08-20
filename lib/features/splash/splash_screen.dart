@@ -48,19 +48,23 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     // Check auth state from provider
     final authState = ref.read(authProvider);
 
-    // If auth is still initializing, wait a bit more
+    // If auth is still initializing (token validation running in background),
+    // use cached role to route — validation will handle 401/403 later.
     if (authState.status == AuthStateStatus.initial) {
-      await Future.delayed(const Duration(milliseconds: 500));
+      final storage = ref.read(storageServiceProvider);
+      if (storage.isLoggedIn()) {
+        context.go('/home');
+      } else {
+        context.go('/auth/role');
+      }
+      return;
     }
 
-    if (!mounted) return;
-
-    final finalState = ref.read(authProvider);
-    if (finalState.status == AuthStateStatus.authenticated) {
+    if (authState.status == AuthStateStatus.authenticated) {
       context.go('/home');
-    } else if (finalState.status == AuthStateStatus.needsVerification) {
+    } else if (authState.status == AuthStateStatus.needsVerification) {
       context.go(
-        '/auth/otp?email=${finalState.email}&role=${finalState.pendingRole ?? finalState.role}',
+        '/auth/otp?email=${authState.email}&role=${authState.pendingRole ?? authState.role}',
       );
     } else {
       context.go('/auth/role');
