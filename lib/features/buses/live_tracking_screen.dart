@@ -32,11 +32,12 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
   void initState() {
     super.initState();
     _initLocation();
-    
+
     // Modify URL for Google Maps default if possible
     String finalUrl = widget.url;
     if (finalUrl.contains('userMapType=open_streets')) {
-      finalUrl = finalUrl.replaceAll('userMapType=open_streets', 'userMapType=google_streets');
+      finalUrl = finalUrl.replaceAll(
+          'userMapType=open_streets', 'userMapType=google_streets');
     }
 
     _controller = WebViewController()
@@ -96,7 +97,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
           return;
         }
       }
-      
+
       if (permission == LocationPermission.deniedForever) {
         if (mounted) setState(() => _distance = 'অনুমতি ব্লক');
         return;
@@ -106,7 +107,8 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
       if (mounted) setState(() => _userPosition = pos);
 
       _positionStream = Geolocator.getPositionStream(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 10),
+        locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high, distanceFilter: 10),
       ).listen((Position position) {
         if (mounted) setState(() => _userPosition = position);
       });
@@ -302,14 +304,27 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
               canPop: false,
               onPopInvokedWithResult: (didPop, result) async {
                 if (didPop) return;
-                if (await _controller.canGoBack()) _controller.goBack();
+                if (await _controller.canGoBack())
+                  _controller.goBack();
                 else if (mounted) Navigator.of(context).pop();
               },
               child: Stack(
                 children: [
-                  WebViewWidget(controller: _controller),
+                  // Add bottom padding so map controls stay above system nav bar
+                  Positioned.fill(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).padding.bottom,
+                      ),
+                      child: WebViewWidget(controller: _controller),
+                    ),
+                  ),
                   _buildStatusOverlay(),
-                  if (_isLoading) const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryBlue))),
+                  if (_isLoading)
+                    const Center(
+                        child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                                AppTheme.primaryBlue))),
                 ],
               ),
             ),
@@ -473,9 +488,9 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
           ).animate().fadeIn(duration: 400.ms).slideX(begin: -0.2, end: 0),
         ),
 
-        // Bottom Right Speedometer (Reverted size and position)
+        // Bottom Right Speedometer
         Positioned(
-          bottom: 32,
+          bottom: 32 + MediaQuery.of(context).padding.bottom,
           right: 16,
           child: Container(
             width: 95,
@@ -483,7 +498,8 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
             decoration: BoxDecoration(
               gradient: AppTheme.primaryGradient,
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withOpacity(0.2), width: 2),
+              border:
+                  Border.all(color: Colors.white.withOpacity(0.2), width: 2),
               boxShadow: [
                 BoxShadow(
                   color: AppTheme.primaryBlue.withOpacity(0.3),
@@ -515,12 +531,10 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                 ),
               ],
             ),
-          )
-              .animate(target: isMoving ? 1 : 0)
-              .scale(
-                  begin: const Offset(0.9, 0.9),
-                  end: const Offset(1, 1),
-                  curve: Curves.elasticOut),
+          ).animate(target: isMoving ? 1 : 0).scale(
+              begin: const Offset(0.9, 0.9),
+              end: const Offset(1, 1),
+              curve: Curves.elasticOut),
         ),
       ],
     );
@@ -529,7 +543,8 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
   Widget _buildIconBox(IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: color.withOpacity(0.15), shape: BoxShape.circle),
+      decoration:
+          BoxDecoration(color: color.withOpacity(0.15), shape: BoxShape.circle),
       child: Icon(icon, color: color, size: 28),
     );
   }

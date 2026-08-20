@@ -254,7 +254,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             validator: (v) {
                               if (v == null || v.isEmpty)
                                 return 'পাসওয়ার্ড দিন';
-                              if (v.length < 6) return 'কমপক্ষে ৬ অক্ষর দিন';
+                              if (v.length < 8) return 'কমপক্ষে ৮ অক্ষর দিন';
                               return null;
                             },
                           )
@@ -334,6 +334,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               label: 'ফোন নাম্বার',
                               icon: Icons.phone_android_rounded,
                               keyboardType: TextInputType.phone,
+                              validator: (v) {
+                                if (v == null || v.isEmpty)
+                                  return 'ফোন নাম্বার দিন';
+                                final cleaned =
+                                    v.replaceAll(RegExp(r'[\s\-]'), '');
+                                if (!RegExp(r'^01[3-9]\d{8}$')
+                                    .hasMatch(cleaned))
+                                  return 'সঠিক ১১ ডিজিটের বাংলাদেশি নাম্বার দিন';
+                                return null;
+                              },
                             )
                                 .animate()
                                 .fadeIn(delay: 900.ms)
