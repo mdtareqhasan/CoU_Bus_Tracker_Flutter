@@ -39,6 +39,7 @@ class ApiEndpoints {
   static const String teacherUploadIdCard = '/auth/teacher/upload-id-card';
   static const String emailVerify = '/auth/email-verification/verify';
   static const String emailResend = '/auth/email-verification/resend';
+  static const String appVersion = '/app/version';
 }
 
 class StorageKeys {
@@ -59,4 +60,5 @@ class StorageKeys {
   static const String cachedNotices = 'cached_notices';
   static String cachedBusDetail(int id) => 'cached_bus_detail_$id';
   static const String cacheTimestamp = 'cache_timestamp';
+  static const String skippedVersion = 'skipped_version';
 }

@@ -155,4 +155,16 @@ class StorageService {
       await _prefs.remove('${key}_timestamp');
     }
   }
+
+  String? getSkippedVersion() {
+    return _prefs.getString(StorageKeys.skippedVersion);
+  }
+
+  Future<void> setSkippedVersion(String version) async {
+    await _prefs.setString(StorageKeys.skippedVersion, version);
+  }
+
+  Future<void> clearSkippedVersion() async {
+    await _prefs.remove(StorageKeys.skippedVersion);
+  }
 }

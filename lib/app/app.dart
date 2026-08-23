@@ -4,7 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'router.dart';
 import 'theme.dart';
 import '../core/api_client.dart';
+import '../core/update_service.dart';
 import '../features/auth/auth_provider.dart';
+import '../features/providers.dart';
+import '../shared/widgets/update_dialog.dart';
 
 class CoUBusTrackerApp extends ConsumerStatefulWidget {
   const CoUBusTrackerApp({super.key});
@@ -14,16 +17,37 @@ class CoUBusTrackerApp extends ConsumerStatefulWidget {
 }
 
 class _CoUBusTrackerAppState extends ConsumerState<CoUBusTrackerApp> {
+  bool _updateCheckDone = false;
+
   @override
   void initState() {
     super.initState();
     AuthInterceptor.onSessionExpired = _handleSessionExpired;
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkForUpdate());
   }
 
   @override
   void dispose() {
     AuthInterceptor.onSessionExpired = null;
     super.dispose();
+  }
+
+  Future<void> _checkForUpdate() async {
+    if (_updateCheckDone) return;
+    _updateCheckDone = true;
+
+    final updateService = ref.read(updateServiceProvider);
+    final updateInfo = await updateService.checkForUpdate();
+
+    if (updateInfo != null && mounted) {
+      final storage = ref.read(storageServiceProvider);
+      if (!context.mounted) return;
+      UpdateDialog.show(
+        context,
+        updateInfo: updateInfo,
+        onSkip: () => storage.setSkippedVersion(updateInfo.latestVersion),
+      );
+    }
   }
 
   /// Runs when an authenticated request fails with 401/403 (user deleted or
