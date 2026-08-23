@@ -22,6 +22,7 @@ class LiveTrackingScreen extends StatefulWidget {
 class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
   late final WebViewController _controller;
   bool _isLoading = true;
+  bool _hasNetworkError = false;
   String _speed = '0 km/h';
   String _status = 'সংযুক্ত হচ্ছে...';
   String _distance = '-- km';
@@ -66,6 +67,14 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
           },
           onWebResourceError: (WebResourceError error) {
             debugPrint('WebView Error: ${error.description}');
+            if (error.isForMainFrame == true &&
+                error.description.contains('ERR_INTERNET_DISCONNECTED')) {
+              if (mounted)
+                setState(() {
+                  _isLoading = false;
+                  _hasNetworkError = true;
+                });
+            }
           },
         ),
       )
@@ -316,11 +325,13 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                       padding: EdgeInsets.only(
                         bottom: MediaQuery.of(context).padding.bottom,
                       ),
-                      child: WebViewWidget(controller: _controller),
+                      child: _hasNetworkError
+                          ? _buildNoInternetOverlay()
+                          : WebViewWidget(controller: _controller),
                     ),
                   ),
-                  _buildStatusOverlay(),
-                  if (_isLoading)
+                  if (!_hasNetworkError) _buildStatusOverlay(),
+                  if (_isLoading && !_hasNetworkError)
                     const Center(
                         child: CircularProgressIndicator(
                             valueColor: AlwaysStoppedAnimation<Color>(
@@ -537,6 +548,61 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
               curve: Curves.elasticOut),
         ),
       ],
+    );
+  }
+
+  Widget _buildNoInternetOverlay() {
+    return Container(
+      color: Colors.white,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.wifi_off_rounded, color: AppTheme.error, size: 72),
+              const SizedBox(height: 24),
+              const Text(
+                'ইন্টারনেট সংযোগ নেই',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1A1F2E),
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'বাসের লোকেশন দেখতে ইন্টারনেট সংযোগ চালু করে\nআবার চেষ্টা করুন।',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppTheme.textSecondary,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton.icon(
+                onPressed: () {
+                  setState(() {
+                    _hasNetworkError = false;
+                    _isLoading = true;
+                  });
+                  _controller.reload();
+                },
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('আবার চেষ্টা করুন',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(220, 52),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
