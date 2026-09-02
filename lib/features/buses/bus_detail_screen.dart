@@ -412,10 +412,8 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
           final url = bus.trackerUrl!;
           final name = bus.busNumber ?? bus.busName ?? 'বাস ট্র্যাকিং';
           context.push(
-            Uri(
-              path: '/bus/live/${bus.id}',
-              queryParameters: {'url': url, 'name': name},
-            ).toString(),
+            '/bus/live/${bus.id}',
+            extra: {'url': url, 'name': name},
           );
         },
         style: ElevatedButton.styleFrom(
@@ -427,7 +425,11 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
           children: [
             Icon(Icons.location_on_rounded, color: Colors.white),
             SizedBox(width: 12),
-            Text('লাইভ লোকেশন দেখুন', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+            Text('লাইভ লোকেশন দেখুন',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold)),
           ],
         ),
       ),

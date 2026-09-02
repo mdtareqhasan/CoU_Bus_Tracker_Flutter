@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'dart:async';
+import 'dart:ui' as ui;
+import 'dart:ui_web' as ui_web;
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
 import '../../app/theme.dart';
 
 class LiveTrackingScreen extends StatefulWidget {
@@ -20,7 +26,7 @@ class LiveTrackingScreen extends StatefulWidget {
 }
 
 class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
-  late final WebViewController _controller;
+  WebViewController? _controller;
   bool _isLoading = true;
   bool _hasNetworkError = false;
   String _speed = '0 km/h';
@@ -28,6 +34,8 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
   String _distance = '-- km';
   Position? _userPosition;
   StreamSubscription<Position>? _positionStream;
+  late final String _viewId;
+  Timer? _webUpdateTimer;
 
   @override
   void initState() {
@@ -41,50 +49,98 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
           'userMapType=open_streets', 'userMapType=google_streets');
     }
 
-    _controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(const Color(0x00000000))
-      ..addJavaScriptChannel(
-        'StatusChannel',
-        onMessageReceived: (JavaScriptMessage message) {
-          if (mounted) {
-            _handleWebStatus(message.message);
-          }
-        },
-      )
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onPageStarted: (String url) {
-            setState(() {
-              _isLoading = true;
-            });
-          },
-          onPageFinished: (String url) {
-            setState(() {
-              _isLoading = false;
-            });
-            _applyCustomChanges();
-          },
-          onWebResourceError: (WebResourceError error) {
-            debugPrint('WebView Error: ${error.description}');
-            if (error.isForMainFrame == true &&
-                error.description.contains('ERR_INTERNET_DISCONNECTED')) {
-              if (mounted)
-                setState(() {
-                  _isLoading = false;
-                  _hasNetworkError = true;
-                });
+    if (kIsWeb) {
+      _viewId = 'iframe-view-${widget.url.hashCode}';
+      ui_web.platformViewRegistry.registerViewFactory(_viewId, (int viewId) {
+        final iframe = html.IFrameElement()
+          ..src = finalUrl
+          ..style.border = 'none'
+          ..style.width = '100%'
+          ..style.height = '100%';
+        return iframe;
+      });
+      _isLoading = false;
+      _startWebStatusUpdates();
+    } else {
+      _controller = WebViewController()
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..setBackgroundColor(const Color(0x00000000))
+        ..addJavaScriptChannel(
+          'StatusChannel',
+          onMessageReceived: (JavaScriptMessage message) {
+            if (mounted) {
+              _handleWebStatus(message.message);
             }
           },
-        ),
-      )
-      ..loadRequest(Uri.parse(finalUrl));
+        )
+        ..setNavigationDelegate(
+          NavigationDelegate(
+            onPageStarted: (String url) {
+              setState(() {
+                _isLoading = true;
+              });
+            },
+            onPageFinished: (String url) {
+              setState(() {
+                _isLoading = false;
+              });
+              _applyCustomChanges();
+            },
+            onWebResourceError: (WebResourceError error) {
+              debugPrint('WebView Error: ${error.description}');
+              if (error.isForMainFrame == true &&
+                  error.description.contains('ERR_INTERNET_DISCONNECTED')) {
+                if (mounted) {
+                  setState(() {
+                    _isLoading = false;
+                    _hasNetworkError = true;
+                  });
+                }
+              }
+            },
+          ),
+        )
+        ..loadRequest(Uri.parse(finalUrl));
+    }
   }
 
   @override
   void dispose() {
     _positionStream?.cancel();
+    _webUpdateTimer?.cancel();
     super.dispose();
+  }
+
+  void _startWebStatusUpdates() {
+    _webUpdateTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      if (!mounted) return;
+      _updateWebData();
+    });
+  }
+
+  void _updateWebData() {
+    try {
+      // Try to estimate status based on distance change or static Running if loaded
+      final uri = Uri.parse(widget.url);
+      final lat = double.tryParse(uri.queryParameters['lat'] ?? '');
+      final lng = double.tryParse(uri.queryParameters['lng'] ?? '');
+
+      if (_userPosition != null && lat != null && lng != null) {
+        double dist = Geolocator.distanceBetween(
+            _userPosition!.latitude, _userPosition!.longitude, lat, lng);
+        setState(() {
+          _status = 'Running';
+          if (dist < 1000) {
+            _distance = '${dist.toStringAsFixed(0)} m';
+          } else {
+            _distance = '${(dist / 1000).toStringAsFixed(1)} km';
+          }
+        });
+      } else {
+        // Just keep checking position
+        _initLocation();
+      }
+    } catch (_) {}
   }
 
   Future<void> _initLocation() async {
@@ -145,7 +201,6 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
       }
 
       String distanceStr = '-- km';
-      // Only calculate if coordinates are valid (not 0.0)
       if (_userPosition != null &&
           latVal != null &&
           lngVal != null &&
@@ -171,6 +226,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
   }
 
   void _applyCustomChanges() {
+    if (kIsWeb) return; 
     _hideSideInfo();
     _removeCheckboxes();
     _setRefreshInterval();
@@ -218,7 +274,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
         }, 1500);
       })();
     """;
-    _controller.runJavaScript(js);
+    _controller?.runJavaScript(js);
   }
 
   void _removeCheckboxes() {
@@ -229,28 +285,11 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
           input[type="checkbox"], label:has(input[type="checkbox"]),
           .leaflet-control-container .leaflet-bottom.leaflet-left,
           [class*="check"], [class*="option"] { display: none !important; }
-          
-          /* Ensure refresh dropdown is fully visible at bottom left */
-          .refresh-dropdown, select { 
-            display: block !important; 
-            position: fixed !important;
-            bottom: 40px !important; 
-            left: 20px !important;
-            z-index: 1000 !important;
-            background: white !important;
-            border-radius: 10px !important;
-            padding: 8px !important;
-            border: 2.5px solid #3886D8 !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
-            font-weight: bold !important;
-            font-size: 14px !important;
-            color: #1A1F2E !important;
-          }
         `;
         document.head.appendChild(style);
       })();
     """;
-    _controller.runJavaScript(js);
+    _controller?.runJavaScript(js);
   }
 
   void _setRefreshInterval() {
@@ -271,7 +310,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
         setRefresh(); setInterval(setRefresh, 10000);
       })();
     """;
-    _controller.runJavaScript(js);
+    _controller?.runJavaScript(js);
   }
 
   void _hideSideInfo() {
@@ -298,7 +337,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
         }, 500);
       })();
     """;
-    _controller.runJavaScript(js);
+    _controller?.runJavaScript(js);
   }
 
   @override
@@ -313,13 +352,14 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
               canPop: false,
               onPopInvokedWithResult: (didPop, result) async {
                 if (didPop) return;
-                if (await _controller.canGoBack())
-                  _controller.goBack();
-                else if (mounted) Navigator.of(context).pop();
+                if (!kIsWeb && _controller != null && await _controller!.canGoBack()) {
+                  _controller!.goBack();
+                } else if (mounted) {
+                  Navigator.of(context).pop();
+                }
               },
               child: Stack(
                 children: [
-                  // Add bottom padding so map controls stay above system nav bar
                   Positioned.fill(
                     child: Padding(
                       padding: EdgeInsets.only(
@@ -327,20 +367,69 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                       ),
                       child: _hasNetworkError
                           ? _buildNoInternetOverlay()
-                          : WebViewWidget(controller: _controller),
+                          : kIsWeb
+                              ? _buildWebMapContainer()
+                              : WebViewWidget(controller: _controller!),
                     ),
                   ),
-                  if (!_hasNetworkError) _buildStatusOverlay(),
+                  if (!_hasNetworkError)
+                    PointerInterceptor(child: _buildStatusOverlay()),
                   if (_isLoading && !_hasNetworkError)
                     const Center(
                         child: CircularProgressIndicator(
                             valueColor: AlwaysStoppedAnimation<Color>(
                                 AppTheme.primaryBlue))),
+                  // Manual Timer Selection for Web
+                  if (kIsWeb)
+                    Positioned(
+                      bottom: 20,
+                      left: 20,
+                      child: PointerInterceptor(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: AppTheme.primaryBlue, width: 2),
+                            boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10)],
+                          ),
+                          child: const Text('Refresh: 5s', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildWebMapContainer() {
+    // Advanced Centering Logic:
+    // Sidebar on the source website is roughly 300px on desktop, but adjusts on mobile.
+    // We expand the iframe to hide the sidebar and offset it to center the map portion.
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+    
+    // On mobile, the sidebar takes up a huge chunk. We expand by 150% to hide it properly.
+    final expansionFactor = isMobile ? 1.6 : 1.35;
+    final sidebarEstimatedWidth = screenWidth * (expansionFactor - 1.0);
+
+    return ClipRect(
+      child: OverflowBox(
+        maxWidth: double.infinity,
+        alignment: Alignment.topLeft,
+        child: Transform.translate(
+          // Offset to the left to push the sidebar out of view and center the bus
+          offset: Offset(-(sidebarEstimatedWidth / 2), 0),
+          child: SizedBox(
+            width: screenWidth * expansionFactor,
+            height: double.infinity,
+            child: HtmlElementView(viewType: _viewId),
+          ),
+        ),
       ),
     );
   }
@@ -351,61 +440,69 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
       pinned: true,
       backgroundColor: AppTheme.primaryBlue,
       expandedHeight: 110,
-      leading: IconButton(
-          icon:
-              const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop()),
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(children: [
-            Text(widget.busName,
-                style: const TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold)),
-            const SizedBox(width: 8),
-            _buildStatusBadge(isMoving),
-          ]),
-        ],
+      leading: PointerInterceptor(
+        child: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                color: Colors.white),
+            onPressed: () => Navigator.of(context).pop()),
+      ),
+      title: PointerInterceptor(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              Text(widget.busName,
+                  style: const TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold)),
+              const SizedBox(width: 8),
+              _buildStatusBadge(isMoving),
+            ]),
+          ],
+        ),
       ),
       flexibleSpace: FlexibleSpaceBar(
-        background: Container(
-          decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
-          padding: const EdgeInsets.fromLTRB(16, 85, 16, 4),
+        background: PointerInterceptor(
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.white.withOpacity(0.1)),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.tips_and_updates_rounded,
-                    color: Colors.white, size: 14),
-                SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'দ্রুত আপডেট পেতে নিচের বাম পাশের ড্রপডাউন থেকে ৫ সেঃ সিলেক্ট করুন',
-                    style: TextStyle(
-                        fontSize: 10.5,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        height: 1.2),
-                    maxLines: 2,
+            decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
+            padding: const EdgeInsets.fromLTRB(16, 85, 16, 4),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.white.withOpacity(0.1)),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.tips_and_updates_rounded,
+                      color: Colors.white, size: 14),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'দ্রুত আপডেট পেতে নিচের বাম পাশের ড্রপডাউন থেকে ৫ সেঃ সিলেক্ট করুন',
+                      style: TextStyle(
+                          fontSize: 10.5,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          height: 1.2),
+                      maxLines: 2,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
       ),
       actions: [
-        IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: Colors.white),
-            onPressed: () => _controller.reload())
+        PointerInterceptor(
+          child: IconButton(
+              icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+              onPressed: () => kIsWeb ? null : _controller?.reload()),
+        )
       ],
     );
   }
@@ -419,10 +516,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: color.withOpacity(0.5), width: 0.5)),
       child: Row(children: [
-        Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(color: color, shape: BoxShape.circle))
+        Container(width: 6, height: 6, decoration: BoxDecoration(color: color, shape: BoxShape.circle))
             .animate(onPlay: (c) => c.repeat())
             .fade(duration: 800.ms, begin: 0.4, end: 1),
         const SizedBox(width: 6),
@@ -587,7 +681,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                     _hasNetworkError = false;
                     _isLoading = true;
                   });
-                  _controller.reload();
+                  _controller?.reload();
                 },
                 icon: const Icon(Icons.refresh_rounded),
                 label: const Text('আবার চেষ্টা করুন',
@@ -603,15 +697,6 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildIconBox(IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration:
-          BoxDecoration(color: color.withOpacity(0.15), shape: BoxShape.circle),
-      child: Icon(icon, color: color, size: 28),
     );
   }
 }

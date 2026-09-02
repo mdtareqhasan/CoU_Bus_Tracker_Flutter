@@ -79,8 +79,9 @@ final appRouter = GoRouter(
       path: '/bus/live/:id',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
-        final url = state.uri.queryParameters['url'] ?? '';
-        final name = state.uri.queryParameters['name'] ?? 'বাস ট্র্যাকিং';
+        final extra = state.extra as Map<String, String>?;
+        final url = extra?['url'] ?? '';
+        final name = extra?['name'] ?? 'বাস ট্র্যাকিং';
         return LiveTrackingScreen(url: url, busName: name);
       },
     ),

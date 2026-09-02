@@ -39,6 +39,7 @@ dependencies:
   # Image & File
   image_picker: ^1.1.2
   flutter_image_compress: ^2.5.1
+  pointer_interceptor: ^0.10.1+1
 
   # Launcher
   url_launcher: ^6.3.1
