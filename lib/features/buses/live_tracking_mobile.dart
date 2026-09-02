@@ -7,7 +7,3 @@ String registerIframeView(String viewId, String url) {
 Widget buildWebView(String viewType) {
   return const SizedBox.shrink();
 }
-
-Widget buildLeafletMap(String viewId, double lat, double lng, String busName) {
-  return const SizedBox.shrink();
-}
