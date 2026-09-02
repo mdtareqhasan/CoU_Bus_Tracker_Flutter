@@ -34,15 +34,15 @@ class AuthResponse {
   }
 
   Map<String, dynamic> toJson() => {
-        'accessToken': accessToken,
-        'tokenType': tokenType,
-        'role': role,
-        'id': id,
-        'name': name,
-        'email': email,
-        'isVerified': isVerified,
-        'isEduMail': isEduMail,
-      };
+    'accessToken': accessToken,
+    'tokenType': tokenType,
+    'role': role,
+    'id': id,
+    'name': name,
+    'email': email,
+    'isVerified': isVerified,
+    'isEduMail': isEduMail,
+  };
 
   String get userDisplayName => name ?? 'ব্যবহারকারী';
 }

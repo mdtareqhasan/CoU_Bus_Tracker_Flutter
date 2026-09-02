@@ -32,11 +32,17 @@ class ProfileScreen extends ConsumerWidget {
       pinned: true,
       backgroundColor: AppTheme.primaryBlue,
       automaticallyImplyLeading: false,
-      title: const Text('প্রোফাইল',
-          style: TextStyle(
-              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+      title: const Text(
+        'প্রোফাইল',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 18,
+        ),
+      ),
       flexibleSpace: Container(
-          decoration: const BoxDecoration(gradient: AppTheme.primaryGradient)),
+        decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
+      ),
     );
   }
 
@@ -53,57 +59,62 @@ class ProfileScreen extends ConsumerWidget {
           Text(
             'আপনার প্রোফাইল',
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.5,
-                ),
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
+            ),
           ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2, end: 0),
           const SizedBox(height: AppTheme.space12),
           Text(
             'বাসের তথ্য ও সঠিক শিডিউল ট্র্যাক করতে আপনার অ্যাকাউন্টে লগইন করুন',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppTheme.textSecondary,
-                  height: 1.5,
-                ),
+              color: AppTheme.textSecondary,
+              height: 1.5,
+            ),
           ).animate().fadeIn(delay: 300.ms),
           const SizedBox(height: AppTheme.space48),
           Container(
-            width: double.infinity,
-            height: 60,
-            decoration: BoxDecoration(
-              gradient: AppTheme.primaryGradient,
-              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.primaryBlue.withOpacity(0.3),
-                  blurRadius: 15,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: ElevatedButton(
-              onPressed: () => context.go('/auth/role'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shadowColor: Colors.transparent,
-                shape: RoundedRectangleBorder(
+                width: double.infinity,
+                height: 60,
+                decoration: BoxDecoration(
+                  gradient: AppTheme.primaryGradient,
                   borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.primaryBlue.withOpacity(0.3),
+                      blurRadius: 15,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
                 ),
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.login_rounded, color: Colors.white),
-                  SizedBox(width: 12),
-                  Text('লগইন / নিবন্ধন করুন',
-                      style: TextStyle(
+                child: ElevatedButton(
+                  onPressed: () => context.go('/auth/role'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        AppTheme.radiusMedium,
+                      ),
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.login_rounded, color: Colors.white),
+                      SizedBox(width: 12),
+                      Text(
+                        'লগইন / নিবন্ধন করুন',
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white)),
-                ],
-              ),
-            ),
-          )
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
               .animate()
               .fadeIn(delay: 400.ms)
               .scale(begin: const Offset(0.9, 0.9)),
@@ -118,13 +129,15 @@ class ProfileScreen extends ConsumerWidget {
       alignment: Alignment.center,
       children: [
         Container(
-          width: 180,
-          height: 180,
-          decoration: BoxDecoration(
-            color: AppTheme.primaryBlue.withOpacity(0.05),
-            shape: BoxShape.circle,
-          ),
-        ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(
+              width: 180,
+              height: 180,
+              decoration: BoxDecoration(
+                color: AppTheme.primaryBlue.withOpacity(0.05),
+                shape: BoxShape.circle,
+              ),
+            )
+            .animate(onPlay: (c) => c.repeat(reverse: true))
+            .scale(
               begin: const Offset(1, 1),
               end: const Offset(1.1, 1.1),
               duration: 2000.ms,
@@ -144,15 +157,21 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ],
           ),
-          child:
-              const Icon(Icons.person_rounded, color: Colors.white, size: 72),
+          child: const Icon(
+            Icons.person_rounded,
+            color: Colors.white,
+            size: 72,
+          ),
         ),
       ],
     ).animate().fadeIn(duration: 600.ms).scale(begin: const Offset(0.8, 0.8));
   }
 
   Widget _buildLoggedInProfile(
-      BuildContext context, WidgetRef ref, AuthState authState) {
+    BuildContext context,
+    WidgetRef ref,
+    AuthState authState,
+  ) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.all(AppTheme.space24),
@@ -239,17 +258,26 @@ class ProfileScreen extends ConsumerWidget {
       ),
       child: Column(
         children: [
-          _buildInfoRow(context, 'নাম', authState.displayName ?? '—',
-              Icons.person_outline_rounded),
+          _buildInfoRow(
+            context,
+            'নাম',
+            authState.displayName ?? '—',
+            Icons.person_outline_rounded,
+          ),
           const Divider(indent: 48, height: 1),
           _buildInfoRow(
-              context, 'ইমেইল', authState.email ?? '—', Icons.email_outlined),
+            context,
+            'ইমেইল',
+            authState.email ?? '—',
+            Icons.email_outlined,
+          ),
           const Divider(indent: 48, height: 1),
           _buildInfoRow(
-              context,
-              'ভূমিকা',
-              authState.role == 'student' ? 'শিক্ষার্থী' : 'শিক্ষক',
-              Icons.badge_outlined),
+            context,
+            'ভূমিকা',
+            authState.role == 'student' ? 'শিক্ষার্থী' : 'শিক্ষক',
+            Icons.badge_outlined,
+          ),
         ],
       ),
     );
@@ -280,7 +308,11 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   Widget _buildInfoRow(
-      BuildContext context, String label, String value, IconData icon) {
+    BuildContext context,
+    String label,
+    String value,
+    IconData icon,
+  ) {
     return Padding(
       padding: const EdgeInsets.all(AppTheme.space16),
       child: Row(
@@ -298,11 +330,12 @@ class ProfileScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(label, style: Theme.of(context).textTheme.bodySmall),
-              Text(value,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall
-                      ?.copyWith(fontSize: 14)),
+              Text(
+                value,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(fontSize: 14),
+              ),
             ],
           ),
         ],

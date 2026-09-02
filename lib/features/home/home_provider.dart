@@ -85,8 +85,11 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
   final StorageService _storage;
 
   DashboardNotifier(
-      this._busRepo, this._scheduleRepo, this._noticeRepo, this._storage)
-      : super(const DashboardState());
+    this._busRepo,
+    this._scheduleRepo,
+    this._noticeRepo,
+    this._storage,
+  ) : super(const DashboardState());
 
   void setUserRole(String? role) {
     state = state.copyWith(userRole: role);
@@ -126,9 +129,11 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
       state = state.copyWith(
         buses: buses != null ? AsyncValue.data(buses) : state.buses,
         schedules: schedules != null
-            ? AsyncValue.data(schedules
-                .where((s) => TimeUtils.isScheduleForToday(s.days))
-                .toList())
+            ? AsyncValue.data(
+                schedules
+                    .where((s) => TimeUtils.isScheduleForToday(s.days))
+                    .toList(),
+              )
             : state.schedules,
         notices: notices != null ? AsyncValue.data(notices) : state.notices,
       );
@@ -157,9 +162,10 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
       final data = (scheduleResult as Success<List<Schedule>>).data;
       await _storage.saveCache(StorageKeys.cachedSchedules, jsonEncode(data));
       state = state.copyWith(
-          schedules: AsyncValue.data(data
-              .where((s) => TimeUtils.isScheduleForToday(s.days))
-              .toList()));
+        schedules: AsyncValue.data(
+          data.where((s) => TimeUtils.isScheduleForToday(s.days)).toList(),
+        ),
+      );
     }
 
     if (noticeResult is Success) {
@@ -176,10 +182,10 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
 final dashboardProvider =
     StateNotifierProvider<DashboardNotifier, DashboardState>((ref) {
-  return DashboardNotifier(
-    ref.watch(busRepositoryProvider),
-    ref.watch(scheduleRepositoryProvider),
-    ref.watch(noticeRepositoryProvider),
-    ref.watch(storageServiceProvider),
-  );
-});
+      return DashboardNotifier(
+        ref.watch(busRepositoryProvider),
+        ref.watch(scheduleRepositoryProvider),
+        ref.watch(noticeRepositoryProvider),
+        ref.watch(storageServiceProvider),
+      );
+    });

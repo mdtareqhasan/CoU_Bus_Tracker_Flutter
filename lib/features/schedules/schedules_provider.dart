@@ -10,10 +10,11 @@ import '../providers.dart';
 import '../../core/utils/time_utils.dart';
 
 class ScheduleListState {
-// ... (keeping existing ScheduleListState class)
+  // ... (keeping existing ScheduleListState class)
   final List<Schedule> schedules;
   final String? directionFilter;
-  final String? dayTypeFilter; // null=today, 'WORKING'=Sat-Thu, 'WEEKEND'=Fri-Sat
+  final String?
+  dayTypeFilter; // null=today, 'WORKING'=Sat-Thu, 'WEEKEND'=Fri-Sat
   final String searchQuery;
   final bool isLoading;
   final String? error;
@@ -37,8 +38,12 @@ class ScheduleListState {
   }) {
     return ScheduleListState(
       schedules: schedules ?? this.schedules,
-      directionFilter: directionFilter != null ? directionFilter() : this.directionFilter,
-      dayTypeFilter: dayTypeFilter != null ? dayTypeFilter() : this.dayTypeFilter,
+      directionFilter: directionFilter != null
+          ? directionFilter()
+          : this.directionFilter,
+      dayTypeFilter: dayTypeFilter != null
+          ? dayTypeFilter()
+          : this.dayTypeFilter,
       searchQuery: searchQuery ?? this.searchQuery,
       isLoading: isLoading ?? this.isLoading,
       error: error,
@@ -58,21 +63,21 @@ class ScheduleListState {
         if (!TimeUtils.isScheduleForToday(schedule.days)) return false;
       }
 
-      final matchesDirection = directionFilter == null ||
+      final matchesDirection =
+          directionFilter == null ||
           directionFilter!.isEmpty ||
-          schedule.direction?.toUpperCase() ==
-              directionFilter!.toUpperCase();
+          schedule.direction?.toUpperCase() == directionFilter!.toUpperCase();
 
       final rawQuery = searchQuery.trim();
       if (rawQuery.isEmpty) return matchesDirection;
 
       final query = rawQuery.toLowerCase();
       final englishQuery = TimeUtils.toEnglishDigits(query);
-      
+
       final time = schedule.departureTime ?? '';
       final bengaliTime = TimeUtils.formatTimeBengali(time).toLowerCase();
 
-      final matchesSearch = 
+      final matchesSearch =
           (schedule.busNumber?.toLowerCase().contains(query) ?? false) ||
           (schedule.busName?.toLowerCase().contains(query) ?? false) ||
           (schedule.startPoint?.toLowerCase().contains(query) ?? false) ||
@@ -102,7 +107,8 @@ class ScheduleListNotifier extends StateNotifier<ScheduleListState> {
   final ScheduleRepository _repo;
   final StorageService _storage;
 
-  ScheduleListNotifier(this._repo, this._storage) : super(const ScheduleListState());
+  ScheduleListNotifier(this._repo, this._storage)
+    : super(const ScheduleListState());
 
   Future<void> loadSchedules() async {
     // 1. Load from cache
@@ -135,7 +141,10 @@ class ScheduleListNotifier extends StateNotifier<ScheduleListState> {
         await _storage.saveCache(StorageKeys.cachedSchedules, jsonEncode(data));
         state = state.copyWith(schedules: data, isLoading: false);
       case Failure(:final message):
-        state = state.copyWith(isLoading: false, error: state.schedules.isEmpty ? message : null);
+        state = state.copyWith(
+          isLoading: false,
+          error: state.schedules.isEmpty ? message : null,
+        );
       default:
         state = state.copyWith(isLoading: false);
     }
@@ -156,8 +165,8 @@ class ScheduleListNotifier extends StateNotifier<ScheduleListState> {
 
 final scheduleListProvider =
     StateNotifierProvider<ScheduleListNotifier, ScheduleListState>((ref) {
-  return ScheduleListNotifier(
-    ref.watch(scheduleRepositoryProvider),
-    ref.watch(storageServiceProvider),
-  );
-});
+      return ScheduleListNotifier(
+        ref.watch(scheduleRepositoryProvider),
+        ref.watch(storageServiceProvider),
+      );
+    });

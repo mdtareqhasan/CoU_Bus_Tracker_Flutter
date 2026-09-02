@@ -19,7 +19,7 @@ Set<String> allowedCategoriesForRole(String? role) {
 }
 
 class BusListState {
-// ... (keeping existing BusListState class)
+  // ... (keeping existing BusListState class)
   final List<Bus> buses;
   final List<Schedule> schedules;
   final String? selectedCategory;
@@ -64,7 +64,8 @@ class BusListState {
       final category = bus.category?.toUpperCase();
       if (category == null || !allowed.contains(category)) return false;
 
-      final matchesCategory = selectedCategory == null ||
+      final matchesCategory =
+          selectedCategory == null ||
           selectedCategory!.isEmpty ||
           category == selectedCategory!.toUpperCase();
 
@@ -76,7 +77,8 @@ class BusListState {
           ? busSchedules.first.routeDisplay
           : bus.route ?? '';
 
-      final matchesSearch = query.isEmpty ||
+      final matchesSearch =
+          query.isEmpty ||
           (bus.busNumber?.toLowerCase().contains(query) ?? false) ||
           (bus.busName?.toLowerCase().contains(query) ?? false) ||
           (route.toLowerCase().contains(query));
@@ -92,7 +94,7 @@ class BusListNotifier extends StateNotifier<BusListState> {
   final StorageService _storage;
 
   BusListNotifier(this._busRepo, this._scheduleRepo, this._storage)
-      : super(const BusListState());
+    : super(const BusListState());
 
   void setUserRole(String? role) {
     state = state.copyWith(userRole: role);
@@ -147,7 +149,9 @@ class BusListNotifier extends StateNotifier<BusListState> {
 
       await _storage.saveCache(StorageKeys.cachedBuses, jsonEncode(buses));
       await _storage.saveCache(
-          StorageKeys.cachedSchedules, jsonEncode(schedules));
+        StorageKeys.cachedSchedules,
+        jsonEncode(schedules),
+      );
 
       state = state.copyWith(
         buses: buses,
@@ -159,13 +163,14 @@ class BusListNotifier extends StateNotifier<BusListState> {
       _preCacheBusDetails(buses);
     } else if (busResult is Failure) {
       state = state.copyWith(
-          isLoading: false,
-          error: state.buses.isEmpty ? (busResult as Failure).message : null);
+        isLoading: false,
+        error: state.buses.isEmpty ? (busResult as Failure).message : null,
+      );
     } else if (scheduleResult is Failure) {
       state = state.copyWith(
-          isLoading: false,
-          error:
-              state.buses.isEmpty ? (scheduleResult as Failure).message : null);
+        isLoading: false,
+        error: state.buses.isEmpty ? (scheduleResult as Failure).message : null,
+      );
     } else {
       state = state.copyWith(isLoading: false);
     }
@@ -180,8 +185,10 @@ class BusListNotifier extends StateNotifier<BusListState> {
         final result = await _busRepo.getBusDetail(bus.id!);
         if (result is Success) {
           final detail = (result as Success<BusDetail>).data;
-          await _storage.saveCache(StorageKeys.cachedBusDetail(bus.id!),
-              jsonEncode(detail.toJson()));
+          await _storage.saveCache(
+            StorageKeys.cachedBusDetail(bus.id!),
+            jsonEncode(detail.toJson()),
+          );
         }
       } catch (e) {
         // Silently fail for background tasks
@@ -200,8 +207,9 @@ class BusListNotifier extends StateNotifier<BusListState> {
   }
 }
 
-final busListProvider =
-    StateNotifierProvider<BusListNotifier, BusListState>((ref) {
+final busListProvider = StateNotifierProvider<BusListNotifier, BusListState>((
+  ref,
+) {
   return BusListNotifier(
     ref.watch(busRepositoryProvider),
     ref.watch(scheduleRepositoryProvider),

@@ -4,21 +4,21 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Colors - Slightly Darkened Light Blue with richer gradient
-  static const Color primaryBlue = Color(0xFF3886D8); 
+  static const Color primaryBlue = Color(0xFF3886D8);
   static const Color secondaryBlue = Color(0xFF5BA4FB);
   static const Color primaryDark = Color(0xFF2C6BB1);
   static const Color accentBlue = Color(0xFFE1EBFD);
-  
+
   static const Color backgroundLight = Color(0xFFF6F9FE);
   static const Color backgroundDark = Color(0xFF0F172A);
-  
+
   static const Color surfaceLight = Colors.white;
   static const Color surfaceDark = Color(0xFF1E293B);
-  
+
   static const Color textPrimary = Color(0xFF1E293B);
   static const Color textSecondary = Color(0xFF64748B);
   static const Color textHint = Color(0xFF94A3B8);
-  
+
   static const Color success = Color(0xFF10B981);
   static const Color successGreen = success;
   static const Color warning = Color(0xFFF59E0B);
@@ -176,15 +176,41 @@ class AppTheme {
         onSurface: Colors.white,
         error: error,
       ),
-      textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme).copyWith(
-        headlineLarge: GoogleFonts.plusJakartaSans(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
-        headlineMedium: GoogleFonts.plusJakartaSans(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
-        titleLarge: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white),
-        titleMedium: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white),
-        bodyLarge: GoogleFonts.inter(fontSize: 15, color: Colors.white.withOpacity(0.9)),
-        bodyMedium: GoogleFonts.inter(fontSize: 13, color: Colors.white.withOpacity(0.7)),
-        bodySmall: GoogleFonts.inter(fontSize: 11, color: Colors.white.withOpacity(0.5)),
-      ),
+      textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme)
+          .copyWith(
+            headlineLarge: GoogleFonts.plusJakartaSans(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+            headlineMedium: GoogleFonts.plusJakartaSans(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+            titleLarge: GoogleFonts.plusJakartaSans(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+            titleMedium: GoogleFonts.plusJakartaSans(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+            bodyLarge: GoogleFonts.inter(
+              fontSize: 15,
+              color: Colors.white.withOpacity(0.9),
+            ),
+            bodyMedium: GoogleFonts.inter(
+              fontSize: 13,
+              color: Colors.white.withOpacity(0.7),
+            ),
+            bodySmall: GoogleFonts.inter(
+              fontSize: 11,
+              color: Colors.white.withOpacity(0.5),
+            ),
+          ),
       cardTheme: CardThemeData(
         color: surfaceDark,
         elevation: 0,
@@ -197,7 +223,11 @@ class AppTheme {
         elevation: 0,
         centerTitle: true,
         systemOverlayStyle: SystemUiOverlayStyle.light,
-        titleTextStyle: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+        titleTextStyle: TextStyle(
+          color: Colors.white,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
         iconTheme: IconThemeData(color: Colors.white),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(

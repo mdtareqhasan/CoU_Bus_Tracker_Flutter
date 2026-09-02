@@ -20,8 +20,7 @@ class Notice {
     this.expiresAt,
   });
 
-  factory Notice.fromJson(Map<String, dynamic> json) =>
-      _$NoticeFromJson(json);
+  factory Notice.fromJson(Map<String, dynamic> json) => _$NoticeFromJson(json);
   Map<String, dynamic> toJson() => _$NoticeToJson(this);
 
   bool get isExpired {

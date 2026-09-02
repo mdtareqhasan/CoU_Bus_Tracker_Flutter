@@ -50,13 +50,11 @@ class _NoticeScreenState extends ConsumerState<NoticeScreen> {
     }
 
     return RefreshIndicator(
-      onRefresh: () =>
-          ref.read(noticeListProvider.notifier).loadNotices(),
+      onRefresh: () => ref.read(noticeListProvider.notifier).loadNotices(),
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: state.notices.length,
-        itemBuilder: (context, index) =>
-            _buildNoticeCard(state.notices[index]),
+        itemBuilder: (context, index) => _buildNoticeCard(state.notices[index]),
       ),
     );
   }
@@ -79,8 +77,11 @@ class _NoticeScreenState extends ConsumerState<NoticeScreen> {
                     color: Colors.orange.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.info_outline,
-                      color: Colors.orange, size: 20),
+                  child: const Icon(
+                    Icons.info_outline,
+                    color: Colors.orange,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -106,26 +107,27 @@ class _NoticeScreenState extends ConsumerState<NoticeScreen> {
             const SizedBox(height: 12),
             Row(
               children: [
-                const Icon(Icons.access_time,
-                    size: 14, color: AppTheme.textHint),
+                const Icon(
+                  Icons.access_time,
+                  size: 14,
+                  color: AppTheme.textHint,
+                ),
                 const SizedBox(width: 4),
                 Text(
                   notice.createdAt != null
                       ? dateFormat.format(notice.createdAt!)
                       : '',
                   style: const TextStyle(
-                      fontSize: 12, color: AppTheme.textHint),
+                    fontSize: 12,
+                    color: AppTheme.textHint,
+                  ),
                 ),
                 const Spacer(),
                 if (notice.expiresAt != null) ...[
                   Icon(
-                    notice.isExpired
-                        ? Icons.timer_off
-                        : Icons.timer,
+                    notice.isExpired ? Icons.timer_off : Icons.timer,
                     size: 14,
-                    color: notice.isExpired
-                        ? AppTheme.error
-                        : AppTheme.success,
+                    color: notice.isExpired ? AppTheme.error : AppTheme.success,
                   ),
                   const SizedBox(width: 4),
                   Text(
@@ -196,8 +198,10 @@ class _NoticeScreenState extends ConsumerState<NoticeScreen> {
         children: [
           Icon(Icons.notifications_none, size: 64, color: AppTheme.textHint),
           SizedBox(height: 16),
-          Text('এখন কোনো সক্রিয় নোটিশ নেই',
-              style: TextStyle(fontSize: 16, color: AppTheme.textSecondary)),
+          Text(
+            'এখন কোনো সক্রিয় নোটিশ নেই',
+            style: TextStyle(fontSize: 16, color: AppTheme.textSecondary),
+          ),
         ],
       ),
     );

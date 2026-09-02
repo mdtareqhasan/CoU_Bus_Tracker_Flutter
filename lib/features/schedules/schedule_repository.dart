@@ -20,7 +20,9 @@ class ScheduleRepository {
         return Success(schedules);
       }
 
-      return Failure(message: ErrorHandler.getMessage(response.statusCode, null));
+      return Failure(
+        message: ErrorHandler.getMessage(response.statusCode, null),
+      );
     } on DioException catch (e) {
       return Failure(message: _handleDioError(e));
     } catch (e) {
@@ -30,8 +32,9 @@ class ScheduleRepository {
 
   Future<Result<List<Schedule>>> getSchedulesByBus(int busId) async {
     try {
-      final response =
-          await _apiClient.dio.get(ApiEndpoints.schedulesByBus(busId));
+      final response = await _apiClient.dio.get(
+        ApiEndpoints.schedulesByBus(busId),
+      );
 
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data;
@@ -39,7 +42,9 @@ class ScheduleRepository {
         return Success(schedules);
       }
 
-      return Failure(message: ErrorHandler.getMessage(response.statusCode, null));
+      return Failure(
+        message: ErrorHandler.getMessage(response.statusCode, null),
+      );
     } on DioException catch (e) {
       return Failure(message: _handleDioError(e));
     } catch (e) {

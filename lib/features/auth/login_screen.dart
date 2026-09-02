@@ -47,8 +47,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       }
     });
 
-    final roleTitle =
-        widget.role == 'student' ? 'শিক্ষার্থী লগইন' : 'শিক্ষক লগইন';
+    final roleTitle = widget.role == 'student'
+        ? 'শিক্ষার্থী লগইন'
+        : 'শিক্ষক লগইন';
 
     return PopScope(
       canPop: false,
@@ -79,16 +80,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           _buildHeaderIllustration(),
                           const SizedBox(height: AppTheme.space32),
                           Text(
-                            roleTitle,
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineSmall
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: AppTheme.textPrimary,
-                                ),
-                          )
+                                roleTitle,
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.headlineSmall
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppTheme.textPrimary,
+                                    ),
+                              )
                               .animate()
                               .fadeIn(delay: 200.ms)
                               .slideY(begin: 0.2, end: 0),
@@ -100,39 +99,43 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ).animate().fadeIn(delay: 300.ms),
                           const SizedBox(height: AppTheme.space40),
                           _buildTextField(
-                            controller: _emailController,
-                            label: 'ইমেইল',
-                            icon: Icons.email_outlined,
-                            keyboardType: TextInputType.emailAddress,
-                            validator: (v) {
-                              if (v == null || v.isEmpty) return 'ইমেইল দিন';
-                              if (!v.contains('@')) return 'সঠিক ইমেইল দিন';
-                              return null;
-                            },
-                          )
+                                controller: _emailController,
+                                label: 'ইমেইল',
+                                icon: Icons.email_outlined,
+                                keyboardType: TextInputType.emailAddress,
+                                validator: (v) {
+                                  if (v == null || v.isEmpty)
+                                    return 'ইমেইল দিন';
+                                  if (!v.contains('@')) return 'সঠিক ইমেইল দিন';
+                                  return null;
+                                },
+                              )
                               .animate()
                               .fadeIn(delay: 400.ms)
                               .slideX(begin: 0.1, end: 0),
                           const SizedBox(height: AppTheme.space16),
                           _buildTextField(
-                            controller: _passwordController,
-                            label: 'পাসওয়ার্ড',
-                            icon: Icons.lock_outline_rounded,
-                            obscureText: _obscurePassword,
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                  _obscurePassword
-                                      ? Icons.visibility_outlined
-                                      : Icons.visibility_off_outlined,
-                                  color: AppTheme.textHint),
-                              onPressed: () => setState(
-                                  () => _obscurePassword = !_obscurePassword),
-                            ),
-                            validator: (v) {
-                              if (v == null || v.isEmpty) return 'পাসওয়ার্ড দিন';
-                              return null;
-                            },
-                          )
+                                controller: _passwordController,
+                                label: 'পাসওয়ার্ড',
+                                icon: Icons.lock_outline_rounded,
+                                obscureText: _obscurePassword,
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscurePassword
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
+                                    color: AppTheme.textHint,
+                                  ),
+                                  onPressed: () => setState(
+                                    () => _obscurePassword = !_obscurePassword,
+                                  ),
+                                ),
+                                validator: (v) {
+                                  if (v == null || v.isEmpty)
+                                    return 'পাসওয়ার্ড দিন';
+                                  return null;
+                                },
+                              )
                               .animate()
                               .fadeIn(delay: 500.ms)
                               .slideX(begin: 0.1, end: 0),
@@ -140,21 +143,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           _buildLoginButton(authState),
                           const SizedBox(height: AppTheme.space16),
                           TextButton(
-                            onPressed: () =>
-                                context.go('/auth/register?role=${widget.role}'),
+                            onPressed: () => context.go(
+                              '/auth/register?role=${widget.role}',
+                            ),
                             child: Text.rich(
                               TextSpan(
-                                  text: 'অ্যাকাউন্ট নেই? ',
-                                  style: const TextStyle(
-                                      color: AppTheme.textSecondary),
-                                  children: [
-                                    TextSpan(
-                                      text: 'নিবন্ধন করুন',
-                                      style: TextStyle(
-                                          color: AppTheme.primaryBlue,
-                                          fontWeight: FontWeight.bold),
+                                text: 'অ্যাকাউন্ট নেই? ',
+                                style: const TextStyle(
+                                  color: AppTheme.textSecondary,
+                                ),
+                                children: [
+                                  TextSpan(
+                                    text: 'নিবন্ধন করুন',
+                                    style: TextStyle(
+                                      color: AppTheme.primaryBlue,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                  ]),
+                                  ),
+                                ],
+                              ),
                             ),
                           ).animate().fadeIn(delay: 700.ms),
                         ],
@@ -175,15 +182,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       pinned: true,
       backgroundColor: AppTheme.primaryBlue,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new_rounded,
-            color: Colors.white, size: 20),
+        icon: const Icon(
+          Icons.arrow_back_ios_new_rounded,
+          color: Colors.white,
+          size: 20,
+        ),
         onPressed: () => context.go('/auth/role'),
       ),
-      title: Text(title,
-          style: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+      title: Text(
+        title,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 18,
+        ),
+      ),
       flexibleSpace: Container(
-          decoration: const BoxDecoration(gradient: AppTheme.primaryGradient)),
+        decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
+      ),
     );
   }
 
@@ -221,11 +237,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       obscureText: obscureText,
       keyboardType: keyboardType,
       style: const TextStyle(
-          color: AppTheme.textPrimary, fontWeight: FontWeight.w500),
+        color: AppTheme.textPrimary,
+        fontWeight: FontWeight.w500,
+      ),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle:
-            const TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+        labelStyle: const TextStyle(
+          color: AppTheme.textSecondary,
+          fontSize: 14,
+        ),
         prefixIcon: Icon(icon, color: AppTheme.primaryBlue, size: 22),
         suffixIcon: suffixIcon,
         filled: true,
@@ -274,26 +294,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppTheme.radiusMedium)),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          ),
         ),
         child: isLoading
             ? const SizedBox(
                 height: 24,
                 width: 24,
                 child: CircularProgressIndicator(
-                    color: Colors.white, strokeWidth: 2))
-            : const Text('লগইন',
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
+              )
+            : const Text(
+                'লগইন',
                 style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white)),
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
       ),
     ).animate().fadeIn(delay: 600.ms).scale(begin: const Offset(0.95, 0.95));
   }
 
   void _login() {
     if (_formKey.currentState!.validate()) {
-      ref.read(authProvider.notifier).login(
+      ref
+          .read(authProvider.notifier)
+          .login(
             email: _emailController.text.trim(),
             password: _passwordController.text.trim(),
             role: widget.role,

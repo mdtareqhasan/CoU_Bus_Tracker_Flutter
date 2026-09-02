@@ -32,7 +32,8 @@ class AboutScreen extends StatelessWidget {
                     context,
                     name: 'Raihan Khan',
                     role: 'Project Consultant',
-                    info: 'Senior Platform Engineer at Marko Pro,Thailand\nCSE 10 Batch, Comilla University',
+                    info:
+                        'Senior Platform Engineer at Marko Pro,Thailand\nCSE 10 Batch, Comilla University',
                     imagePath: 'assets/images/raihan.jpeg',
                   ),
                   const SizedBox(height: AppTheme.space24),
@@ -61,8 +62,17 @@ class AboutScreen extends StatelessWidget {
         icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
         onPressed: () => Navigator.of(context).pop(),
       ),
-      title: const Text('About Us', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
-      flexibleSpace: Container(decoration: const BoxDecoration(gradient: AppTheme.primaryGradient)),
+      title: const Text(
+        'About Us',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 18,
+        ),
+      ),
+      flexibleSpace: Container(
+        decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
+      ),
     );
   }
 
@@ -77,21 +87,21 @@ class AboutScreen extends StatelessWidget {
             color: Colors.white,
             shape: BoxShape.circle,
             boxShadow: AppTheme.softShadow,
-            border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.1), width: 4),
+            border: Border.all(
+              color: AppTheme.primaryBlue.withOpacity(0.1),
+              width: 4,
+            ),
           ),
           child: ClipOval(
-            child: Image.asset(
-              'assets/images/buslogo.jpeg',
-              fit: BoxFit.cover,
-            ),
+            child: Image.asset('assets/images/buslogo.jpeg', fit: BoxFit.cover),
           ),
         ),
         const SizedBox(height: 24),
         Text(
           'CoU Bus Tracker',
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: AppTheme.space8),
         Text(
@@ -161,25 +171,31 @@ class AboutScreen extends StatelessWidget {
             height: 130,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(AppTheme.radiusExtraLarge),
-              border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.1), width: 4),
+              border: Border.all(
+                color: AppTheme.primaryBlue.withOpacity(0.1),
+                width: 4,
+              ),
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(AppTheme.radiusExtraLarge - 4),
+              borderRadius: BorderRadius.circular(
+                AppTheme.radiusExtraLarge - 4,
+              ),
               child: Image.asset(
                 imagePath,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Container(
                   color: AppTheme.accentBlue,
-                  child: const Icon(Icons.person_rounded, size: 50, color: AppTheme.primaryBlue),
+                  child: const Icon(
+                    Icons.person_rounded,
+                    size: 50,
+                    color: AppTheme.primaryBlue,
+                  ),
                 ),
               ),
             ),
           ),
           const SizedBox(height: AppTheme.space16),
-          Text(
-            name,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          Text(name, style: Theme.of(context).textTheme.titleLarge),
           Text(
             role,
             style: TextStyle(

@@ -51,5 +51,5 @@ class NoticeListNotifier extends StateNotifier<NoticeListState> {
 
 final noticeListProvider =
     StateNotifierProvider<NoticeListNotifier, NoticeListState>((ref) {
-  return NoticeListNotifier(ref.watch(noticeRepositoryProvider));
-});
+      return NoticeListNotifier(ref.watch(noticeRepositoryProvider));
+    });

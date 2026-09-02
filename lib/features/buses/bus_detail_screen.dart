@@ -15,7 +15,11 @@ import '../providers.dart';
 class BusDetailScreen extends ConsumerStatefulWidget {
   final int busId;
   final int? initialScheduleId;
-  const BusDetailScreen({super.key, required this.busId, this.initialScheduleId});
+  const BusDetailScreen({
+    super.key,
+    required this.busId,
+    this.initialScheduleId,
+  });
 
   @override
   ConsumerState<BusDetailScreen> createState() => _BusDetailScreenState();
@@ -35,8 +39,10 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
   Future<void> _loadBusDetail() async {
     // 1. Try to load from cache first for instant UI
     final storage = ref.read(storageServiceProvider);
-    final cachedData = storage.getCache(StorageKeys.cachedBusDetail(widget.busId));
-    
+    final cachedData = storage.getCache(
+      StorageKeys.cachedBusDetail(widget.busId),
+    );
+
     if (cachedData != null) {
       try {
         final decoded = jsonDecode(cachedData);
@@ -58,7 +64,10 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
     switch (result) {
       case Success(:final data):
         // Save to cache for next time
-        await storage.saveCache(StorageKeys.cachedBusDetail(widget.busId), jsonEncode(data.toJson()));
+        await storage.saveCache(
+          StorageKeys.cachedBusDetail(widget.busId),
+          jsonEncode(data.toJson()),
+        );
         setState(() {
           _busDetail = data;
           _isLoading = false;
@@ -85,8 +94,8 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
       body: _isLoading
           ? _buildLoading()
           : _error != null
-              ? _buildError()
-              : _buildContent(),
+          ? _buildError()
+          : _buildContent(),
     );
   }
 
@@ -143,11 +152,12 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
         onPressed: () => context.pop(),
       ),
       flexibleSpace: FlexibleSpaceBar(
-        stretchModes: const [StretchMode.zoomBackground, StretchMode.blurBackground],
+        stretchModes: const [
+          StretchMode.zoomBackground,
+          StretchMode.blurBackground,
+        ],
         background: Container(
-          decoration: const BoxDecoration(
-            gradient: AppTheme.primaryGradient,
-          ),
+          decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
           child: Stack(
             children: [
               // Abstract background decoration
@@ -190,14 +200,21 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
                     ),
                     const SizedBox(height: 4),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         bus.categoryLabel,
-                        style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
@@ -222,12 +239,24 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 6,
-            height: 6,
-            decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-          ).animate(onPlay: (c) => c.repeat()).fade(duration: 800.ms, begin: 0.3, end: 1),
+                width: 6,
+                height: 6,
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+              )
+              .animate(onPlay: (c) => c.repeat())
+              .fade(duration: 800.ms, begin: 0.3, end: 1),
           const SizedBox(width: 4),
-          const Text('LIVE', style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
+          const Text(
+            'LIVE',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 8,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
@@ -253,16 +282,17 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
           border: Border.all(color: Colors.white.withOpacity(0.5), width: 4),
         ),
         child: ClipOval(
-          child: Image.asset(
-            'assets/images/buslogo.jpeg',
-            fit: BoxFit.cover,
-          ),
+          child: Image.asset('assets/images/buslogo.jpeg', fit: BoxFit.cover),
         ),
       ),
     ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack);
   }
 
-  Widget _buildInfoSection({required String title, required IconData icon, required Widget content}) {
+  Widget _buildInfoSection({
+    required String title,
+    required IconData icon,
+    required Widget content,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -309,82 +339,116 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
       children: [
         Icon(icon, size: 18, color: AppTheme.textHint),
         const SizedBox(width: 12),
-        Text(text, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+        Text(
+          text,
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+        ),
       ],
     );
   }
 
   Widget _buildSchedules(BusDetail bus) {
     var schedules = bus.schedules ?? [];
-    
+
     // Filter by initialScheduleId if coming from Schedule page
     if (widget.initialScheduleId != null) {
-      schedules = schedules.where((s) => s.id == widget.initialScheduleId).toList();
+      schedules = schedules
+          .where((s) => s.id == widget.initialScheduleId)
+          .toList();
     }
 
     return Column(
-      children: schedules.map((s) => Padding(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryBlue.withOpacity(0.05),
-                    shape: BoxShape.circle,
+      children: schedules
+          .map(
+            (s) => Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryBlue.withOpacity(0.05),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.access_time_rounded,
+                          size: 16,
+                          color: AppTheme.primaryBlue,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        s.displayDeparture,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      if (s.days != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryBlue.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            s.days!,
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: AppTheme.primaryBlue,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      const Spacer(),
+                      _buildDirectionBadge(s),
+                    ],
                   ),
-                  child: const Icon(Icons.access_time_rounded, size: 16, color: AppTheme.primaryBlue),
-                ),
-                const SizedBox(width: 12),
-                Text(s.displayDeparture, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                const SizedBox(width: 8),
-                if (s.days != null)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryBlue.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(4),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.route_rounded,
+                        size: 16,
+                        color: AppTheme.textHint,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          s.routeDisplay,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: AppTheme.textPrimary,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (schedules.indexOf(s) != schedules.length - 1)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 16),
+                      child: Divider(height: 1, thickness: 0.5),
                     ),
-                    child: Text(
-                      s.days!,
-                      style: const TextStyle(fontSize: 10, color: AppTheme.primaryBlue, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                const Spacer(),
-                _buildDirectionBadge(s),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                const Icon(Icons.route_rounded, size: 16, color: AppTheme.textHint),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    s.routeDisplay,
-                    style: const TextStyle(fontSize: 14, color: AppTheme.textPrimary, height: 1.4),
-                  ),
-                ),
-              ],
-            ),
-            if (schedules.indexOf(s) != schedules.length - 1)
-              const Padding(
-                padding: EdgeInsets.only(top: 16),
-                child: Divider(height: 1, thickness: 0.5),
+                ],
               ),
-          ],
-        ),
-      )).toList(),
+            ),
+          )
+          .toList(),
     );
   }
 
   Widget _buildDirectionBadge(Schedule s) {
     final isUp = s.direction?.toUpperCase() == 'UP';
     final color = isUp ? AppTheme.success : AppTheme.warning;
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -394,7 +458,11 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
       ),
       child: Text(
         s.directionLabel,
-        style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold),
+        style: TextStyle(
+          color: color,
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
@@ -425,11 +493,14 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
           children: [
             Icon(Icons.location_on_rounded, color: Colors.white),
             SizedBox(width: 12),
-            Text('লাইভ লোকেশন দেখুন',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold)),
+            Text(
+              'লাইভ লোকেশন দেখুন',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
       ),
@@ -445,11 +516,18 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline_rounded, size: 64, color: AppTheme.error),
+          const Icon(
+            Icons.error_outline_rounded,
+            size: 64,
+            color: AppTheme.error,
+          ),
           const SizedBox(height: 16),
           Text(_error ?? 'ত্রুটি'),
           const SizedBox(height: 16),
-          ElevatedButton(onPressed: _loadBusDetail, child: const Text('আবার চেষ্টা করুন')),
+          ElevatedButton(
+            onPressed: _loadBusDetail,
+            child: const Text('আবার চেষ্টা করুন'),
+          ),
         ],
       ),
     );

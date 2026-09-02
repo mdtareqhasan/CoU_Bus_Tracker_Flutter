@@ -67,9 +67,13 @@ class StorageService {
       await _secureStorage.delete(key: StorageKeys.verificationRole);
     } else {
       await _secureStorage.write(
-          key: StorageKeys.verificationEmail, value: email);
+        key: StorageKeys.verificationEmail,
+        value: email,
+      );
       await _secureStorage.write(
-          key: StorageKeys.verificationRole, value: role ?? 'STUDENT');
+        key: StorageKeys.verificationRole,
+        value: role ?? 'STUDENT',
+      );
     }
   }
 
@@ -126,7 +130,9 @@ class StorageService {
   Future<void> saveCache(String key, String json) async {
     await _prefs.setString(key, json);
     await _prefs.setInt(
-        '${key}_timestamp', DateTime.now().millisecondsSinceEpoch);
+      '${key}_timestamp',
+      DateTime.now().millisecondsSinceEpoch,
+    );
   }
 
   /// Get raw JSON string from local storage

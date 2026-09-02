@@ -36,14 +36,17 @@ class _UploadIdScreenState extends ConsumerState<UploadIdScreen> {
     if (_selectedImage == null) return;
 
     setState(() => _isUploading = true);
-    
+
     // Simulate upload or call repository (would need to add this method to repo)
     await Future.delayed(const Duration(seconds: 2));
-    
+
     if (mounted) {
       setState(() => _isUploading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('আইডি কার্ড সফলভাবে আপলোড হয়েছে'), backgroundColor: AppTheme.successGreen),
+        const SnackBar(
+          content: Text('আইডি কার্ড সফলভাবে আপলোড হয়েছে'),
+          backgroundColor: AppTheme.successGreen,
+        ),
       );
       context.go('/profile');
     }
@@ -75,34 +78,51 @@ class _UploadIdScreenState extends ConsumerState<UploadIdScreen> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                  border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.3), width: 2),
+                  border: Border.all(
+                    color: AppTheme.primaryBlue.withOpacity(0.3),
+                    width: 2,
+                  ),
                   boxShadow: AppTheme.softShadow,
                 ),
                 child: _selectedImage != null
                     ? ClipRRect(
-                        borderRadius: BorderRadius.circular(AppTheme.radiusLarge - 2),
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.radiusLarge - 2,
+                        ),
                         child: Image.file(_selectedImage!, fit: BoxFit.cover),
                       )
                     : Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.add_a_photo_rounded, size: 64, color: AppTheme.primaryBlue.withOpacity(0.5)),
+                          Icon(
+                            Icons.add_a_photo_rounded,
+                            size: 64,
+                            color: AppTheme.primaryBlue.withOpacity(0.5),
+                          ),
                           const SizedBox(height: 16),
-                          const Text('ছবি সিলেক্ট করুন', style: TextStyle(color: AppTheme.textSecondary)),
+                          const Text(
+                            'ছবি সিলেক্ট করুন',
+                            style: TextStyle(color: AppTheme.textSecondary),
+                          ),
                         ],
                       ),
               ),
             ),
             const Spacer(),
             ElevatedButton(
-              onPressed: _selectedImage == null || _isUploading ? null : _upload,
+              onPressed: _selectedImage == null || _isUploading
+                  ? null
+                  : _upload,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryBlue,
                 padding: const EdgeInsets.all(AppTheme.space16),
               ),
               child: _isUploading
                   ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text('আপলোড সম্পন্ন করুন', style: TextStyle(fontWeight: FontWeight.bold)),
+                  : const Text(
+                      'আপলোড সম্পন্ন করুন',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
             ),
             const SizedBox(height: AppTheme.space48),
           ],

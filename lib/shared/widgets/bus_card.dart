@@ -60,7 +60,8 @@ class BusCard extends StatelessWidget {
                             bus.busNumber ?? 'N/A',
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
-                          if (bus.busName != null && bus.busName!.isNotEmpty) ...[
+                          if (bus.busName != null &&
+                              bus.busName!.isNotEmpty) ...[
                             const SizedBox(width: 8),
                             Text(
                               bus.busName!,
@@ -68,14 +69,19 @@ class BusCard extends StatelessWidget {
                             ),
                           ],
                           const Spacer(),
-                          if (bus.trackerUrl != null && bus.trackerUrl!.isNotEmpty)
+                          if (bus.trackerUrl != null &&
+                              bus.trackerUrl!.isNotEmpty)
                             const LiveIndicator(),
                         ],
                       ),
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(Icons.route_rounded, size: 14, color: AppTheme.textHint),
+                          const Icon(
+                            Icons.route_rounded,
+                            size: 14,
+                            color: AppTheme.textHint,
+                          ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
@@ -89,10 +95,15 @@ class BusCard extends StatelessWidget {
                       ),
                       const SizedBox(height: AppTheme.space8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: categoryColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.radiusSmall,
+                          ),
                         ),
                         child: Text(
                           bus.categoryLabel,
@@ -106,7 +117,10 @@ class BusCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const Icon(Icons.chevron_right_rounded, color: AppTheme.textHint),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  color: AppTheme.textHint,
+                ),
               ],
             ),
           ),

@@ -9,16 +9,18 @@ class ApiClient {
   final StorageService _storage;
 
   ApiClient._(this._storage) {
-    _dio = Dio(BaseOptions(
-      baseUrl: ApiConstants.baseUrl,
-      connectTimeout: ApiConstants.connectTimeout,
-      sendTimeout: ApiConstants.sendTimeout,
-      receiveTimeout: ApiConstants.receiveTimeout,
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-    ));
+    _dio = Dio(
+      BaseOptions(
+        baseUrl: ApiConstants.baseUrl,
+        connectTimeout: ApiConstants.connectTimeout,
+        sendTimeout: ApiConstants.sendTimeout,
+        receiveTimeout: ApiConstants.receiveTimeout,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      ),
+    );
 
     _dio.interceptors.add(AuthInterceptor(_storage));
     // Wakes the Render server on cold start and retries read-only (GET/HEAD)
@@ -28,11 +30,9 @@ class ApiClient {
     _dio.interceptors.add(RetryOnColdStartInterceptor());
     // NOTE: LogInterceptor body logging is intentionally disabled so that
     // OTPs, Google ID tokens, passwords, and JWTs are never written to logs.
-    _dio.interceptors.add(LogInterceptor(
-      requestBody: false,
-      responseBody: false,
-      error: false,
-    ));
+    _dio.interceptors.add(
+      LogInterceptor(requestBody: false, responseBody: false, error: false),
+    );
   }
 
   factory ApiClient(StorageService storage) {
@@ -71,7 +71,9 @@ class AuthInterceptor extends Interceptor {
 
   @override
   void onRequest(
-      RequestOptions options, RequestInterceptorHandler handler) async {
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     final token = await _storage.getAccessToken();
     if (token != null && token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';
@@ -119,7 +121,7 @@ class RetryOnColdStartInterceptor extends Interceptor {
 
     final isConnectionPhaseError =
         err.type == DioExceptionType.connectionError ||
-            err.type == DioExceptionType.connectionTimeout;
+        err.type == DioExceptionType.connectionTimeout;
 
     if (!isReadOnly ||
         !isConnectionPhaseError ||
@@ -143,7 +145,8 @@ class RetryOnColdStartInterceptor extends Interceptor {
         handler.resolve(response);
         return;
       } on DioException catch (retryErr) {
-        final isStillCold = retryErr.type == DioExceptionType.connectionError ||
+        final isStillCold =
+            retryErr.type == DioExceptionType.connectionError ||
             retryErr.type == DioExceptionType.connectionTimeout;
         if (!isStillCold || retryCount >= maxRetries) {
           handler.next(retryErr);

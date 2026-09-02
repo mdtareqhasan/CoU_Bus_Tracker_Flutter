@@ -20,11 +20,7 @@ class Failure<T> extends Result<T> {
   final int? statusCode;
   final dynamic error;
 
-  const Failure({
-    required this.message,
-    this.statusCode,
-    this.error,
-  });
+  const Failure({required this.message, this.statusCode, this.error});
 
   @override
   List<Object?> get props => [message, statusCode, error];

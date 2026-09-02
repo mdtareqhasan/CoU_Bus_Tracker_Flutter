@@ -69,10 +69,10 @@ class UpdateDialog extends StatelessWidget {
                   size: 36,
                 ),
               ).animate().scale(
-                    begin: const Offset(0.5, 0.5),
-                    end: const Offset(1, 1),
-                    curve: Curves.elasticOut,
-                  ),
+                begin: const Offset(0.5, 0.5),
+                end: const Offset(1, 1),
+                curve: Curves.elasticOut,
+              ),
               const SizedBox(height: AppTheme.space16),
               const Text(
                 'নতুন আপডেট পাওয়া গেছে',
@@ -85,8 +85,10 @@ class UpdateDialog extends StatelessWidget {
               ).animate().fadeIn(delay: 100.ms).slideY(begin: 0.2, end: 0),
               const SizedBox(height: AppTheme.space8),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: AppTheme.primaryBlue.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
@@ -126,10 +128,7 @@ class UpdateDialog extends StatelessWidget {
                   ),
                   child: const Text(
                     'আপডেট করুন',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 ),
               ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.1, end: 0),

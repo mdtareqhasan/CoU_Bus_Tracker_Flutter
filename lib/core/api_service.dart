@@ -13,9 +13,9 @@ class ApiService {
 
   // Common Headers
   Map<String, String> get _headers => {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      };
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  };
 
   // --- GET Request ---
   Future<http.Response> get(String endpoint) async {

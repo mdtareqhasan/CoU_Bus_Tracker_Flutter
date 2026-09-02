@@ -7,7 +7,9 @@ import './notices/notice_repository.dart';
 import './auth/auth_repository.dart';
 
 final storageServiceProvider = Provider<StorageService>((ref) {
-  throw UnimplementedError('storageServiceProvider must be overridden in ProviderScope');
+  throw UnimplementedError(
+    'storageServiceProvider must be overridden in ProviderScope',
+  );
 });
 
 final apiClientProvider = Provider<ApiClient>((ref) {

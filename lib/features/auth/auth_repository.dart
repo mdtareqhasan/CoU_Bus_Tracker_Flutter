@@ -119,7 +119,9 @@ class AuthRepository {
   }
 
   Future<Result<AuthResponse>> _login(
-      String endpoint, LoginRequest request) async {
+    String endpoint,
+    LoginRequest request,
+  ) async {
     try {
       final response = await _apiClient.dio.post(
         endpoint,
@@ -223,7 +225,8 @@ class AuthRepository {
   void _logRequest(String endpoint) {
     if (!kDebugMode) return;
     debugPrint(
-        '[AUTH][REQ] ${_apiClient.dio.options.baseUrl}$endpoint method=${'POST'}');
+      '[AUTH][REQ] ${_apiClient.dio.options.baseUrl}$endpoint method=${'POST'}',
+    );
   }
 
   void _logResponse(Response response) {
@@ -231,8 +234,9 @@ class AuthRepository {
     final data = response.data;
     final isEmailVerified = data is Map ? data['isEmailVerified'] : null;
     debugPrint(
-        '[AUTH][RES] status=${response.statusCode} isEmailVerified=$isEmailVerified '
-        'body=${_sanitizeBody(data)}');
+      '[AUTH][RES] status=${response.statusCode} isEmailVerified=$isEmailVerified '
+      'body=${_sanitizeBody(data)}',
+    );
   }
 
   void _logOtpStatus(int? statusCode, String action) {
@@ -244,9 +248,11 @@ class AuthRepository {
     if (!kDebugMode) return;
     final data = e.response?.data;
     final message = data is Map ? data['message'] : null;
-    debugPrint('[AUTH][DIO] type=${e.type} status=${e.response?.statusCode} '
-        'backendMessage=$message '
-        'uri=${e.requestOptions.uri}');
+    debugPrint(
+      '[AUTH][DIO] type=${e.type} status=${e.response?.statusCode} '
+      'backendMessage=$message '
+      'uri=${e.requestOptions.uri}',
+    );
   }
 
   /// Removes any sensitive fields from a response body before it is logged.

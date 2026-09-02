@@ -7,10 +7,10 @@ import 'features/providers.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final storageService = await StorageService.getInstance();
-  runApp(ProviderScope(
-    overrides: [
-      storageServiceProvider.overrideWithValue(storageService),
-    ],
-    child: const CoUBusTrackerApp(),
-  ));
+  runApp(
+    ProviderScope(
+      overrides: [storageServiceProvider.overrideWithValue(storageService)],
+      child: const CoUBusTrackerApp(),
+    ),
+  );
 }

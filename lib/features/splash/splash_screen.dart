@@ -78,10 +78,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       child: Scaffold(
         backgroundColor: AppTheme.primaryBlue,
         body: SizedBox.expand(
-          child: Image.asset(
-            'assets/images/splashpage.png',
-            fit: BoxFit.cover,
-          ),
+          child: Image.asset('assets/images/splashpage.png', fit: BoxFit.cover),
         ),
       ),
     );

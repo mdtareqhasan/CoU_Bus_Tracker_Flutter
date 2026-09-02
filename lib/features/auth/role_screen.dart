@@ -19,10 +19,7 @@ class RoleScreen extends StatelessWidget {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               stops: [0.0, 0.3],
-              colors: [
-                AppTheme.primaryBlue,
-                AppTheme.backgroundLight,
-              ],
+              colors: [AppTheme.primaryBlue, AppTheme.backgroundLight],
             ),
           ),
           child: SafeArea(
@@ -57,11 +54,13 @@ class RoleScreen extends StatelessWidget {
                           _buildIllustration(),
                           const SizedBox(height: AppTheme.space32),
                           Text(
-                            'আপনার ভূমিকা নির্বাচন করুন',
-                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2, end: 0),
+                                'আপনার ভূমিকা নির্বাচন করুন',
+                                style: Theme.of(context).textTheme.headlineSmall
+                                    ?.copyWith(fontWeight: FontWeight.bold),
+                              )
+                              .animate()
+                              .fadeIn(delay: 200.ms)
+                              .slideY(begin: 0.2, end: 0),
                           const SizedBox(height: AppTheme.space8),
                           const Text(
                             'লগইন বা নিবন্ধনের জন্য ভূমিকা বাছাই করুন',
@@ -123,7 +122,11 @@ class RoleScreen extends StatelessWidget {
               ),
             ],
           ),
-          child: const Icon(Icons.person_add_alt_1_rounded, size: 48, color: Colors.white),
+          child: const Icon(
+            Icons.person_add_alt_1_rounded,
+            size: 48,
+            color: Colors.white,
+          ),
         ),
       ),
     ).animate().scale(duration: 500.ms, curve: Curves.easeOutBack);
@@ -168,17 +171,28 @@ class RoleScreen extends StatelessWidget {
                     children: [
                       Text(
                         label,
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textPrimary,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         subtitle,
-                        style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppTheme.textSecondary,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppTheme.textHint),
+                const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 16,
+                  color: AppTheme.textHint,
+                ),
               ],
             ),
           ),

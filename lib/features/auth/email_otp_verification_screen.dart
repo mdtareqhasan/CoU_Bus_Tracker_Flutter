@@ -90,8 +90,9 @@ class _EmailOtpVerificationScreenState
 
     // Keep only digits, single char per box.
     _boxes[index].text = digits.isNotEmpty ? digits[digits.length - 1] : '';
-    _boxes[index].selection =
-        TextSelection.collapsed(offset: _boxes[index].text.length);
+    _boxes[index].selection = TextSelection.collapsed(
+      offset: _boxes[index].text.length,
+    );
 
     setState(() => _error = null);
 
@@ -131,11 +132,9 @@ class _EmailOtpVerificationScreenState
     });
 
     try {
-      await ref.read(authProvider.notifier).verifyOtp(
-            email: widget.email,
-            role: widget.role,
-            otp: _enteredOtp,
-          );
+      await ref
+          .read(authProvider.notifier)
+          .verifyOtp(email: widget.email, role: widget.role, otp: _enteredOtp);
 
       if (!mounted) return;
       final state = ref.read(authProvider);
@@ -194,10 +193,7 @@ class _EmailOtpVerificationScreenState
       case Success(:final data):
         _startCountdown();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(data),
-            backgroundColor: AppTheme.success,
-          ),
+          SnackBar(content: Text(data), backgroundColor: AppTheme.success),
         );
       case Failure(:final message):
         setState(() => _error = message);
@@ -256,18 +252,20 @@ class _EmailOtpVerificationScreenState
                       Text(
                         'ইমেইল যাচাইকরণ',
                         textAlign: TextAlign.center,
-                        style:
-                            Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: AppTheme.textPrimary,
-                                ),
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.textPrimary,
+                            ),
                       ).animate().fadeIn(delay: 200.ms),
                       const SizedBox(height: AppTheme.space12),
                       Text(
                         'আমরা আপনার ইমেইলে ৬ সংখ্যার একটি verification code পাঠিয়েছি।',
                         textAlign: TextAlign.center,
                         style: const TextStyle(
-                            color: AppTheme.textSecondary, height: 1.5),
+                          color: AppTheme.textSecondary,
+                          height: 1.5,
+                        ),
                       ).animate().fadeIn(delay: 300.ms),
                       const SizedBox(height: AppTheme.space8),
                       Text(
@@ -306,15 +304,24 @@ class _EmailOtpVerificationScreenState
       pinned: true,
       backgroundColor: AppTheme.primaryBlue,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new_rounded,
-            color: Colors.white, size: 20),
+        icon: const Icon(
+          Icons.arrow_back_ios_new_rounded,
+          color: Colors.white,
+          size: 20,
+        ),
         onPressed: _goBackToRegistration,
       ),
-      title: const Text('ইমেইল যাচাইকরণ',
-          style: TextStyle(
-              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+      title: const Text(
+        'ইমেইল যাচাইকরণ',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 18,
+        ),
+      ),
       flexibleSpace: Container(
-          decoration: const BoxDecoration(gradient: AppTheme.primaryGradient)),
+        decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
+      ),
     );
   }
 
@@ -341,8 +348,11 @@ class _EmailOtpVerificationScreenState
             ),
           ],
         ),
-        child: const Icon(Icons.mark_email_read_rounded,
-            color: Colors.white, size: 38),
+        child: const Icon(
+          Icons.mark_email_read_rounded,
+          color: Colors.white,
+          size: 38,
+        ),
       ),
     ).animate().scale(duration: 500.ms, curve: Curves.easeOutBack);
   }
@@ -377,13 +387,16 @@ class _EmailOtpVerificationScreenState
               contentPadding: const EdgeInsets.symmetric(vertical: 14),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                borderSide:
-                    BorderSide(color: AppTheme.primaryBlue.withOpacity(0.25)),
+                borderSide: BorderSide(
+                  color: AppTheme.primaryBlue.withOpacity(0.25),
+                ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                borderSide:
-                    const BorderSide(color: AppTheme.primaryBlue, width: 2),
+                borderSide: const BorderSide(
+                  color: AppTheme.primaryBlue,
+                  width: 2,
+                ),
               ),
             ),
           ),
@@ -402,14 +415,19 @@ class _EmailOtpVerificationScreenState
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline_rounded,
-              color: AppTheme.error, size: 20),
+          const Icon(
+            Icons.error_outline_rounded,
+            color: AppTheme.error,
+            size: 20,
+          ),
           const SizedBox(width: AppTheme.space8),
           Expanded(
             child: Text(
               _error!,
               style: const TextStyle(
-                  color: AppTheme.error, fontWeight: FontWeight.w500),
+                color: AppTheme.error,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
@@ -437,19 +455,26 @@ class _EmailOtpVerificationScreenState
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppTheme.radiusMedium)),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          ),
         ),
         child: (_isVerifying || isLoading)
             ? const SizedBox(
                 height: 24,
                 width: 24,
                 child: CircularProgressIndicator(
-                    color: Colors.white, strokeWidth: 2))
-            : const Text('যাচাই করুন',
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
+              )
+            : const Text(
+                'যাচাই করুন',
                 style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white)),
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
       ),
     ).animate().fadeIn(delay: 500.ms);
   }
@@ -459,10 +484,7 @@ class _EmailOtpVerificationScreenState
 
     return Column(
       children: [
-        Text(
-          'কোডটি পাননি?',
-          style: TextStyle(color: AppTheme.textSecondary),
-        ),
+        Text('কোডটি পাননি?', style: TextStyle(color: AppTheme.textSecondary)),
         const SizedBox(height: AppTheme.space8),
         if (_countdown > 0)
           Text(
@@ -479,7 +501,8 @@ class _EmailOtpVerificationScreenState
                 ? const SizedBox(
                     height: 18,
                     width: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2))
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
                 : const Text(
                     'আবার কোড পাঠান',
                     style: TextStyle(
@@ -495,12 +518,17 @@ class _EmailOtpVerificationScreenState
   Widget _buildChangeEmailButton() {
     return TextButton.icon(
       onPressed: _goBackToRegistration,
-      icon: const Icon(Icons.edit_outlined,
-          size: 18, color: AppTheme.textSecondary),
+      icon: const Icon(
+        Icons.edit_outlined,
+        size: 18,
+        color: AppTheme.textSecondary,
+      ),
       label: const Text(
         'ইমেইল পরিবর্তন / নিবন্ধনে ফিরে যান',
         style: TextStyle(
-            color: AppTheme.textSecondary, fontWeight: FontWeight.w600),
+          color: AppTheme.textSecondary,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }

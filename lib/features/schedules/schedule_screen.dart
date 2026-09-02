@@ -50,9 +50,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
           children: [
             _buildSearchBar(state),
             _buildRoleBanner(allowedCategories),
-            Expanded(
-              child: _buildScheduleList(state, allowedCategories),
-            ),
+            Expanded(child: _buildScheduleList(state, allowedCategories)),
           ],
         ),
       ),
@@ -62,7 +60,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   Widget _buildRoleBanner(Set<String> allowedCategories) {
     return Container(
       margin: const EdgeInsets.symmetric(
-          horizontal: AppTheme.space24, vertical: AppTheme.space8),
+        horizontal: AppTheme.space24,
+        vertical: AppTheme.space8,
+      ),
       decoration: BoxDecoration(
         color: Theme.of(context).brightness == Brightness.dark
             ? AppTheme.surfaceDark
@@ -70,7 +70,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
       ),
       padding: const EdgeInsets.symmetric(
-          horizontal: AppTheme.space16, vertical: AppTheme.space8),
+        horizontal: AppTheme.space16,
+        vertical: AppTheme.space8,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -108,7 +110,8 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
       decoration: const BoxDecoration(
         gradient: AppTheme.primaryGradient,
         borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(AppTheme.radiusExtraLarge)),
+          bottom: Radius.circular(AppTheme.radiusExtraLarge),
+        ),
       ),
       child: Column(
         children: [
@@ -116,17 +119,21 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
             children: [
               IconButton(
                 onPressed: () => context.pop(),
-                icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                    color: Colors.white, size: 20),
+                icon: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
               ),
               const Expanded(
                 child: Text(
                   'সময়সূচি',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold),
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               const SizedBox(width: 48), // Balancing back button
@@ -194,10 +201,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                   .setDayTypeFilter(entry.key),
               selectedColor: color,
               backgroundColor: color.withOpacity(0.15),
-              side: BorderSide(
-                color: color,
-                width: isSelected ? 2 : 1.5,
-              ),
+              side: BorderSide(color: color, width: isSelected ? 2 : 1.5),
               showCheckmark: false,
               elevation: isSelected ? 3 : 1,
               pressElevation: 4,
@@ -269,7 +273,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   }
 
   Widget _buildScheduleList(
-      ScheduleListState state, Set<String> allowedCategories) {
+    ScheduleListState state,
+    Set<String> allowedCategories,
+  ) {
     if (state.isLoading) {
       return _buildLoadingSkeleton();
     }
@@ -301,7 +307,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
       onRefresh: () => ref.read(scheduleListProvider.notifier).loadSchedules(),
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(
-            horizontal: AppTheme.space24, vertical: AppTheme.space8),
+          horizontal: AppTheme.space24,
+          vertical: AppTheme.space8,
+        ),
         physics: const BouncingScrollPhysics(),
         itemCount: sortedTimes.length,
         itemBuilder: (context, index) {
@@ -337,8 +345,11 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                   color: AppTheme.primaryBlue.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.access_time_filled_rounded,
-                    color: AppTheme.primaryBlue, size: 20),
+                child: const Icon(
+                  Icons.access_time_filled_rounded,
+                  color: AppTheme.primaryBlue,
+                  size: 20,
+                ),
               ),
               const SizedBox(width: AppTheme.space16),
               Column(
@@ -359,7 +370,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(
-                  horizontal: AppTheme.space16, vertical: AppTheme.space8),
+                horizontal: AppTheme.space16,
+                vertical: AppTheme.space8,
+              ),
               child: AnimationLimiter(
                 child: Column(
                   children: List.generate(schedules.length, (i) {
@@ -373,9 +386,11 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                           child: Padding(
                             padding: const EdgeInsets.only(bottom: 8),
                             child: ScheduleCard(
-                                schedule: s,
-                                onTap: () => context.push(
-                                    '/bus/${s.busId}?scheduleId=${s.id}')),
+                              schedule: s,
+                              onTap: () => context.push(
+                                '/bus/${s.busId}?scheduleId=${s.id}',
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -433,12 +448,19 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.schedule_rounded,
-              size: 80, color: AppTheme.textHint.withOpacity(0.3)),
+          Icon(
+            Icons.schedule_rounded,
+            size: 80,
+            color: AppTheme.textHint.withOpacity(0.3),
+          ),
           const SizedBox(height: 16),
-          const Text('আজকে কোনো শিডিউল নেই',
-              style: TextStyle(
-                  color: AppTheme.textSecondary, fontWeight: FontWeight.bold)),
+          const Text(
+            'আজকে কোনো শিডিউল নেই',
+            style: TextStyle(
+              color: AppTheme.textSecondary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );

@@ -2,9 +2,11 @@ class ApiConstants {
   static const String apiBaseSuffix = '/api';
 
   static String get baseUrl {
-    const define = String.fromEnvironment('API_BASE_URL',
-        defaultValue:
-            'https://cou-bus-tracker-backend-admin-frontend.onrender.com/api');
+    const define = String.fromEnvironment(
+      'API_BASE_URL',
+      defaultValue:
+          'https://cou-bus-tracker-backend-admin-frontend.onrender.com/api',
+    );
     return define;
   }
 

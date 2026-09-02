@@ -20,7 +20,9 @@ class NoticeRepository {
         return Success(notices);
       }
 
-      return Failure(message: ErrorHandler.getMessage(response.statusCode, null));
+      return Failure(
+        message: ErrorHandler.getMessage(response.statusCode, null),
+      );
     } on DioException catch (e) {
       return Failure(message: _handleDioError(e));
     } catch (e) {

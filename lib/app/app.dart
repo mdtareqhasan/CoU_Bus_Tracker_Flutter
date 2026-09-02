@@ -93,10 +93,7 @@ class _CoUBusTrackerAppState extends ConsumerState<CoUBusTrackerApp> {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('bn', 'BD'),
-        Locale('en', 'US'),
-      ],
+      supportedLocales: const [Locale('bn', 'BD'), Locale('en', 'US')],
     );
   }
 }

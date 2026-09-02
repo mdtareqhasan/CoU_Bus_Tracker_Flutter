@@ -5,10 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'dart:async';
-import 'dart:ui' as ui;
-import 'dart:ui_web' as ui_web;
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
+import 'live_tracking_conditional.dart';
 import '../../app/theme.dart';
 
 class LiveTrackingScreen extends StatefulWidget {
@@ -50,21 +47,14 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
 
     if (finalUrl.contains('userMapType=open_streets')) {
       finalUrl = finalUrl.replaceAll(
-          'userMapType=open_streets', 'userMapType=google_streets');
+        'userMapType=open_streets',
+        'userMapType=google_streets',
+      );
     }
 
     if (kIsWeb) {
       _viewId = 'iframe-view-${widget.url.hashCode}';
-      ui_web.platformViewRegistry.registerViewFactory(_viewId, (int viewId) {
-        final iframe = html.IFrameElement()
-          ..src = finalUrl
-          ..style.border = 'none'
-          ..style.width = '100%'
-          ..style.height = '100%'
-          ..allow = "geolocation" // Explicitly allow GPS in web
-          ..setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups'); 
-        return iframe;
-      });
+      registerIframeView(_viewId, finalUrl);
       _isLoading = false;
       _startWebStatusUpdates();
     } else {
@@ -133,7 +123,11 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
 
       if (_userPosition != null && lat != null && lng != null) {
         double dist = Geolocator.distanceBetween(
-            _userPosition!.latitude, _userPosition!.longitude, lat, lng);
+          _userPosition!.latitude,
+          _userPosition!.longitude,
+          lat,
+          lng,
+        );
         setState(() {
           _status = 'Running';
           if (dist < 1000) {
@@ -177,12 +171,15 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
       final pos = await Geolocator.getCurrentPosition();
       if (mounted) setState(() => _userPosition = pos);
 
-      _positionStream = Geolocator.getPositionStream(
-        locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.high, distanceFilter: 10),
-      ).listen((Position position) {
-        if (mounted) setState(() => _userPosition = position);
-      });
+      _positionStream =
+          Geolocator.getPositionStream(
+            locationSettings: const LocationSettings(
+              accuracy: LocationAccuracy.high,
+              distanceFilter: 10,
+            ),
+          ).listen((Position position) {
+            if (mounted) setState(() => _userPosition = position);
+          });
     } catch (e) {
       debugPrint('Location Error: $e');
     }
@@ -213,7 +210,11 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
           latVal != 0 &&
           lngVal != 0) {
         double dist = Geolocator.distanceBetween(
-            _userPosition!.latitude, _userPosition!.longitude, latVal, lngVal);
+          _userPosition!.latitude,
+          _userPosition!.longitude,
+          latVal,
+          lngVal,
+        );
         if (dist < 1000) {
           distanceStr = '${dist.toStringAsFixed(0)} m';
         } else {
@@ -232,7 +233,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
   }
 
   void _applyCustomChanges() {
-    if (kIsWeb) return; 
+    if (kIsWeb) return;
     _hideSideInfo();
     _removeCheckboxes();
     _setRefreshInterval();
@@ -358,7 +359,9 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
               canPop: false,
               onPopInvokedWithResult: (didPop, result) async {
                 if (didPop) return;
-                if (!kIsWeb && _controller != null && await _controller!.canGoBack()) {
+                if (!kIsWeb &&
+                    _controller != null &&
+                    await _controller!.canGoBack()) {
                   _controller!.goBack();
                 } else if (mounted) {
                   Navigator.of(context).pop();
@@ -374,17 +377,20 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                       child: _hasNetworkError
                           ? _buildNoInternetOverlay()
                           : kIsWeb
-                              ? _buildWebMapContainer()
-                              : WebViewWidget(controller: _controller!),
+                          ? _buildWebMapContainer()
+                          : WebViewWidget(controller: _controller!),
                     ),
                   ),
                   if (!_hasNetworkError)
                     PointerInterceptor(child: _buildStatusOverlay()),
                   if (_isLoading && !_hasNetworkError)
                     const Center(
-                        child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                                AppTheme.primaryBlue))),
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          AppTheme.primaryBlue,
+                        ),
+                      ),
+                    ),
                   // Manual Timer Selection for Web
                   if (kIsWeb)
                     Positioned(
@@ -392,14 +398,28 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                       left: 20,
                       child: PointerInterceptor(
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: AppTheme.primaryBlue, width: 2),
-                            boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10)],
+                            border: Border.all(
+                              color: AppTheme.primaryBlue,
+                              width: 2,
+                            ),
+                            boxShadow: [
+                              BoxShadow(color: Colors.black26, blurRadius: 10),
+                            ],
                           ),
-                          child: const Text('Refresh: 5s', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                          child: const Text(
+                            'Refresh: 5s',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -418,7 +438,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
     // We expand the iframe to hide the sidebar and offset it to center the map portion.
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 600;
-    
+
     // On mobile, the sidebar takes up a huge chunk. We expand by 150% to hide it properly.
     final expansionFactor = isMobile ? 1.6 : 1.35;
     final sidebarEstimatedWidth = screenWidth * (expansionFactor - 1.0);
@@ -433,7 +453,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
           child: SizedBox(
             width: screenWidth * expansionFactor,
             height: double.infinity,
-            child: HtmlElementView(viewType: _viewId),
+            child: buildWebView(_viewId),
           ),
         ),
       ),
@@ -448,23 +468,31 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
       expandedHeight: 110,
       leading: PointerInterceptor(
         child: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                color: Colors.white),
-            onPressed: () => Navigator.of(context).pop()),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.white,
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       title: PointerInterceptor(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(children: [
-              Text(widget.busName,
+            Row(
+              children: [
+                Text(
+                  widget.busName,
                   style: const TextStyle(
-                      fontSize: 18,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold)),
-              const SizedBox(width: 8),
-              _buildStatusBadge(isMoving),
-            ]),
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                _buildStatusBadge(isMoving),
+              ],
+            ),
           ],
         ),
       ),
@@ -483,17 +511,21 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.tips_and_updates_rounded,
-                      color: Colors.white, size: 14),
+                  Icon(
+                    Icons.tips_and_updates_rounded,
+                    color: Colors.white,
+                    size: 14,
+                  ),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'দ্রুত আপডেট পেতে নিচের বাম পাশের ড্রপডাউন থেকে ৫ সেঃ সিলেক্ট করুন',
                       style: TextStyle(
-                          fontSize: 10.5,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          height: 1.2),
+                        fontSize: 10.5,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        height: 1.2,
+                      ),
                       maxLines: 2,
                     ),
                   ),
@@ -506,9 +538,10 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
       actions: [
         PointerInterceptor(
           child: IconButton(
-              icon: const Icon(Icons.refresh_rounded, color: Colors.white),
-              onPressed: () => kIsWeb ? null : _controller?.reload()),
-        )
+            icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+            onPressed: () => kIsWeb ? null : _controller?.reload(),
+          ),
+        ),
       ],
     );
   }
@@ -518,18 +551,30 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-          color: color.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.5), width: 0.5)),
-      child: Row(children: [
-        Container(width: 6, height: 6, decoration: BoxDecoration(color: color, shape: BoxShape.circle))
-            .animate(onPlay: (c) => c.repeat())
-            .fade(duration: 800.ms, begin: 0.4, end: 1),
-        const SizedBox(width: 6),
-        Text(isMoving ? 'RUNNING' : 'STOPPED',
+        color: color.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.5), width: 0.5),
+      ),
+      child: Row(
+        children: [
+          Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              )
+              .animate(onPlay: (c) => c.repeat())
+              .fade(duration: 800.ms, begin: 0.4, end: 1),
+          const SizedBox(width: 6),
+          Text(
+            isMoving ? 'RUNNING' : 'STOPPED',
             style: const TextStyle(
-                color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
-      ]),
+              color: Colors.white,
+              fontSize: 9,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -549,13 +594,16 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
             decoration: BoxDecoration(
               color: const Color(0xFF1A1F2E).withOpacity(0.9),
               borderRadius: BorderRadius.circular(20),
-              border:
-                  Border.all(color: Colors.white.withOpacity(0.1), width: 1.5),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.1),
+                width: 1.5,
+              ),
               boxShadow: [
                 BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5))
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
               ],
             ),
             child: Column(
@@ -565,33 +613,45 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                 Row(
                   children: [
                     Icon(
-                        isMoving
-                            ? Icons.directions_bus_rounded
-                            : Icons.pause_circle_rounded,
-                        color: statusColor,
-                        size: 22),
+                      isMoving
+                          ? Icons.directions_bus_rounded
+                          : Icons.pause_circle_rounded,
+                      color: statusColor,
+                      size: 22,
+                    ),
                     const SizedBox(width: 10),
-                    Text(_status.toUpperCase(),
-                        style: TextStyle(
-                            color: statusColor,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 18,
-                            letterSpacing: 0.5)),
+                    Text(
+                      _status.toUpperCase(),
+                      style: TextStyle(
+                        color: statusColor,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 18,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    const Icon(Icons.near_me_rounded,
-                        color: Colors.white54, size: 14),
+                    const Icon(
+                      Icons.near_me_rounded,
+                      color: Colors.white54,
+                      size: 14,
+                    ),
                     const SizedBox(width: 6),
-                    const Text('Distance: ',
-                        style: TextStyle(color: Colors.white70, fontSize: 12)),
-                    Text(_distance,
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Distance: ',
+                      style: TextStyle(color: Colors.white70, fontSize: 12),
+                    ),
+                    Text(
+                      _distance,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -603,49 +663,55 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
         Positioned(
           bottom: 32 + MediaQuery.of(context).padding.bottom,
           right: 16,
-          child: Container(
-            width: 95,
-            height: 95,
-            decoration: BoxDecoration(
-              gradient: AppTheme.primaryGradient,
-              shape: BoxShape.circle,
-              border:
-                  Border.all(color: Colors.white.withOpacity(0.2), width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.primaryBlue.withOpacity(0.3),
-                  blurRadius: 15,
-                  offset: const Offset(0, 5),
-                )
-              ],
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  _speed.replaceAll(RegExp(r'[^0-9]'), ''),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 28,
-                    fontWeight: FontWeight.w900,
-                    height: 1.1,
+          child:
+              Container(
+                    width: 95,
+                    height: 95,
+                    decoration: BoxDecoration(
+                      gradient: AppTheme.primaryGradient,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.2),
+                        width: 2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.primaryBlue.withOpacity(0.3),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          _speed.replaceAll(RegExp(r'[^0-9]'), ''),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 28,
+                            fontWeight: FontWeight.w900,
+                            height: 1.1,
+                          ),
+                        ),
+                        const Text(
+                          'km/h',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                  .animate(target: isMoving ? 1 : 0)
+                  .scale(
+                    begin: const Offset(0.9, 0.9),
+                    end: const Offset(1, 1),
+                    curve: Curves.elasticOut,
                   ),
-                ),
-                const Text(
-                  'km/h',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ],
-            ),
-          ).animate(target: isMoving ? 1 : 0).scale(
-              begin: const Offset(0.9, 0.9),
-              end: const Offset(1, 1),
-              curve: Curves.elasticOut),
         ),
       ],
     );
@@ -690,13 +756,15 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                   _controller?.reload();
                 },
                 icon: const Icon(Icons.refresh_rounded),
-                label: const Text('আবার চেষ্টা করুন',
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                label: const Text(
+                  'আবার চেষ্টা করুন',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(220, 52),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14)),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
               ),
             ],

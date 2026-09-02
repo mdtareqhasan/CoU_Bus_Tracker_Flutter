@@ -111,7 +111,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final result = await _authRepo.validateToken(role);
 
     if (result case Failure(:final statusCode)) {
-      final isAuthError = statusCode == 401 ||
+      final isAuthError =
+          statusCode == 401 ||
           statusCode == 403 ||
           (result as Failure).message.toLowerCase().contains('সেশন শেষ');
 
@@ -151,7 +152,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       if (idToken == null) {
         state = state.copyWith(
-            status: AuthStateStatus.error, error: 'Google ID Token not found');
+          status: AuthStateStatus.error,
+          error: 'Google ID Token not found',
+        );
         return;
       }
 
@@ -169,23 +172,30 @@ class AuthNotifier extends StateNotifier<AuthState> {
               error: message,
             );
           } else {
-            state =
-                state.copyWith(status: AuthStateStatus.error, error: message);
+            state = state.copyWith(
+              status: AuthStateStatus.error,
+              error: message,
+            );
           }
         default:
           state = state.copyWith(
-              status: AuthStateStatus.error, error: 'Unknown response');
+            status: AuthStateStatus.error,
+            error: 'Unknown response',
+          );
       }
     } catch (e) {
-      state =
-          state.copyWith(status: AuthStateStatus.error, error: e.toString());
+      state = state.copyWith(
+        status: AuthStateStatus.error,
+        error: e.toString(),
+      );
     }
   }
 
-  Future<void> login(
-      {required String email,
-      required String password,
-      required String role}) async {
+  Future<void> login({
+    required String email,
+    required String password,
+    required String role,
+  }) async {
     state = state.copyWith(status: AuthStateStatus.loading, error: null);
 
     final req = LoginRequest(email: email, password: password);
@@ -215,7 +225,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
         }
       default:
         state = state.copyWith(
-            status: AuthStateStatus.error, error: 'Unknown response');
+          status: AuthStateStatus.error,
+          error: 'Unknown response',
+        );
     }
   }
 
@@ -249,11 +261,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
           state = state.copyWith(status: AuthStateStatus.error, error: message);
         default:
           state = state.copyWith(
-              status: AuthStateStatus.error, error: 'Unknown response');
+            status: AuthStateStatus.error,
+            error: 'Unknown response',
+          );
       }
     } catch (e) {
-      state =
-          state.copyWith(status: AuthStateStatus.error, error: e.toString());
+      state = state.copyWith(
+        status: AuthStateStatus.error,
+        error: e.toString(),
+      );
     } finally {
       // Always leave the loading state, including on timeout/connection errors,
       // so the user can retry. The pending OTP session is NOT deleted here.
@@ -297,17 +313,24 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       switch (result) {
         case Success(:final data):
-          await _handleRegisterSuccess(data, 'student',
-              fallbackEmail: email.trim());
+          await _handleRegisterSuccess(
+            data,
+            'student',
+            fallbackEmail: email.trim(),
+          );
         case Failure(:final message):
           state = state.copyWith(status: AuthStateStatus.error, error: message);
         default:
           state = state.copyWith(
-              status: AuthStateStatus.error, error: 'Unknown response');
+            status: AuthStateStatus.error,
+            error: 'Unknown response',
+          );
       }
     } catch (e) {
-      state =
-          state.copyWith(status: AuthStateStatus.error, error: e.toString());
+      state = state.copyWith(
+        status: AuthStateStatus.error,
+        error: e.toString(),
+      );
     } finally {
       // Always leave the loading state on success, DioException, timeout,
       // validation error, or any unexpected exception.
@@ -345,17 +368,24 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       switch (result) {
         case Success(:final data):
-          await _handleRegisterSuccess(data, 'teacher',
-              fallbackEmail: email.trim());
+          await _handleRegisterSuccess(
+            data,
+            'teacher',
+            fallbackEmail: email.trim(),
+          );
         case Failure(:final message):
           state = state.copyWith(status: AuthStateStatus.error, error: message);
         default:
           state = state.copyWith(
-              status: AuthStateStatus.error, error: 'Unknown response');
+            status: AuthStateStatus.error,
+            error: 'Unknown response',
+          );
       }
     } catch (e) {
-      state =
-          state.copyWith(status: AuthStateStatus.error, error: e.toString());
+      state = state.copyWith(
+        status: AuthStateStatus.error,
+        error: e.toString(),
+      );
     } finally {
       // Always leave the loading state on success, DioException, timeout,
       // validation error, or any unexpected exception.
@@ -402,8 +432,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final verified = data.isVerified ?? false;
 
     if (!hasToken || !verified) {
-      final email =
-          data.email?.trim().isNotEmpty == true ? data.email : fallbackEmail;
+      final email = data.email?.trim().isNotEmpty == true
+          ? data.email
+          : fallbackEmail;
 
       // Persist a pending OTP session (email + role) in secure storage so it
       // survives app restart. The OTP itself is never stored.

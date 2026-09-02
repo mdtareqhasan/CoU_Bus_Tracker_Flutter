@@ -119,9 +119,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               _buildModernHeader(context, state),
               _buildConnectionStrip(state),
               _buildModernStatGrid(context, state),
-              _buildSectionHeader(context,
-                  title: 'আজকের সময়সূচি',
-                  onSeeAll: () => context.go('/schedules')),
+              _buildSectionHeader(
+                context,
+                title: 'আজকের সময়সূচি',
+                onSeeAll: () => context.go('/schedules'),
+              ),
               _buildSchedulePreviewList(context, state),
               const SliverToBoxAdapter(child: SizedBox(height: 100)),
             ],
@@ -209,7 +211,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return PopupMenuButton<String>(
       offset: const Offset(0, 50),
       shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium)),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+      ),
       tooltip: 'মেনু',
       icon: Container(
         padding: const EdgeInsets.all(AppTheme.space8),
@@ -229,8 +232,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           value: 'about',
           child: Row(
             children: [
-              Icon(Icons.info_outline_rounded,
-                  size: 20, color: AppTheme.primaryBlue),
+              Icon(
+                Icons.info_outline_rounded,
+                size: 20,
+                color: AppTheme.primaryBlue,
+              ),
               SizedBox(width: 12),
               Text('About Us', style: TextStyle(fontWeight: FontWeight.bold)),
             ],
@@ -243,7 +249,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildHeaderInfoCard(DashboardState state) {
     return Container(
       padding: const EdgeInsets.symmetric(
-          horizontal: AppTheme.space16, vertical: AppTheme.space12),
+        horizontal: AppTheme.space16,
+        vertical: AppTheme.space12,
+      ),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.12),
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
@@ -253,7 +261,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           Container(
             padding: const EdgeInsets.all(2),
             decoration: const BoxDecoration(
-                color: Colors.white, shape: BoxShape.circle),
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
             child: ClipOval(
               child: Image.asset(
                 'assets/images/buslogo.jpeg',
@@ -314,31 +324,33 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         'label': 'সক্রিয় বাস',
         'value': state.activeBusCount.toString(),
         'icon': Icons.directions_bus_rounded,
-        'color': AppTheme.primaryBlue
+        'color': AppTheme.primaryBlue,
       },
       {
         'label': 'আজকের ট্রিপ',
         'value': state.todayScheduleCount.toString(),
         'icon': Icons.schedule_rounded,
-        'color': Colors.deepPurple
+        'color': Colors.deepPurple,
       },
       {
         'label': 'লাইভ ট্র্যাকিং',
         'value': state.trackingBusCount.toString(),
         'icon': Icons.location_on_rounded,
-        'color': Colors.teal
+        'color': Colors.teal,
       },
       {
         'label': 'জরুরি নোটিশ',
         'value': state.activeNoticeCount.toString(),
         'icon': Icons.notifications_rounded,
-        'color': Colors.orange
+        'color': Colors.orange,
       },
     ];
 
     return SliverPadding(
       padding: const EdgeInsets.symmetric(
-          horizontal: AppTheme.space24, vertical: AppTheme.space24),
+        horizontal: AppTheme.space24,
+        vertical: AppTheme.space24,
+      ),
       sliver: SliverGrid(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
@@ -346,37 +358,39 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           crossAxisSpacing: AppTheme.space16,
           childAspectRatio: 1.2,
         ),
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            final stat = stats[index];
-            return StatCard(
-              label: stat['label'] as String,
-              value: stat['value'] as String,
-              icon: stat['icon'] as IconData,
-              color: stat['color'] as Color,
-              onTap: () {
-                final label = stat['label'];
-                if (label == 'সক্রিয় বাস' || label == 'লাইভ ট্র্যাকিং')
-                  context.go('/buses');
-                else if (label == 'আজকের ট্রিপ')
-                  context.go('/schedules');
-                else
-                  context.go('/notices');
-              },
-            );
-          },
-          childCount: stats.length,
-        ),
+        delegate: SliverChildBuilderDelegate((context, index) {
+          final stat = stats[index];
+          return StatCard(
+            label: stat['label'] as String,
+            value: stat['value'] as String,
+            icon: stat['icon'] as IconData,
+            color: stat['color'] as Color,
+            onTap: () {
+              final label = stat['label'];
+              if (label == 'সক্রিয় বাস' || label == 'লাইভ ট্র্যাকিং')
+                context.go('/buses');
+              else if (label == 'আজকের ট্রিপ')
+                context.go('/schedules');
+              else
+                context.go('/notices');
+            },
+          );
+        }, childCount: stats.length),
       ),
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context,
-      {required String title, required VoidCallback onSeeAll}) {
+  Widget _buildSectionHeader(
+    BuildContext context, {
+    required String title,
+    required VoidCallback onSeeAll,
+  }) {
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.symmetric(
-            horizontal: AppTheme.space24, vertical: AppTheme.space8),
+          horizontal: AppTheme.space24,
+          vertical: AppTheme.space8,
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -405,19 +419,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: AppTheme.space24),
       sliver: SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            final s = schedules[index];
-            return ScheduleCard(
-                    schedule: s,
-                    onTap: () =>
-                        context.push('/bus/${s.busId}?scheduleId=${s.id}'))
-                .animate()
-                .fadeIn(delay: (index * 100).ms)
-                .slideX(begin: 0.1, end: 0);
-          },
-          childCount: schedules.length > 5 ? 5 : schedules.length,
-        ),
+        delegate: SliverChildBuilderDelegate((context, index) {
+          final s = schedules[index];
+          return ScheduleCard(
+                schedule: s,
+                onTap: () => context.push('/bus/${s.busId}?scheduleId=${s.id}'),
+              )
+              .animate()
+              .fadeIn(delay: (index * 100).ms)
+              .slideX(begin: 0.1, end: 0);
+        }, childCount: schedules.length > 5 ? 5 : schedules.length),
       ),
     );
   }
@@ -442,9 +453,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: Text(
                 'অফলাইন • সংরক্ষিত তথ্য দেখানো হচ্ছে',
                 style: TextStyle(
-                    color: AppTheme.error,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13),
+                  color: AppTheme.error,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
               ),
             ),
           ],
