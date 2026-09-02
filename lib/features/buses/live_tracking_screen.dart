@@ -5,10 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'dart:async';
-import 'dart:ui' as ui;
-import 'dart:ui_web' as ui_web;
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
+import 'live_tracking_conditional.dart';
 import '../../app/theme.dart';
 
 class LiveTrackingScreen extends StatefulWidget {
@@ -53,17 +50,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
 
     if (kIsWeb) {
       _viewId = 'iframe-map-${widget.url.hashCode}';
-      ui_web.platformViewRegistry.registerViewFactory(_viewId, (int viewId) {
-        final iframe = html.IFrameElement()
-          ..src = finalUrl
-          ..style.border = 'none'
-          ..style.width = '100%'
-          ..style.height = '100%'
-          ..allow = 'geolocation'
-          // Reduced security restrictions to allow original map loading
-          ..referrerPolicy = 'no-referrer';
-        return iframe;
-      });
+      registerIframeView(_viewId, finalUrl);
       _isLoading = false;
     } else {
       _controller = WebViewController()
@@ -362,7 +349,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
     // Strategic Clipping to hide sidebar and center the map view
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 600;
-    
+
     // We expand the iframe to push the sidebar out of the clipped area
     final expansionFactor = isMobile ? 1.6 : 1.35;
     final sidebarWidth = screenWidth * (expansionFactor - 1.0);
@@ -377,7 +364,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
           child: SizedBox(
             width: screenWidth * expansionFactor,
             height: double.infinity,
-            child: HtmlElementView(viewType: _viewId),
+            child: buildWebView(_viewId),
           ),
         ),
       ),

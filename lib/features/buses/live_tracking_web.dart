@@ -5,18 +5,20 @@ import 'dart:ui_web' as ui_web;
 import 'package:flutter/material.dart';
 
 void registerIframeView(String viewId, String url) {
+  // Ensure HTTPS for production (Vercel) to avoid Mixed Content issues
+  String finalUrl = url;
+  if (finalUrl.startsWith('http://')) {
+    finalUrl = finalUrl.replaceFirst('http://', 'https://');
+  }
+
   ui_web.platformViewRegistry.registerViewFactory(viewId, (int viewId) {
     final iframe = html.IFrameElement()
-      ..src = url
+      ..src = finalUrl
       ..style.border = 'none'
       ..style.width = '100%'
       ..style.height = '100%'
       ..allow = 'geolocation'
-      // Try to reduce blocks by setting no-referrer
-      ..referrerPolicy = 'no-referrer'
-      // Mobile-friendly scale for web views
-      ..style.transform = 'scale(1.0)'
-      ..style.transformOrigin = 'top left';
+      ..referrerPolicy = 'no-referrer';
     return iframe;
   });
 }
