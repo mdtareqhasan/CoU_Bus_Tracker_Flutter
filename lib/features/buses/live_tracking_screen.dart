@@ -27,14 +27,14 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
   WebViewController? _controller;
   bool _isLoading = true;
   bool _hasNetworkError = false;
-  bool _iframeBlocked = false;
   String _speed = '0 km/h';
   String _status = 'সংযুক্ত হচ্ছে...';
   String _distance = '-- km';
   Position? _userPosition;
   StreamSubscription<Position>? _positionStream;
   late final String _viewId;
-  Timer? _webUpdateTimer;
+  double _webLat = 23.4566;
+  double _webLng = 90.7587;
 
   @override
   void initState() {
@@ -55,16 +55,12 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
     }
 
     if (kIsWeb) {
-      _viewId = 'iframe-view-${widget.url.hashCode}';
-      registerIframeView(_viewId, finalUrl);
+      // Extract coordinates from URL for Leaflet map on web
+      final uri = Uri.parse(finalUrl);
+      _webLat = double.tryParse(uri.queryParameters['lat'] ?? '') ?? 23.4566;
+      _webLng = double.tryParse(uri.queryParameters['lng'] ?? '') ?? 90.7587;
+      _viewId = 'leaflet-map-${widget.url.hashCode}';
       _isLoading = false;
-      _startWebStatusUpdates();
-      // Check if iframe loaded after a short delay
-      Future.delayed(const Duration(seconds: 3), () {
-        if (mounted) {
-          _checkIframeLoaded(finalUrl);
-        }
-      });
     } else {
       _controller = WebViewController()
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
@@ -111,54 +107,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
   @override
   void dispose() {
     _positionStream?.cancel();
-    _webUpdateTimer?.cancel();
     super.dispose();
-  }
-
-  void _startWebStatusUpdates() {
-    _webUpdateTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      if (!mounted) return;
-      _updateWebData();
-    });
-  }
-
-  void _checkIframeLoaded(String url) {
-    // If status is still "সংযুক্ত হচ্ছে..." after 3s, iframe likely blocked
-    if (_status == 'সংযুক্ত হচ্ছে...' && mounted) {
-      setState(() {
-        _iframeBlocked = true;
-        _isLoading = false;
-      });
-    }
-  }
-
-  void _updateWebData() {
-    try {
-      // Try to estimate status based on distance change or static Running if loaded
-      final uri = Uri.parse(widget.url);
-      final lat = double.tryParse(uri.queryParameters['lat'] ?? '');
-      final lng = double.tryParse(uri.queryParameters['lng'] ?? '');
-
-      if (_userPosition != null && lat != null && lng != null) {
-        double dist = Geolocator.distanceBetween(
-          _userPosition!.latitude,
-          _userPosition!.longitude,
-          lat,
-          lng,
-        );
-        setState(() {
-          _status = 'Running';
-          if (dist < 1000) {
-            _distance = '${dist.toStringAsFixed(0)} m';
-          } else {
-            _distance = '${(dist / 1000).toStringAsFixed(1)} km';
-          }
-        });
-      } else {
-        // Just keep checking position
-        _initLocation();
-      }
-    } catch (_) {}
   }
 
   Future<void> _initLocation() async {
@@ -394,10 +343,13 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                       ),
                       child: _hasNetworkError
                           ? _buildNoInternetOverlay()
-                          : _iframeBlocked
-                          ? _buildIframeBlockedOverlay()
                           : kIsWeb
-                          ? _buildWebMapContainer()
+                          ? buildLeafletMap(
+                              _viewId,
+                              _webLat,
+                              _webLng,
+                              widget.busName,
+                            )
                           : WebViewWidget(controller: _controller!),
                     ),
                   ),
@@ -452,10 +404,6 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
     );
   }
 
-  Widget _buildWebMapContainer() {
-    return Positioned.fill(child: buildWebView(_viewId));
-  }
-
   Widget _buildSliverAppBar() {
     final isMoving = _status == 'Running';
     return SliverAppBar(
@@ -496,9 +444,9 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
         background: PointerInterceptor(
           child: Container(
             decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
-            padding: EdgeInsets.fromLTRB(16, kIsWeb ? 60 : 85, 16, 4),
+            padding: const EdgeInsets.fromLTRB(16, 85, 16, 4),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: Colors.black.withOpacity(0.15),
                 borderRadius: BorderRadius.circular(8),
@@ -510,17 +458,17 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                   const Icon(
                     Icons.tips_and_updates_rounded,
                     color: Colors.white,
-                    size: 16,
+                    size: 14,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'দ্রুত আপডেট পেতে নিচের বাম পাশের ড্রপডাউন থেকে ৫ সেঃ সিলেক্ট করুন',
-                      style: TextStyle(
-                        fontSize: kIsWeb ? 13 : 11,
+                      style: const TextStyle(
+                        fontSize: 10.5,
                         color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        height: 1.3,
+                        fontWeight: FontWeight.bold,
+                        height: 1.2,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -537,17 +485,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
           child: IconButton(
             icon: const Icon(Icons.refresh_rounded, color: Colors.white),
             onPressed: () {
-              if (kIsWeb) {
-                setState(() {
-                  _isLoading = true;
-                });
-                // Reload the iframe by re-registering the view
-                registerIframeView(_viewId, widget.url);
-                if (mounted)
-                  setState(() {
-                    _isLoading = false;
-                  });
-              } else {
+              if (!kIsWeb) {
                 _controller?.reload();
               }
             },
@@ -725,79 +663,6 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                   ),
         ),
       ],
-    );
-  }
-
-  Widget _buildIframeBlockedOverlay() {
-    return Container(
-      color: const Color(0xFFF5F7FA),
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryBlue.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.open_in_new_rounded,
-                  color: AppTheme.primaryBlue,
-                  size: 48,
-                ),
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'লাইভ ট্র্যাকিং',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1A1F2E),
-                ),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'বাসের লাইভ লোকেশন দেখতে নিচের বাটনে ক্লিক করুন।\nনতুন ট্যাবে খুলবে।',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppTheme.textSecondary,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton.icon(
-                  onPressed: () async {
-                    final uri = Uri.parse(widget.url);
-                    if (await canLaunchUrl(uri)) {
-                      await launchUrl(
-                        uri,
-                        mode: LaunchMode.externalApplication,
-                      );
-                    }
-                  },
-                  icon: const Icon(Icons.launch_rounded),
-                  label: const Text(
-                    'লাইভ ট্র্যাকিং খুলুন',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 
