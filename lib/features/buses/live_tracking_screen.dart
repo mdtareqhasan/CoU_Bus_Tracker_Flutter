@@ -42,8 +42,12 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
     super.initState();
     _initLocation();
 
-    // Modify URL for Google Maps default if possible
+    // Force HTTPS for production (Vercel) to avoid Mixed Content issues
     String finalUrl = widget.url;
+    if (finalUrl.startsWith('http://')) {
+      finalUrl = finalUrl.replaceFirst('http://', 'https://');
+    }
+
     if (finalUrl.contains('userMapType=open_streets')) {
       finalUrl = finalUrl.replaceAll(
           'userMapType=open_streets', 'userMapType=google_streets');
@@ -56,7 +60,9 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
           ..src = finalUrl
           ..style.border = 'none'
           ..style.width = '100%'
-          ..style.height = '100%';
+          ..style.height = '100%'
+          ..allow = "geolocation" // Explicitly allow GPS in web
+          ..setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups'); 
         return iframe;
       });
       _isLoading = false;
