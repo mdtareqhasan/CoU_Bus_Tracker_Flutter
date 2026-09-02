@@ -4,20 +4,21 @@ import 'dart:js' as js;
 import 'dart:ui_web' as ui_web;
 import 'package:flutter/material.dart';
 
-String registerIframeView(String viewId, String url) {
+void registerIframeView(String viewId, String url) {
   ui_web.platformViewRegistry.registerViewFactory(viewId, (int viewId) {
     final iframe = html.IFrameElement()
       ..src = url
       ..style.border = 'none'
       ..style.width = '100%'
       ..style.height = '100%'
-      ..style.position = 'absolute'
-      ..style.top = '0'
-      ..style.left = '0'
-      ..allow = 'geolocation';
+      ..allow = 'geolocation'
+      // Try to reduce blocks by setting no-referrer
+      ..referrerPolicy = 'no-referrer'
+      // Mobile-friendly scale for web views
+      ..style.transform = 'scale(1.0)'
+      ..style.transformOrigin = 'top left';
     return iframe;
   });
-  return viewId;
 }
 
 Widget buildWebView(String viewType) {
@@ -25,77 +26,100 @@ Widget buildWebView(String viewType) {
 }
 
 /// Creates a Leaflet map with a bus marker at the given coordinates.
-/// The Obhai URL is never exposed to the user.
 Widget buildLeafletMap(String viewId, double lat, double lng, String busName) {
   ui_web.platformViewRegistry.registerViewFactory(viewId, (int viewId) {
-    final div = html.DivElement()
-      ..id = 'leaflet-map-$viewId'
+    final container = html.DivElement()
+      ..id = viewId
       ..style.width = '100%'
       ..style.height = '100%'
-      ..style.position = 'absolute'
-      ..style.top = '0'
-      ..style.left = '0';
+      ..style.backgroundColor = '#f0f0f0';
 
-    // Inject Leaflet CSS & JS after the element is in DOM
-    scheduleMicrotask(() {
-      _injectLeaflet(div, lat, lng, busName);
-    });
+    // Inject Leaflet once
+    _injectLeafletScripts();
 
-    return div;
+    // Map initialization logic
+    _initMap(viewId, lat, lng, busName);
+
+    return container;
   });
 
   return HtmlElementView(viewType: viewId);
 }
 
-void _injectLeaflet(
-  html.Element container,
-  double lat,
-  double lng,
-  String busName,
-) {
-  // Avoid double-injecting
-  if (container.querySelector('.leaflet-container') != null) return;
+bool _leafetInjected = false;
 
-  // Load Leaflet CSS
-  final cssLink = html.LinkElement()
-    ..rel = 'stylesheet'
-    ..href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-  html.document.head!.append(cssLink);
+void _injectLeafletScripts() {
+  if (_leafetInjected) return;
+  
+  final head = html.document.head!;
+  
+  if (head.querySelector('link[href*="leaflet.css"]') == null) {
+    head.append(html.LinkElement()
+      ..rel = 'stylesheet'
+      ..href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
+  }
 
-  // Load Leaflet JS
-  final script = html.ScriptElement()
-    ..src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-  html.document.head!.append(script);
+  if (head.querySelector('script[src*="leaflet.js"]') == null) {
+    head.append(html.ScriptElement()
+      ..src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js');
+  }
+  
+  _leafetInjected = true;
+}
 
-  script.onLoad.listen((_) {
-    final mapId = container.id;
-    final mapDiv = html.DivElement()
-      ..id = mapId
-      ..style.width = '100%'
-      ..style.height = '100%';
-    container.append(mapDiv);
+void _initMap(String mapId, double lat, double lng, String busName) {
+  // We need to wait for both the element to be in DOM and the script to be loaded
+  Timer.periodic(const Duration(milliseconds: 200), (timer) {
+    final container = html.document.getElementById(mapId);
+    final hasL = js.context.hasProperty('L');
+    
+    if (container != null && hasL) {
+      timer.cancel();
+      
+      final safeBusName = busName.replaceAll('"', '\\"');
+      js.context.callMethod('eval', [
+        '''
+        (function() {
+          var container = document.getElementById("$mapId");
+          if (!container) return;
+          
+          // Clear previous map if exists
+          if (container._leaflet_id) {
+            container._leaflet_id = null;
+          }
+          container.innerHTML = "";
 
-    final safeBusName = busName.replaceAll('"', '\\"');
-    js.context.callMethod('eval', [
-      '''
-      (function() {
-        var map = L.map("$mapId", { zoomControl: false }).setView([$lat, $lng], 16);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '&copy; OpenStreetMap'
-        }).addTo(map);
-        L.control.zoom({ position: 'topright' }).addTo(map);
-        var busIcon = L.divIcon({
-          className: 'bus-marker',
-          html: '<div style="background:#1a73e8;color:white;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:18px;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);">🚌</div>',
-          iconSize: [36, 36],
-          iconAnchor: [18, 18]
-        });
-        L.marker([$lat, $lng], {icon: busIcon}).addTo(map)
-          .bindPopup("$safeBusName")
-          .openPopup();
-        setTimeout(function() { map.invalidateSize(); }, 200);
-      })();
-    ''',
-    ]);
+          var map = L.map("$mapId", { 
+            zoomControl: false,
+            attributionControl: false 
+          }).setView([$lat, $lng], 16);
+          
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+          
+          var busIcon = L.divIcon({
+            className: 'bus-marker',
+            html: '<div style="background:#3886D8;color:white;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:18px;border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,0.4);">🚌</div>',
+            iconSize: [36, 36],
+            iconAnchor: [18, 18]
+          });
+
+          L.marker([$lat, $lng], {icon: busIcon}).addTo(map)
+            .bindPopup("<b>$safeBusName</b><br>Live Tracking", { closeButton: false })
+            .openPopup();
+
+          L.control.zoom({ position: 'topright' }).addTo(map);
+
+          // Force resize
+          setTimeout(function() { 
+            map.invalidateSize(); 
+          }, 500);
+        })();
+        ''',
+      ]);
+    }
+    
+    if (timer.tick > 50) { // Timeout after 10 seconds
+      timer.cancel();
+    }
   });
 }
