@@ -433,31 +433,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
   }
 
   Widget _buildWebMapContainer() {
-    // Advanced Centering Logic:
-    // Sidebar on the source website is roughly 300px on desktop, but adjusts on mobile.
-    // We expand the iframe to hide the sidebar and offset it to center the map portion.
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 600;
-
-    // On mobile, the sidebar takes up a huge chunk. We expand by 150% to hide it properly.
-    final expansionFactor = isMobile ? 1.6 : 1.35;
-    final sidebarEstimatedWidth = screenWidth * (expansionFactor - 1.0);
-
-    return ClipRect(
-      child: OverflowBox(
-        maxWidth: double.infinity,
-        alignment: Alignment.topLeft,
-        child: Transform.translate(
-          // Offset to the left to push the sidebar out of view and center the bus
-          offset: Offset(-(sidebarEstimatedWidth / 2), 0),
-          child: SizedBox(
-            width: screenWidth * expansionFactor,
-            height: double.infinity,
-            child: buildWebView(_viewId),
-          ),
-        ),
-      ),
-    );
+    return Positioned.fill(child: buildWebView(_viewId));
   }
 
   Widget _buildSliverAppBar() {
@@ -508,20 +484,20 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: Colors.white.withOpacity(0.1)),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.tips_and_updates_rounded,
                     color: Colors.white,
                     size: 14,
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'দ্রুত আপডেট পেতে নিচের বাম পাশের ড্রপডাউন থেকে ৫ সেঃ সিলেক্ট করুন',
                       style: TextStyle(
-                        fontSize: 10.5,
+                        fontSize: kIsWeb ? 12 : 10.5,
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         height: 1.2,
@@ -539,7 +515,21 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
         PointerInterceptor(
           child: IconButton(
             icon: const Icon(Icons.refresh_rounded, color: Colors.white),
-            onPressed: () => kIsWeb ? null : _controller?.reload(),
+            onPressed: () {
+              if (kIsWeb) {
+                setState(() {
+                  _isLoading = true;
+                });
+                // Reload the iframe by re-registering the view
+                registerIframeView(_viewId, widget.url);
+                if (mounted)
+                  setState(() {
+                    _isLoading = false;
+                  });
+              } else {
+                _controller?.reload();
+              }
+            },
           ),
         ),
       ],

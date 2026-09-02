@@ -9,11 +9,10 @@ String registerIframeView(String viewId, String url) {
       ..style.border = 'none'
       ..style.width = '100%'
       ..style.height = '100%'
-      ..allow = "geolocation"
-      ..setAttribute(
-        'sandbox',
-        'allow-scripts allow-same-origin allow-forms allow-popups',
-      );
+      ..style.position = 'absolute'
+      ..style.top = '0'
+      ..style.left = '0'
+      ..allow = 'geolocation';
     return iframe;
   });
   return viewId;
