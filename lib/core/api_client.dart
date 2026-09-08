@@ -67,6 +67,17 @@ class AuthInterceptor extends Interceptor {
 
   static bool _handlingExpiry = false;
 
+  /// Public endpoints that must never carry an auth header.
+  static final _publicPaths = RegExp(
+    r'/auth/(student|teacher|admin)/(login|register)'
+    r'|/auth/google/login'
+    r'|/auth/email-verification/(verify|resend)'
+    r'|/config'
+    r'|/notices/active'
+    r'|/buses'
+    r'|/schedules',
+  );
+
   AuthInterceptor(this._storage);
 
   @override
@@ -74,6 +85,12 @@ class AuthInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
+    // Never attach a token to public endpoints.
+    if (_publicPaths.hasMatch(options.path)) {
+      handler.next(options);
+      return;
+    }
+
     final token = await _storage.getAccessToken();
     if (token != null && token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';

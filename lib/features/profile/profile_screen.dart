@@ -12,17 +12,24 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
 
-    return Scaffold(
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          _buildSliverAppBar(context),
-          SliverToBoxAdapter(
-            child: authState.isLoggedIn
-                ? _buildLoggedInProfile(context, ref, authState)
-                : _buildLoggedOutPrompt(context),
-          ),
-        ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        context.go('/home');
+      },
+      child: Scaffold(
+        body: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            _buildSliverAppBar(context),
+            SliverToBoxAdapter(
+              child: authState.isLoggedIn
+                  ? _buildLoggedInProfile(context, ref, authState)
+                  : _buildLoggedOutPrompt(context),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -31,7 +38,11 @@ class ProfileScreen extends ConsumerWidget {
     return SliverAppBar(
       pinned: true,
       backgroundColor: AppTheme.primaryBlue,
-      automaticallyImplyLeading: false,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_ios_new_rounded,
+            color: Colors.white, size: 20),
+        onPressed: () => context.go('/home'),
+      ),
       title: const Text(
         'প্রোফাইল',
         style: TextStyle(

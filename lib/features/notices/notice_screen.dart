@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../app/theme.dart';
 import 'notices_provider.dart';
 import '../../shared/models/notice.dart';
@@ -25,20 +28,62 @@ class _NoticeScreenState extends ConsumerState<NoticeScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(noticeListProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
-      appBar: AppBar(
-        title: const Text('নোটিশ'),
-        leading: const SizedBox.shrink(),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) context.go('/home');
+        },
+        child: Scaffold(
+          body: CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              _buildSliverAppBar(context),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: _buildBody(state, isDark),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
-      body: _buildBody(state),
     );
   }
 
-  Widget _buildBody(NoticeListState state) {
+  Widget _buildSliverAppBar(BuildContext context) {
+    return SliverAppBar(
+      pinned: true,
+      expandedHeight: 120,
+      backgroundColor: AppTheme.primaryBlue,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
+        onPressed: () => context.go('/home'),
+      ),
+      flexibleSpace: FlexibleSpaceBar(
+        centerTitle: true,
+        title: const Text(
+          'নোটিশ',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
+        background: Container(
+          decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBody(NoticeListState state, bool isDark) {
     if (state.isLoading) {
-      return _buildLoadingSkeleton();
+      return _buildLoadingSkeleton(isDark);
     }
 
     if (state.error != null && state.notices.isEmpty) {
@@ -52,116 +97,145 @@ class _NoticeScreenState extends ConsumerState<NoticeScreen> {
     return RefreshIndicator(
       onRefresh: () => ref.read(noticeListProvider.notifier).loadNotices(),
       child: ListView.builder(
-        padding: const EdgeInsets.all(16),
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         itemCount: state.notices.length,
-        itemBuilder: (context, index) => _buildNoticeCard(state.notices[index]),
+        itemBuilder: (context, index) => _buildNoticeCard(state.notices[index], index, isDark),
       ),
     );
   }
 
-  Widget _buildNoticeCard(Notice notice) {
+  Widget _buildNoticeCard(Notice notice, int index, bool isDark) {
     final dateFormat = DateFormat('dd MMM yyyy, hh:mm a');
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: isDark ? AppTheme.surfaceDark : Colors.white,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        boxShadow: AppTheme.softShadow,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+          onTap: () {}, // Future: Open details
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.info_outline,
-                    color: Colors.orange,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    notice.title ?? '',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.notifications_active_rounded,
+                        color: Colors.orange,
+                        size: 24,
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            notice.title ?? '',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              height: 1.2,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            notice.body ?? '',
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: isDark ? Colors.white70 : AppTheme.textSecondary,
+                              height: 1.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Divider(height: 1, thickness: 0.5),
+                ),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.access_time_rounded,
+                      size: 16,
+                      color: AppTheme.textHint,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      notice.createdAt != null
+                          ? dateFormat.format(notice.createdAt!)
+                          : '',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const Spacer(),
+                    if (notice.expiresAt != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: (notice.isExpired ? AppTheme.error : AppTheme.success).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              notice.isExpired ? Icons.timer_off_rounded : Icons.timer_rounded,
+                              size: 14,
+                              color: notice.isExpired ? AppTheme.error : AppTheme.success,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              notice.isExpired ? 'মেয়াদোত্তীর্ণ' : 'সক্রিয়',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: notice.isExpired ? AppTheme.error : AppTheme.success,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            Text(
-              notice.body ?? '',
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppTheme.textSecondary,
-                height: 1.5,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                const Icon(
-                  Icons.access_time,
-                  size: 14,
-                  color: AppTheme.textHint,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  notice.createdAt != null
-                      ? dateFormat.format(notice.createdAt!)
-                      : '',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.textHint,
-                  ),
-                ),
-                const Spacer(),
-                if (notice.expiresAt != null) ...[
-                  Icon(
-                    notice.isExpired ? Icons.timer_off : Icons.timer,
-                    size: 14,
-                    color: notice.isExpired ? AppTheme.error : AppTheme.success,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    notice.isExpired ? 'মেয়াদোত্তীর্ণ' : 'সক্রিয়',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: notice.isExpired
-                          ? AppTheme.error
-                          : AppTheme.success,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ],
+          ),
         ),
       ),
-    );
+    ).animate().fadeIn(delay: (index * 100).ms).slideX(begin: 0.1, end: 0);
   }
 
-  Widget _buildLoadingSkeleton() {
+  Widget _buildLoadingSkeleton(bool isDark) {
     return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       itemCount: 5,
       itemBuilder: (context, index) => Shimmer.fromColors(
-        baseColor: Colors.grey[300]!,
-        highlightColor: Colors.grey[100]!,
+        baseColor: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+        highlightColor: isDark ? Colors.grey[700]! : Colors.grey[100]!,
         child: Container(
-          height: 140,
-          margin: const EdgeInsets.only(bottom: 12),
+          height: 160,
+          margin: const EdgeInsets.only(bottom: 16),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
           ),
         ),
       ),
@@ -171,18 +245,22 @@ class _NoticeScreenState extends ConsumerState<NoticeScreen> {
   Widget _buildErrorState(String message) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(48),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 64, color: AppTheme.error),
-            const SizedBox(height: 16),
-            Text(message, textAlign: TextAlign.center),
-            const SizedBox(height: 16),
+            const Icon(Icons.error_outline_rounded, size: 80, color: AppTheme.error),
+            const SizedBox(height: 24),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 32),
             ElevatedButton.icon(
               onPressed: () =>
                   ref.read(noticeListProvider.notifier).loadNotices(),
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: const Text('আবার চেষ্টা করুন'),
             ),
           ],
@@ -192,17 +270,28 @@ class _NoticeScreenState extends ConsumerState<NoticeScreen> {
   }
 
   Widget _buildEmptyState() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.notifications_none, size: 64, color: AppTheme.textHint),
-          SizedBox(height: 16),
-          Text(
-            'এখন কোনো সক্রিয় নোটিশ নেই',
-            style: TextStyle(fontSize: 16, color: AppTheme.textSecondary),
-          ),
-        ],
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(48),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.notifications_none_rounded,
+              size: 100,
+              color: AppTheme.textHint.withOpacity(0.3),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'এখন কোনো সক্রিয় নোটিশ নেই',
+              style: TextStyle(
+                fontSize: 18,
+                color: AppTheme.textSecondary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -7,9 +7,12 @@ import 'package:shimmer/shimmer.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../app/theme.dart';
 import '../../shared/widgets/stat_card.dart';
 import '../../shared/widgets/schedule_card.dart';
+import '../../core/utils/time_utils.dart';
+import '../../shared/models/schedule.dart';
 import 'home_provider.dart';
 import '../auth/auth_provider.dart';
 
@@ -39,14 +42,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _connectivitySub = Connectivity().onConnectivityChanged.listen((results) {
       final hasConnection = results.any((r) => r != ConnectivityResult.none);
       if (hasConnection && mounted) {
-        // Back online → dismiss dialog and refresh data.
         if (_connectionDialogShown) {
           Navigator.of(context, rootNavigator: true).pop();
           _connectionDialogShown = false;
         }
         ref.read(dashboardProvider.notifier).refresh();
       } else if (!hasConnection && mounted && !_connectionDialogShown) {
-        // Went offline → show dialog.
         _showNoInternetDialog();
       }
     });
@@ -98,6 +99,51 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
+  Future<void> _showExitDialog() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    final shouldExit = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        ),
+        backgroundColor: isDark ? AppTheme.surfaceDark : Colors.white,
+        title: Text(
+          'অ্যাপ বন্ধ করুন',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: isDark ? Colors.white : AppTheme.textPrimary,
+          ),
+        ),
+        content: Text(
+          'আপনি কি নিশ্চিত যে অ্যাপ থেকে বের হতে চান?',
+          style: TextStyle(
+            color: isDark ? Colors.white70 : AppTheme.textSecondary,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('না', style: TextStyle(color: AppTheme.textSecondary)),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.error,
+              minimumSize: const Size(80, 40),
+            ),
+            child: const Text('হ্যাঁ', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldExit == true) {
+      SystemNavigator.pop();
+    }
+  }
+
   @override
   void dispose() {
     _connectivitySub?.cancel();
@@ -110,23 +156,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
-      child: Scaffold(
-        body: RefreshIndicator(
-          onRefresh: () => ref.read(dashboardProvider.notifier).refresh(),
-          child: CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              _buildModernHeader(context, state),
-              _buildConnectionStrip(state),
-              _buildModernStatGrid(context, state),
-              _buildSectionHeader(
-                context,
-                title: 'আজকের সময়সূচি',
-                onSeeAll: () => context.go('/schedules'),
-              ),
-              _buildSchedulePreviewList(context, state),
-              const SliverToBoxAdapter(child: SizedBox(height: 100)),
-            ],
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, _) {
+          if (didPop) return;
+          _showExitDialog();
+        },
+        child: Scaffold(
+          body: RefreshIndicator(
+            onRefresh: () => ref.read(dashboardProvider.notifier).refresh(),
+            child: CustomScrollView(
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                _buildModernHeader(context, state),
+                _buildConnectionStrip(state),
+                _buildModernStatGrid(context, state),
+                _buildSectionHeader(
+                  context,
+                  title: 'আজকের সময়সূচি',
+                  onSeeAll: () => context.go('/schedules'),
+                ),
+                _buildSchedulePreviewList(context, state),
+                const SliverToBoxAdapter(child: SizedBox(height: 100)),
+              ],
+            ),
           ),
         ),
       ),
@@ -413,22 +466,151 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildSchedulePreviewList(BuildContext context, DashboardState state) {
     final schedules = state.filteredSchedules;
-    if (schedules.isEmpty)
-      return const SliverToBoxAdapter(child: SizedBox.shrink());
+    if (schedules.isEmpty) {
+      if (state.isLoading) return _buildSchedulesLoading();
+      return _buildEmptySchedules();
+    }
+
+    // Grouping by departure time (limiting to 2-3 groups for preview)
+    final groupedSchedules = <String, List<Schedule>>{};
+    for (var s in schedules) {
+      final time = s.departureTime ?? 'N/A';
+      groupedSchedules.putIfAbsent(time, () => []).add(s);
+    }
+
+    final sortedTimes = groupedSchedules.keys.toList()..sort();
+    final displayTimes = sortedTimes.take(2).toList();
 
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: AppTheme.space24),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
-          final s = schedules[index];
-          return ScheduleCard(
-                schedule: s,
-                onTap: () => context.push('/bus/${s.busId}?scheduleId=${s.id}'),
-              )
-              .animate()
-              .fadeIn(delay: (index * 100).ms)
-              .slideX(begin: 0.1, end: 0);
-        }, childCount: schedules.length > 5 ? 5 : schedules.length),
+          final time = displayTimes[index];
+          final timeSchedules = groupedSchedules[time]!;
+          return _buildTimeGroup(time, timeSchedules, index);
+        }, childCount: displayTimes.length),
+      ),
+    );
+  }
+
+  Widget _buildTimeGroup(String time, List<Schedule> schedules, int index) {
+    final bengaliTime = TimeUtils.formatTimeBengali(time);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: AppTheme.space16),
+      decoration: BoxDecoration(
+        color: isDark ? AppTheme.surfaceDark : AppTheme.surfaceLight,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        boxShadow: AppTheme.softShadow,
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          initiallyExpanded: true,
+          shape: const RoundedRectangleBorder(side: BorderSide.none),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryBlue.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.access_time_filled_rounded,
+                  color: AppTheme.primaryBlue,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: AppTheme.space16),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    bengaliTime,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  Text(
+                    '${schedules.length} টি বাস',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ],
+          ),
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppTheme.space16,
+                vertical: AppTheme.space8,
+              ),
+              child: AnimationLimiter(
+                child: Column(
+                  children: List.generate(schedules.length, (i) {
+                    final s = schedules[i];
+                    return AnimationConfiguration.staggeredList(
+                      position: i,
+                      duration: const Duration(milliseconds: 375),
+                      child: SlideAnimation(
+                        verticalOffset: 20.0,
+                        child: FadeInAnimation(
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: ScheduleCard(
+                              schedule: s,
+                              onTap: () => context.push(
+                                '/bus/${s.busId}?scheduleId=${s.id}',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ).animate().fadeIn(delay: (index * 100).ms).slideY(begin: 0.1, end: 0);
+  }
+
+  Widget _buildSchedulesLoading() {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.all(AppTheme.space24),
+        child: Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Container(
+            height: 120,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptySchedules() {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.all(AppTheme.space48),
+        child: Center(
+          child: Column(
+            children: [
+              Icon(Icons.schedule_rounded,
+                  size: 48, color: AppTheme.textHint.withOpacity(0.3)),
+              const SizedBox(height: 16),
+              const Text('আজকে আর কোনো শিডিউল নেই',
+                  style: TextStyle(color: AppTheme.textSecondary)),
+            ],
+          ),
+        ),
       ),
     );
   }

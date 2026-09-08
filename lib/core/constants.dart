@@ -1,25 +1,17 @@
+/// Backend API base URL — hardcoded. Config (version, maintenance, etc.)
+/// is fetched from `/api/config` on this server at cold launch.
+const String kBaseUrl =
+    'https://cou-bus-tracker-backend-admin-frontend.onrender.com';
+
+const String kDefaultPlayStoreUrl =
+    'https://play.google.com/store/apps/details?id=com.cse.coubustracker';
+
 class ApiConstants {
-  static const String apiBaseSuffix = '/api';
-
-  static String get baseUrl {
-    const define = String.fromEnvironment(
-      'API_BASE_URL',
-      defaultValue:
-          'https://cou-bus-tracker-backend-admin-frontend.onrender.com/api',
-    );
-    return define;
-  }
-
-  static String get originUrl {
-    final uri = Uri.parse(baseUrl);
-    return '${uri.scheme}://${uri.host}:${uri.port}';
-  }
+  static String get baseUrl => '$kBaseUrl/api';
 
   static const Duration connectTimeout = Duration(seconds: 30);
   static const Duration sendTimeout = Duration(seconds: 60);
   static const Duration receiveTimeout = Duration(seconds: 90);
-
-  static const Duration cacheMaxAge = Duration(minutes: 5);
 }
 
 class ApiEndpoints {
@@ -42,6 +34,7 @@ class ApiEndpoints {
   static const String emailVerify = '/auth/email-verification/verify';
   static const String emailResend = '/auth/email-verification/resend';
   static const String appVersion = '/app/version';
+  static const String publicConfig = '/config';
 }
 
 class StorageKeys {

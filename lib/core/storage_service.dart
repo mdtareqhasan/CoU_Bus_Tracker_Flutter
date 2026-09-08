@@ -173,4 +173,18 @@ class StorageService {
   Future<void> clearSkippedVersion() async {
     await _prefs.remove(StorageKeys.skippedVersion);
   }
+
+  // --- Super Admin Config Cache ---
+
+  static const _configKey = 'super_admin_config';
+
+  String? getCachedConfig() => _prefs.getString(_configKey);
+
+  Future<void> saveCachedConfig(String json) async {
+    await _prefs.setString(_configKey, json);
+  }
+
+  Future<void> clearCachedConfig() async {
+    await _prefs.remove(_configKey);
+  }
 }

@@ -45,13 +45,20 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
-      child: Scaffold(
-        body: Column(
-          children: [
-            _buildSearchBar(state),
-            _buildRoleBanner(allowedCategories),
-            Expanded(child: _buildScheduleList(state, allowedCategories)),
-          ],
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, _) {
+          if (didPop) return;
+          context.go('/home');
+        },
+        child: Scaffold(
+          body: Column(
+            children: [
+              _buildSearchBar(state),
+              _buildRoleBanner(allowedCategories),
+              Expanded(child: _buildScheduleList(state, allowedCategories)),
+            ],
+          ),
         ),
       ),
     );
@@ -118,7 +125,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
           Row(
             children: [
               IconButton(
-                onPressed: () => context.pop(),
+                onPressed: () => context.go('/home'),
                 icon: const Icon(
                   Icons.arrow_back_ios_new_rounded,
                   color: Colors.white,
@@ -235,8 +242,6 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
           } else {
             chipColor = AppTheme.primaryBlue;
           }
-
-          final isAllButton = entry.key == null;
 
           return Padding(
             padding: const EdgeInsets.only(right: AppTheme.space8),

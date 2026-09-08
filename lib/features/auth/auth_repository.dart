@@ -132,7 +132,7 @@ class AuthRepository {
       }
       return Failure(message: _extractErrorMessage(response));
     } on DioException catch (e) {
-      return Failure(message: _handleDioError(e));
+      return Failure(message: _handleDioError(e, isLoginRequest: true));
     } catch (e) {
       return Failure(message: ErrorHandler.defaultError);
     }
@@ -308,7 +308,7 @@ class AuthRepository {
   /// Handles network-level failures. Prefers the backend `message`/`errors`
   /// from the response body, and maps timeouts / connection errors /
   /// 502/503/504 to the server-busy message.
-  String _handleDioError(DioException e) {
+  String _handleDioError(DioException e, {bool isLoginRequest = false}) {
     final response = e.response;
     final statusCode = response?.statusCode;
 
@@ -336,6 +336,10 @@ class AuthRepository {
         return ErrorHandler.serverBusyMessage;
       case DioExceptionType.badResponse:
         if (statusCode == 401 || statusCode == 403) {
+          // Wrong password during login is NOT a session expiry.
+          if (isLoginRequest) {
+            return 'ইমেইল বা পাসওয়ার্ড সঠিক নয়।';
+          }
           return ErrorHandler.sessionExpired;
         }
         return ErrorHandler.getMessage(statusCode, null);

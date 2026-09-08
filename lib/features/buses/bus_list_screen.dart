@@ -42,13 +42,20 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
-      child: Scaffold(
-        body: Column(
-          children: [
-            _buildSearchBar(state),
-            _buildCategoryChips(state),
-            Expanded(child: _buildBusList(state)),
-          ],
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, _) {
+          if (didPop) return;
+          context.go('/home');
+        },
+        child: Scaffold(
+          body: Column(
+            children: [
+              _buildSearchBar(state),
+              _buildCategoryChips(state),
+              Expanded(child: _buildBusList(state)),
+            ],
+          ),
         ),
       ),
     );
@@ -58,7 +65,7 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
     return Container(
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + AppTheme.space12,
-        left: AppTheme.space24,
+        left: AppTheme.space12,
         right: AppTheme.space24,
         bottom: AppTheme.space16,
       ),
@@ -68,31 +75,42 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
           bottom: Radius.circular(AppTheme.radiusExtraLarge),
         ),
       ),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: AppTheme.space16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: TextField(
-          controller: _searchController,
-          onChanged: (v) =>
-              ref.read(busListProvider.notifier).setSearchQuery(v),
-          style: const TextStyle(color: AppTheme.textPrimary),
-          decoration: const InputDecoration(
-            hintText: 'বাস খুঁজুন...',
-            hintStyle: TextStyle(color: AppTheme.textHint),
-            border: InputBorder.none,
-            icon: Icon(Icons.search_rounded, color: AppTheme.primaryBlue),
+      child: Row(
+        children: [
+          IconButton(
+            onPressed: () => context.go('/home'),
+            icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                color: Colors.white, size: 20),
           ),
-        ),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: AppTheme.space16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: TextField(
+                controller: _searchController,
+                onChanged: (v) =>
+                    ref.read(busListProvider.notifier).setSearchQuery(v),
+                style: const TextStyle(color: AppTheme.textPrimary),
+                decoration: const InputDecoration(
+                  hintText: 'বাস খুঁজুন...',
+                  hintStyle: TextStyle(color: AppTheme.textHint),
+                  border: InputBorder.none,
+                  icon: Icon(Icons.search_rounded, color: AppTheme.primaryBlue),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     ).animate().fadeIn().slideY(begin: -0.2);
   }

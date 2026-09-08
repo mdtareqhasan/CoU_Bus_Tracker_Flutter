@@ -1,4 +1,4 @@
-package com.cse.coubustracker.cou_bus_tracker
+package com.cse.coubustracker
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -1,6 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/api_client.dart';
 import '../core/storage_service.dart';
+import '../core/config/remote_config_service.dart';
 import './buses/bus_repository.dart';
 import './schedules/schedule_repository.dart';
 import './notices/notice_repository.dart';
@@ -10,6 +12,11 @@ final storageServiceProvider = Provider<StorageService>((ref) {
   throw UnimplementedError(
     'storageServiceProvider must be overridden in ProviderScope',
   );
+});
+
+final remoteConfigServiceProvider = Provider<RemoteConfigService>((ref) {
+  final storage = ref.watch(storageServiceProvider);
+  return RemoteConfigService(Dio(), storage);
 });
 
 final apiClientProvider = Provider<ApiClient>((ref) {
