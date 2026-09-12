@@ -63,13 +63,15 @@ The app serves three user roles — **Students**, **Teachers**, and **Staff** �
 - **Search & Filter**: Find buses by name, time, or route with full support for Bengali search.
 - **Direction Filters**: Filter by ক্যাম্পাস অভিমুখে (Campus-bound) or ক্যাম্পাস থেকে (Campus-departing).
 
-### 🔐 Secure Authentication
-- **Email OTP Verification**: 6-digit OTP sent to email, 5-minute expiry, 60-second resend cooldown.
-- **Google Sign-In**: Seamless one-tap login with smart redirection for first-time users.
-- **Multipart Registration**: ID card upload with client-side compression to ≤300 KB.
+### 🔐 Secure Authentication (Phone + Password + One-Time OTP)
+- **Phone Number Registration & Login**: Registration and login use a Bangladeshi phone number (`01XXXXXXXXX` / `8801XXXXXXXXX` / `+8801XXXXXXXXX` — normalized to `8801XXXXXXXXX`). The password is set at registration. No email or Gmail anywhere.
+- **BulkSMSBD OTP**: A 6-digit OTP is delivered by SMS — **only during registration** to verify the phone. OTPs expire after 2 minutes, allow 5 wrong attempts, and a 60-second resend cooldown. The OTP screen shows the masked number (`8801****5678`), an auto-submitting 6-box input, and an MM:SS countdown.
+- **Auto-OTP After Registration**: Registration immediately sends the OTP and parks the user on the verification screen (`/auth/phone-verification/verify`).
+- **Phone + Password Login**: Login is done with phone + password only — **no OTP at login** (`/auth/*/login` with `{phone, password}` → JWT). An unverified account auto-routes back to the OTP step.
+- **Multipart Registration**: ID card upload with client-side compression to ≤300 KB; the user's phone is used as the placeholder email (`{phone}@cou.bus`) until the backend is fully phone-migrated.
 - **Session Validation**: Token verified against backend on every app launch.
 - **Auto-Logout**: Automatic logout when admin deletes/rejects a user (401/403 handling).
-- **Wrong-Password Handling**: A failed login 401 shows "ইমেইল বা পাসওয়ার্ড সঠিক নয়।" — it is never mistaken for an expired session.
+- **Friendly Bengali Errors**: e.g. an unregistered phone shows "এই ফোন নম্বরে কোনো ব্যবহারকারী নেই। প্রথমে রেজিস্ট্রেশন করুন।", a wrong phone/password shows "ফোন নম্বর বা পাসওয়ার্ড সঠিক নয়।", and an expired OTP auto-triggers a resend.
 
 ### ⚡ Lightning-Fast Performance
 - **Local Storage Caching**: Data loads instantly from local storage for zero wait time.
@@ -102,7 +104,6 @@ The app serves three user roles — **Students**, **Teachers**, and **Staff** �
 | `flutter_secure_storage` | ^9.2.4 | Encrypted storage (tokens) |
 | `shared_preferences` | ^2.3.4 | Key-value local storage |
 | `package_info_plus` | ^8.1.3 | App version/build info |
-| `google_sign_in` | ^6.2.1 | Google OAuth |
 | `image_picker` | ^1.1.2 | Camera/gallery image selection |
 | `flutter_image_compress` | ^2.5.1 | Client-side image compression |
 | `geolocator` | ^13.0.1 | Device GPS location |
@@ -208,9 +209,9 @@ lib/
 |---|---|---|
 | `/splash` | `SplashScreen` | Initial route; fetches config, evaluates app gate (maintenance / force-update / allowed), warms up server |
 | `/auth/role` | `RoleScreen` | Role selection (Student / Teacher) |
-| `/auth/login` | `LoginScreen` | Email/password + Google Sign-In |
-| `/auth/register` | `RegisterScreen` | Full registration with ID card upload |
-| `/auth/otp` | `EmailOtpVerificationScreen` | 6-digit OTP verification |
+| `/auth/login` | `LoginScreen` | Phone number + password → JWT (no OTP) |
+| `/auth/register` | `RegisterScreen` | Full registration with ID card upload + password |
+| `/auth/otp` | `PhoneOtpVerificationScreen` | 6-digit phone OTP (registration phone verification only) |
 | `/auth/upload-id` | `UploadIdScreen` | ID card upload helper |
 | `/home` | `HomeScreen` | Dashboard with stats, today's schedule, notices |
 | `/buses` | `BusListScreen` | Bus directory with role-based category filtering |
@@ -225,25 +226,28 @@ lib/
 
 ---
 
-## 🔐 Authentication & Registration
+## 🔐 Authentication & Registration (Phone + Password + OTP)
 
 ### Registration Flow
 1. **Role Selection** → Student or Teacher
-2. **ID Card Upload** → Pick from gallery, auto-compress to ≤300 KB
-3. **Form Submission** → Multipart/form-data with image + fields
-4. **Email OTP** → 6-digit code sent to email
-5. **Verification** → Enter OTP → Account activated
+2. **Fill Form** → name, phone, ID, department, batch/designation, and a chosen **password** (+ confirm)
+3. **ID Card Upload** → Pick from gallery, auto-compress to ≤300 KB (an admission form is accepted when the ID card isn't available yet)
+4. **Form Submission** → Multipart/form-data with name, phone, password, ID, department, batch/designation + image. The user's phone is used as the placeholder email (`{phone}@cou.bus`).
+5. **SMS OTP** → 6-digit code sent to the phone via BulkSMSBD (2-minute expiry, 5 attempts, 60s resend cooldown) — **OTP is only ever sent during registration**
+6. **Verification** → Enter OTP on the auto-submitting 6-box screen → Account activated
 
-### Login Flow
+### Login Flow (Phone + Password — no OTP)
 1. **Role Selection** → Student or Teacher
-2. **Credentials** → Email + Password, or Google Sign-In
-3. **Token Storage** → JWT stored in encrypted FlutterSecureStorage
-4. **Session Validation** → Token verified against backend on every app launch
+2. **Phone Number** → enter `01XXXXXXXXX` (validated + normalized to `8801XXXXXXXXX`)
+3. **Password** → the password chosen during registration
+4. **Login** → `/auth/*/login` with `{phone, password}` returns a JWT. If the phone was never OTP-verified, the app auto-routes to the OTP step.
+5. **Token Storage** → JWT stored in encrypted FlutterSecureStorage
+6. **Session Validation** → Token verified against backend on every app launch
 
 ### Session Security
 - **Token Validation**: Profile endpoint called on startup to verify token validity
 - **Auto-Logout**: Dio interceptor catches 401/403 **only when the request carried an auth token** → clears all data → shows an expired-session SnackBar → navigates to role screen
-- **Wrong Password Are Not Session Expiry**: A login attempt failing with 401 returns "ইমেইল বা পাসওয়ার্ড সঠিক নয়।" because the login request is public and never carries a token
+- **Friendly Login Errors**: An unregistered phone → "এই ফোন নম্বরে কোনো ব্যবহারকারী নেই। প্রথমে রেজিস্ট্রেশন করুন।"; a wrong phone/password → "ফোন নম্বর বা পাসওয়ার্ড সঠিক নয়।"; an unverified account auto-routes back to OTP; a deactivated account → "আপনার অ্যাকাউন্ট নিষ্ক্রিয়। অ্যাডমিনের সাথে যোগাযোগ করুন।"
 - **Admin Deletion**: When admin deletes/rejects a user, next API call triggers automatic logout
 - **No Duplicate Requests**: Retry interceptor never retries POST/PUT/DELETE
 
@@ -303,18 +307,17 @@ Update checks fail silently — updates are non-critical and never block the app
 | `/schedules` | GET | List all schedules |
 | `/schedules/bus/{busId}` | GET | Schedules for a specific bus |
 | `/notices/active` | GET | Active notices |
-| `/auth/student/register` | POST | Student registration (multipart) |
-| `/auth/student/login` | POST | Student login |
-| `/auth/teacher/register` | POST | Teacher registration (multipart) |
-| `/auth/teacher/login` | POST | Teacher login |
-| `/auth/admin/login` | POST | Admin login |
-| `/auth/google/login` | POST | Google Sign-In |
+| `/auth/student/register` | POST | Student registration (multipart: name, phone, password, studentId, department, varsityBatch, idCard) |
+| `/auth/teacher/register` | POST | Teacher registration (multipart: name, phone, password, teacherId, department, designation?, idCard) |
+| `/auth/student/login` | POST | Student login with phone + password → JWT |
+| `/auth/teacher/login` | POST | Teacher login with phone + password → JWT |
+| `/auth/phone-verification/send` | POST | Send SMS OTP `{phone, role}` |
+| `/auth/phone-verification/verify` | POST | Verify OTP `{phone, role, otp}` → JWT |
+| `/auth/phone-verification/resend` | POST | Resend SMS OTP `{phone, role}` |
 | `/auth/student/me` | GET | Student profile (token validation) |
 | `/auth/teacher/me` | GET | Teacher profile (token validation) |
 | `/auth/student/upload-id-card` | POST | Upload student ID card |
 | `/auth/teacher/upload-id-card` | POST | Upload teacher ID card |
-| `/auth/email-verification/verify` | POST | Verify OTP |
-| `/auth/email-verification/resend` | POST | Resend OTP |
 
 **Timeouts**: Connect: 30s | Send: 60s | Receive: 90s (config fetch uses 10s read/send timeouts).
 
@@ -339,7 +342,7 @@ Update checks fail silently — updates are non-critical and never block the app
 
 | Provider | Feature | State Class |
 |---|---|---|
-| `authProvider` | Auth | `AuthState` (status, role, email, error) |
+| `authProvider` | Auth | `AuthState` (status, role, phone, error) |
 | `dashboardProvider` | Home | `DashboardState` (bus/schedule/notice aggregates) |
 | `busListProvider` | Buses | `BusListState` (filtering/search) |
 | `scheduleListProvider` | Schedules | `ScheduleListState` (day/direction filters) |
@@ -389,10 +392,10 @@ Deep Indigo #20146B → Vibrant Blue #1D64C2 → Bright Cyan #19D0D8
 | Code | Bengali Message |
 |---|---|
 | 400 | তথ্য সঠিক নয়। আবার চেষ্টা করুন। |
-| 401 | সেশন শেষ হয়েছে। আবার সাইন ইন করুন। (login এ: ইমেইল বা পাসওয়ার্ড সঠিক নয়।) |
+| 401 | সেশন শেষ হয়েছে। আবার সাইন ইন করুন। (Login এ: ফোন নম্বর বা পাসওয়ার্ড সঠিক নয়।) |
 | 403 | অনুমতি নেই। |
 | 404 | তথ্য পাওয়া যায়নি। |
-| 409 | এই ইমেইল ইতিমধ্যে ব্যবহৃত হচ্ছে। |
+| 409 | এই ফোন নম্বর ইতিমধ্যে ব্যবহৃত হচ্ছে। |
 | 500 | সার্ভারে সমস্যা। পরে আবার চেষ্টা করুন। |
 | 502/503/504 | সার্ভার চালু হচ্ছে বা সাময়িকভাবে ব্যস্ত। ১–২ মিনিট পরে আবার চেষ্টা করুন। |
 
@@ -401,15 +404,19 @@ Deep Indigo #20146B → Vibrant Blue #1D64C2 → Bright Cyan #19D0D8
 - `timeoutMessage` — Connection timeout
 - `networkMessage` — No internet connection
 - `sessionExpired` — Token expired (only for requests that carried a token)
-- `otpInvalid` / `otpExpired` / `otpExceeded` / `resendCooldown` — OTP-specific errors
-- `verifyEmailFirst` — Login before email verification
+- `invalidLogin` — Wrong phone number or password
+- `invalidOtp` / `otpExpired` / `otpExceeded` / `resendCooldown` — OTP-specific errors
+- `phoneNotFound` — Phone not registered yet
+- `accountDeactivated` — Account inactive by admin
 
 ### `friendly()` Method
 Translates English backend errors to Bengali by pattern matching:
-- `"invalid otp"` / `"incorrect otp"` → ভুল ওটিপি। আবার চেষ্টা করুন।
-- `"invalid email or password"` / `"invalid credentials"` / `"wrong password"` → ইমেইল বা পাসওয়ার্ড সঠিক নয়।
-- `"verify your email"` / `"email is not verified"` → অনুগ্রহ করে লগইন করার আগে আপনার ইমেইল যাচাই করুন।
-- `"already registered"` / `"already exists"` → এই ইমেইল ইতিমধ্যে ব্যবহৃত হয়েছে।
+- `"invalid otp"` / `"incorrect otp"` / `"wrong otp"` → ভুল OTP। আবার চেষ্টা করুন।
+- `"not found with this phone"` / `"no user found"` → এই ফোন নম্বরে কোনো ব্যবহারকারী নেই। প্রথমে রেজিস্ট্রেশন করুন।
+- `"verify your phone"` / `"phone is not verified"` → অনুগ্রহ করে লগইন করার আগে আপনার ফোন নম্বর যাচাই করুন।
+- `"invalid credentials"` / `"wrong password"` → ফোন নম্বর বা পাসওয়ার্ড সঠিক নয়।
+- `"deactivated"` / `"account is inactive"` → আপনার অ্যাকাউন্ট নিষ্ক্রিয়। অ্যাডমিনের সাথে যোগাযোগ করুন।
+- `"already registered"` / `"already exists"` → এই ফোন নম্বর ইতিমধ্যে ব্যবহৃত হয়েছে।
 - `"register first"` / `"not registered"` → আপনার অ্যাকাউন্ট পাওয়া যায়নি। আগে নিবন্ধন করুন।
 
 Spring-style field-validation maps (`errors: {...}`) are flattened into "field: message" lines.
@@ -423,11 +430,11 @@ Spring-style field-validation maps (`errors: {...}`) are flattened into "field: 
 **FlutterSecureStorage** (encrypted):
 - `access_token` — JWT token
 - `token_type` — Bearer token type
-- `pending_verification_email` — Email awaiting OTP
-- `pending_verification_role` — Role awaiting OTP
+- `pending_verification_phone` — Phone awaiting OTP verification
+- `pending_verification_role` — Role awaiting OTP verification
 
 **SharedPreferences** (plain):
-- `user_role`, `display_name`, `user_email`, `user_id`
+- `user_role`, `display_name`, `user_email`, `user_phone`, `user_id`
 - `is_verified`, `is_edu_mail`
 - `_has_token` — Boolean flag for quick auth check
 - `theme_mode`, `language_code`
@@ -450,7 +457,7 @@ Spring-style field-validation maps (`errors: {...}`) are flattened into "field: 
 Three interceptors are configured on the Dio instance:
 
 ### 1. AuthInterceptor
-- **Public-path guard**: Requests matching a public-path regex (`login`, `register`, `google/login`, OTP verify/resend, `/config`, `/notices/active`, `/buses`, `/schedules`) **never** carry an auth token — so a wrong-password login never looks like an expired session.
+- **Public-path guard**: Requests matching a public-path regex (`login`, `register`, `phone-verification/*`, `/config`, `/notices/active`, `/buses`, `/schedules`) **never** carry an auth token — so a phone/OTP login attempt never looks like an expired session.
 - **onRequest**: For all other endpoints, reads the JWT from secure storage and injects `Authorization: Bearer`.
 - **onError**: On 401/403 **only when the request carried an auth header** → clears all storage + caches → fires `onSessionExpired` → force logout + SnackBar + navigate to `/auth/role`.
 - **Guard**: `_handlingExpiry` flag prevents duplicate expiry handling.
@@ -464,7 +471,7 @@ Three interceptors are configured on the Dio instance:
 
 ### 3. LogInterceptor
 - **Body logging disabled**: `requestBody: false`, `responseBody: false`, `error: false`.
-- **Security**: OTPs, Google ID tokens, passwords, JWTs never written to logs. `AuthRepository` debug logs sanitize any `accessToken` / `tokenType` / `idToken` / `password` fields.
+- **Security**: OTPs, passwords, and JWTs never written to logs. `AuthRepository` debug logs sanitize any `accessToken` / `tokenType` / `idToken` / `password` fields.
 
 ---
 
@@ -539,20 +546,20 @@ The backend is a **Spring Boot 3** application with:
 - **Spring Security** with JWT authentication
 - **PostgreSQL** database
 - **Cloudinary** for image storage
-- **SMTP server** for OTP email delivery
+- **SMTP/BulkSMSBD** — OTP delivery is handled by **BulkSMSBD** (SMS); the OTP email server is not used by the app
 
 ### Required Backend Endpoints
 - `GET /config` — Public app config (version floors, maintenance, update text)
 - `GET /app/version` — Newest build + optional download URL
-- `POST /auth/student/register` — Multipart registration
-- `POST /auth/student/login` — Email/password login
-- `POST /auth/teacher/register` — Multipart registration
-- `POST /auth/teacher/login` — Email/password login
-- `POST /auth/google/login` — Google OAuth
+- `POST /auth/student/register` — Multipart registration (name, phone, password, studentId, department, varsityBatch, idCard)
+- `POST /auth/teacher/register` — Multipart registration (name, phone, password, teacherId, department, designation?, idCard)
+- `POST /auth/student/login` — Phone + password login (student) `{phone, password}`
+- `POST /auth/teacher/login` — Phone + password login (teacher) `{phone, password}`
+- `POST /auth/phone-verification/send` — Send SMS OTP (registration only)
+- `POST /auth/phone-verification/verify` — Verify OTP and return a JWT
+- `POST /auth/phone-verification/resend` — Resend SMS OTP
 - `GET /auth/student/me` — Token validation (must return 401 for deleted users)
 - `GET /auth/teacher/me` — Token validation (must return 401 for deleted users)
-- `POST /auth/email-verification/verify` — OTP verification
-- `POST /auth/email-verification/resend` — OTP resend
 - `GET /buses` — Public bus list
 - `GET /buses/{id}` — Bus detail with schedules
 - `GET /schedules` — Public schedule list
@@ -562,7 +569,9 @@ The backend is a **Spring Boot 3** application with:
 - The profile endpoints (`/auth/student/me`, `/auth/teacher/me`) **must validate JWT tokens** and return 401 for deleted/rejected users
 - The bus, schedule, notice, `config`, and `version` endpoints are **public** and do not require authentication
 - Cloudinary is server-side only; no Cloudinary keys in Flutter
-- A failed **login** should return 401 with a body like `{"message": "Invalid email or password"}` — the app maps this to a friendly Bengali "wrong credentials" message
+- Registration still sends a placeholder `email` (`{phone}@cou.bus`) because the backend requires that field until it is fully phone-migrated — the user's own password is sent as-is
+- A phone login for an unregistered number should return 401 with a body like `{"message": "Student not found with this phone number: ..."}` — the app maps this to "এই ফোন নম্বরে কোনো ব্যবহারকারী নেই। প্রথমে রেজিস্ট্রেশন করুন।"
+- A wrong password should return 401 with `{"message": "Invalid credentials"}` — mapped to "ফোন নম্বর বা পাসওয়ার্ড সঠিক নয়।"
 
 ---
 
@@ -570,15 +579,12 @@ The backend is a **Spring Boot 3** application with:
 
 | Model | Fields | Description |
 |---|---|---|
-| `AuthResponse` | accessToken, tokenType, role, id, name, email, isVerified, isEduMail | Auth response from all endpoints |
-| `LoginRequest` | email, password | Login request body |
+| `AuthResponse` | accessToken, tokenType, role, id, name, email, phone, isVerified, isEmailVerified, isPhoneVerified, isEduMail | Auth response from all endpoints |
 | `Bus` | id, busNumber, busName, category, route, driverName, driverPhone, busImageUrl, trackerUrl, isActive | Bus entity |
 | `BusDetail` | extends Bus + schedules | Bus with embedded schedules |
 | `Schedule` | id, busId, busNumber, busName, category, departureTime, arrivalTime, direction, startPoint, endPoint, days | Schedule entity |
 | `Notice` | id, title, body, isActive, createdAt, expiresAt | Notice entity |
 | `Student` | id, name, email, studentId, department, varsityBatch, idCardImageUrl, isEduMail, isVerified, isActive, createdAt | Student profile |
-| `StudentRegisterRequest` | name, email, password, studentId, department, varsityBatch | Student registration payload |
-| `TeacherRegisterRequest` | name, email, password, teacherId, department, designation, phone | Teacher registration payload |
 
 Models are annotated with `@JsonSerializable()` and generate `*.g.dart` via `build_runner` (`dart run build_runner build --delete-conflicting-outputs`).
 

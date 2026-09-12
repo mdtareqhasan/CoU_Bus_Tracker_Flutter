@@ -5,7 +5,10 @@ class AuthResponse {
   final int? id;
   final String? name;
   final String? email;
+  final String? phone;
   final bool? isVerified;
+  final bool? isEmailVerified;
+  final bool? isPhoneVerified;
   final bool? isEduMail;
 
   const AuthResponse({
@@ -15,7 +18,10 @@ class AuthResponse {
     this.id,
     this.name,
     this.email,
+    this.phone,
     this.isVerified,
+    this.isEmailVerified,
+    this.isPhoneVerified,
     this.isEduMail,
   });
 
@@ -27,8 +33,11 @@ class AuthResponse {
       id: (json['id'] as num?)?.toInt(),
       name: json['name'] as String?,
       email: json['email'] as String?,
-      // Backend uses both "isEmailVerified" (OTP flow) and "isVerified" (login)
+      phone: json['phone'] as String?,
+      // Backend uses "isEmailVerified" (OTP flow) and "isVerified" (login)
       isVerified: (json['isEmailVerified'] ?? json['isVerified']) as bool?,
+      isEmailVerified: json['isEmailVerified'] as bool?,
+      isPhoneVerified: json['isPhoneVerified'] as bool?,
       isEduMail: json['isEduMail'] as bool?,
     );
   }
@@ -40,7 +49,10 @@ class AuthResponse {
     'id': id,
     'name': name,
     'email': email,
+    'phone': phone,
     'isVerified': isVerified,
+    'isEmailVerified': isEmailVerified,
+    'isPhoneVerified': isPhoneVerified,
     'isEduMail': isEduMail,
   };
 

@@ -34,14 +34,21 @@ class ErrorHandler {
   static String get coldStartMessage =>
       'সার্ভার চালু হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...';
 
-  static String get otpInvalid => 'ভুল ওটিপি। আবার চেষ্টা করুন।';
+  static String get invalidLogin => 'ফোন নম্বর বা পাসওয়ার্ড সঠিক নয়।';
+  static String get invalidOtp => 'ভুল ওটিপি। আবার চেষ্টা করুন।';
   static String get otpExpired =>
       'ওটিপির মেয়াদ শেষ হয়ে গেছে। আবার কোড পাঠান।';
   static String get otpExceeded =>
       'অনেকবার ভুল চেষ্টা। ওটিপি বাতিল হয়েছে। আবার কোড পাঠান।';
   static String get resendCooldown => 'আবার কোড পাঠাতে একটু অপেক্ষা করুন।';
+  static String get verifyPhoneFirst =>
+      'অনুগ্রহ করে লগইন করার আগে আপনার ফোন নম্বর যাচাই করুন।';
   static String get verifyEmailFirst =>
       'অনুগ্রহ করে লগইন করার আগে আপনার ইমেইল যাচাই করুন।';
+  static String get phoneNotFound =>
+      'এই ফোন নম্বরে কোনো ব্যবহারকারী নেই। প্রথমে রেজিস্ট্রেশন করুন।';
+  static String get accountDeactivated =>
+      'আপনার অ্যাকাউন্ট নিষ্ক্রিয়। অ্যাডমিনের সাথে যোগাযোগ করুন।';
 
   /// Converts backend English messages into friendly Bengali equivalents.
   /// Falls back to the raw message when no mapping exists.
@@ -49,8 +56,9 @@ class ErrorHandler {
     final m = message.toLowerCase();
     if (m.contains('invalid otp') ||
         m.contains('invalid verification code') ||
-        m.contains('incorrect otp')) {
-      return otpInvalid;
+        m.contains('incorrect otp') ||
+        m.contains('wrong otp')) {
+      return invalidOtp;
     }
     if (m.contains('expired') || m.contains('has expired')) {
       return otpExpired;
@@ -66,13 +74,26 @@ class ErrorHandler {
         m.contains('please verify')) {
       return verifyEmailFirst;
     }
+    if (m.contains('verify your phone') ||
+        m.contains('phone is not verified') ||
+        m.contains('phone number not verified')) {
+      return verifyPhoneFirst;
+    }
+    if (m.contains('not found with this phone') ||
+        m.contains('no user found') ||
+        m.contains('does not exist')) {
+      return phoneNotFound;
+    }
+    if (m.contains('deactivated') || m.contains('account is inactive')) {
+      return accountDeactivated;
+    }
     if (m.contains('already registered') || m.contains('already exists')) {
-      return 'এই ইমেইল ইতিমধ্যে ব্যবহৃত হয়েছে।';
+      return 'এই ফোন নম্বর ইতিমধ্যে ব্যবহৃত হয়েছে।';
     }
     if (m.contains('invalid credentials') ||
         m.contains('wrong password') ||
         m.contains('invalid email or password')) {
-      return 'ইমেইল বা পাসওয়ার্ড সঠিক নয়।';
+      return invalidLogin;
     }
     if (m.contains('register first') || m.contains('not registered')) {
       return 'আপনার অ্যাকাউন্ট পাওয়া যায়নি। আগে নিবন্ধন করুন।';

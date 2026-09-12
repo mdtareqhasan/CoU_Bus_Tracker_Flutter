@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../app/theme.dart';
+import '../../core/utils/phone_utils.dart';
 import 'auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -16,13 +17,13 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -37,8 +38,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       } else if (next.status == AuthStateStatus.needsRegistration) {
         context.go('/auth/register?role=${widget.role}');
       } else if (next.status == AuthStateStatus.needsVerification) {
+        final phone = next.phone ?? _phoneController.text.trim();
+        if (phone.isEmpty) return;
         context.pushReplacement(
-          '/auth/otp?email=${next.email ?? _emailController.text.trim()}&role=${widget.role.toUpperCase()}',
+          '/auth/otp?phone=$phone&role=${widget.role.toUpperCase()}',
         );
       } else if (next.status == AuthStateStatus.error && next.error != null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -60,18 +63,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         value: SystemUiOverlayStyle.light,
         child: Scaffold(
           backgroundColor: AppTheme.backgroundLight,
-          body: Container(
-            height: double.infinity,
-            width: double.infinity,
-            color: AppTheme.backgroundLight,
-            child: CustomScrollView(
-              slivers: [
-                _buildSliverAppBar(context, roleTitle),
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppTheme.space24),
-                    child: Form(
+          resizeToAvoidBottomInset: false,
+          body: GestureDetector(
+            onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+            child: Container(
+              height: double.infinity,
+              width: double.infinity,
+              color: AppTheme.backgroundLight,
+              child: CustomScrollView(
+                slivers: [
+                  _buildSliverAppBar(context, roleTitle),
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        AppTheme.space24,
+                        AppTheme.space24,
+                        AppTheme.space24,
+                        MediaQuery.of(context).viewInsets.bottom + AppTheme.space24,
+                      ),
+                      child: Form(
                       key: _formKey,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -93,27 +104,42 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               .slideY(begin: 0.2, end: 0),
                           const SizedBox(height: AppTheme.space8),
                           const Text(
-                            'আপনার অ্যাকাউন্টে লগইন করুন',
+                            'ফোন নম্বর ও পাসওয়ার্ড দিয়ে লগইন করুন',
                             textAlign: TextAlign.center,
                             style: TextStyle(color: AppTheme.textSecondary),
                           ).animate().fadeIn(delay: 300.ms),
                           const SizedBox(height: AppTheme.space40),
                           _buildTextField(
-                                controller: _emailController,
-                                label: 'ইমেইল',
-                                icon: Icons.email_outlined,
-                                keyboardType: TextInputType.emailAddress,
+                                controller: _phoneController,
+                                label: 'ফোন নম্বর',
+                                icon: Icons.phone_android_rounded,
+                                keyboardType: TextInputType.phone,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                  LengthLimitingTextInputFormatter(11),
+                                ],
                                 validator: (v) {
-                                  if (v == null || v.isEmpty)
-                                    return 'ইমেইল দিন';
-                                  if (!v.contains('@')) return 'সঠিক ইমেইল দিন';
+                                  if (v == null || v.isEmpty) {
+                                    return 'ফোন নম্বর দিন';
+                                  }
+                                  if (!isValidBangladeshiPhone(v)) {
+                                    return 'সঠিক ফোন নম্বর দিন (01XXXXXXXXX)';
+                                  }
                                   return null;
                                 },
                               )
                               .animate()
                               .fadeIn(delay: 400.ms)
                               .slideX(begin: 0.1, end: 0),
-                          const SizedBox(height: AppTheme.space16),
+                          const SizedBox(height: AppTheme.space8),
+                          const Text(
+                            'যেমন: 01712345678',
+                            style: TextStyle(
+                              color: AppTheme.textHint,
+                              fontSize: 12,
+                            ),
+                          ).animate().fadeIn(delay: 450.ms),
+                          const SizedBox(height: AppTheme.space32),
                           _buildTextField(
                                 controller: _passwordController,
                                 label: 'পাসওয়ার্ড',
@@ -122,17 +148,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _obscurePassword
-                                        ? Icons.visibility_outlined
-                                        : Icons.visibility_off_outlined,
-                                    color: AppTheme.textHint,
+                                        ? Icons.visibility_off_outlined
+                                        : Icons.visibility_outlined,
+                                    size: 20,
+                                    color: AppTheme.textSecondary,
                                   ),
                                   onPressed: () => setState(
                                     () => _obscurePassword = !_obscurePassword,
                                   ),
                                 ),
                                 validator: (v) {
-                                  if (v == null || v.isEmpty)
+                                  if (v == null || v.isEmpty) {
                                     return 'পাসওয়ার্ড দিন';
+                                  }
+                                  if (v.length < 8) {
+                                    return 'পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে';
+                                  }
                                   return null;
                                 },
                               )
@@ -174,8 +205,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildSliverAppBar(BuildContext context, String title) {
     return SliverAppBar(
@@ -227,15 +259,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     required TextEditingController controller,
     required String label,
     required IconData icon,
+    String? Function(String?)? validator,
+    List<TextInputFormatter>? inputFormatters,
+    TextInputType? keyboardType,
     bool obscureText = false,
     Widget? suffixIcon,
-    TextInputType? keyboardType,
-    String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
-      obscureText: obscureText,
       keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
+      obscureText: obscureText,
       style: const TextStyle(
         color: AppTheme.textPrimary,
         fontWeight: FontWeight.w500,
@@ -307,7 +341,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
               )
             : const Text(
-                'লগইন',
+                'লগইন করুন',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -319,12 +353,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   void _login() {
+    FocusManager.instance.primaryFocus?.unfocus();
     if (_formKey.currentState!.validate()) {
       ref
           .read(authProvider.notifier)
           .login(
-            email: _emailController.text.trim(),
-            password: _passwordController.text.trim(),
+            phone: _phoneController.text.trim(),
+            password: _passwordController.text,
             role: widget.role,
           );
     }

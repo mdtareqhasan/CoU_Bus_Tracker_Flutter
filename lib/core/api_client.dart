@@ -69,10 +69,10 @@ class AuthInterceptor extends Interceptor {
 
   /// Public endpoints that must never carry an auth header.
   static final _publicPaths = RegExp(
-    r'/auth/(student|teacher|admin)/(login|register)'
-    r'|/auth/google/login'
-    r'|/auth/email-verification/(verify|resend)'
+    r'/auth/(student|teacher)/(login|register)'
+    r'|/auth/phone-verification/(send|verify|resend|init)'
     r'|/config'
+    r'|/app/version'
     r'|/notices/active'
     r'|/buses'
     r'|/schedules',

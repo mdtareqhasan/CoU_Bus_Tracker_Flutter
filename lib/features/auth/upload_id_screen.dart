@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import '../../app/theme.dart';
-import 'auth_provider.dart';
 
 class UploadIdScreen extends ConsumerStatefulWidget {
   const UploadIdScreen({super.key});

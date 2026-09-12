@@ -89,9 +89,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     if (authState.status == AuthStateStatus.authenticated) {
       context.go('/home');
     } else if (authState.status == AuthStateStatus.needsVerification) {
-      context.go(
-        '/auth/otp?email=${authState.email}&role=${authState.pendingRole ?? authState.role}',
-      );
+      final phone = authState.phone ?? '';
+      final role = authState.pendingRole ?? authState.role ?? 'STUDENT';
+      if (phone.isEmpty) {
+        // No pending phone persisted (should not happen) → restart auth flow.
+        context.go('/auth/role');
+        return;
+      }
+      context.go('/auth/otp?phone=$phone&role=$role');
     } else {
       context.go('/auth/role');
     }

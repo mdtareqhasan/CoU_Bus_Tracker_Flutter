@@ -7,8 +7,8 @@ import '../../core/api_client.dart';
 import '../../core/constants.dart';
 import '../../core/result.dart';
 import '../../core/error_handler.dart';
+import '../../core/utils/phone_utils.dart';
 import '../../shared/models/auth_response.dart';
-import '../../shared/models/login_request.dart';
 
 class AuthRepository {
   final ApiClient _apiClient;
@@ -40,47 +40,46 @@ class AuthRepository {
     }
   }
 
-  Future<Result<AuthResponse>> studentLogin(LoginRequest request) async {
-    return _login(ApiEndpoints.studentLogin, request);
-  }
-
-  Future<Result<AuthResponse>> teacherLogin(LoginRequest request) async {
-    return _login(ApiEndpoints.teacherLogin, request);
-  }
-
-  Future<Result<AuthResponse>> adminLogin(LoginRequest request) async {
-    return _login(ApiEndpoints.adminLogin, request);
-  }
-
-  Future<Result<AuthResponse>> googleLogin(String idToken, String role) async {
+  /// Step 1 of both phone login and registration verification: send a 6-digit
+  /// OTP to the user's phone via BulkSMSBD.
+  Future<Result<String>> sendPhoneOtp({
+    required String phone,
+    required String role,
+  }) async {
+    final normalized = normalizeBangladeshiPhone(phone);
+    _logRequest(ApiEndpoints.sendPhoneOtp);
     try {
       final response = await _apiClient.dio.post(
-        ApiEndpoints.googleLogin,
-        data: {'idToken': idToken, 'role': role.toUpperCase()},
+        ApiEndpoints.sendPhoneOtp,
+        data: {'phone': normalized, 'role': role.toUpperCase()},
       );
       if (response.statusCode == 200) {
-        return Success(AuthResponse.fromJson(response.data));
+        return const Success('OTP পাঠানো হয়েছে');
       }
       return Failure(message: _extractErrorMessage(response));
     } on DioException catch (e) {
+      _logDioError(e);
       return Failure(message: _handleDioError(e));
     } catch (e) {
+      debugPrint('[AUTH][OTP] unexpected error: $e');
       return Failure(message: ErrorHandler.defaultError);
     }
   }
 
-  Future<Result<AuthResponse>> verifyEmailOtp({
-    required String email,
+  /// Verifies the OTP during registration and completes phone verification.
+  /// Returns a JWT on success.
+  Future<Result<AuthResponse>> verifyPhoneOtp({
+    required String phone,
     required String role,
     required String otp,
   }) async {
-    _logRequest(ApiEndpoints.emailVerify);
+    final normalized = normalizeBangladeshiPhone(phone);
+    _logRequest(ApiEndpoints.verifyPhoneOtp);
     try {
       final response = await _apiClient.dio.post(
-        ApiEndpoints.emailVerify,
-        data: {'email': email, 'role': role.toUpperCase(), 'otp': otp},
+        ApiEndpoints.verifyPhoneOtp,
+        data: {'phone': normalized, 'role': role.toUpperCase(), 'otp': otp},
       );
-      _logOtpStatus(response.statusCode, 'verify');
       if (response.statusCode == 200) {
         return Success(AuthResponse.fromJson(response.data));
       }
@@ -94,19 +93,20 @@ class AuthRepository {
     }
   }
 
-  Future<Result<String>> resendEmailOtp({
-    required String email,
+  /// Resends the OTP after the 60-second cooldown.
+  Future<Result<String>> resendPhoneOtp({
+    required String phone,
     required String role,
   }) async {
-    _logRequest(ApiEndpoints.emailResend);
+    final normalized = normalizeBangladeshiPhone(phone);
+    _logRequest(ApiEndpoints.resendPhoneOtp);
     try {
       final response = await _apiClient.dio.post(
-        ApiEndpoints.emailResend,
-        data: {'email': email, 'role': role.toUpperCase()},
+        ApiEndpoints.resendPhoneOtp,
+        data: {'phone': normalized, 'role': role.toUpperCase()},
       );
-      _logOtpStatus(response.statusCode, 'resend');
       if (response.statusCode == 200) {
-        return const Success('ওটিপি পাঠানো হয়েছে');
+        return const Success('OTP পুনরায় পাঠানো হয়েছে');
       }
       return Failure(message: _extractErrorMessage(response));
     } on DioException catch (e) {
@@ -118,104 +118,114 @@ class AuthRepository {
     }
   }
 
-  Future<Result<AuthResponse>> _login(
+  /// Phone + password login for a student (no OTP).
+  Future<Result<AuthResponse>> studentLoginPhone({
+    required String phone,
+    required String password,
+  }) {
+    return _loginPhone(ApiEndpoints.studentLoginPhone, phone, password);
+  }
+
+  /// Phone + password login for a teacher (no OTP).
+  Future<Result<AuthResponse>> teacherLoginPhone({
+    required String phone,
+    required String password,
+  }) {
+    return _loginPhone(ApiEndpoints.teacherLoginPhone, phone, password);
+  }
+
+  Future<Result<AuthResponse>> _loginPhone(
     String endpoint,
-    LoginRequest request,
+    String phone,
+    String password,
   ) async {
-    try {
-      final response = await _apiClient.dio.post(
-        endpoint,
-        data: request.toJson(),
-      );
-      if (response.statusCode == 200) {
-        return Success(AuthResponse.fromJson(response.data));
-      }
-      return Failure(message: _extractErrorMessage(response));
-    } on DioException catch (e) {
-      return Failure(message: _handleDioError(e, isLoginRequest: true));
-    } catch (e) {
-      return Failure(message: ErrorHandler.defaultError);
-    }
-  }
-
-  Future<Result<AuthResponse>> studentRegister({
-    required String name,
-    required String email,
-    String? password,
-    String? googleIdToken,
-    required String studentId,
-    required String department,
-    required String varsityBatch,
-    required File idCard,
-  }) async {
-    final fields = <String, dynamic>{
-      'name': name,
-      'email': email,
-      'password': password ?? '',
-      'studentId': studentId,
-      'department': department,
-      'varsityBatch': varsityBatch,
-      'idCard': await _createFilePart(idCard),
-    };
-    // googleIdToken is only sent for Google registration (never for
-    // email/password registration).
-    if (googleIdToken != null && googleIdToken.isNotEmpty) {
-      fields['googleIdToken'] = googleIdToken;
-    }
-    final formData = FormData.fromMap(fields);
-
-    return _register(ApiEndpoints.studentRegister, formData);
-  }
-
-  Future<Result<AuthResponse>> teacherRegister({
-    required String name,
-    required String email,
-    String? password,
-    String? googleIdToken,
-    required String teacherId,
-    required String department,
-    String? designation,
-    String? phone,
-    required File idCard,
-  }) async {
-    final fields = <String, dynamic>{
-      'name': name,
-      'email': email,
-      'password': password ?? '',
-      'teacherId': teacherId,
-      'department': department,
-      'designation': designation ?? '',
-      'phone': phone ?? '',
-      'idCard': await _createFilePart(idCard),
-    };
-    // googleIdToken is only sent for Google registration (never for
-    // email/password registration).
-    if (googleIdToken != null && googleIdToken.isNotEmpty) {
-      fields['googleIdToken'] = googleIdToken;
-    }
-    final formData = FormData.fromMap(fields);
-
-    return _register(ApiEndpoints.teacherRegister, formData);
-  }
-
-  Future<Result<AuthResponse>> _register(String endpoint, FormData data) async {
+    final normalized = normalizeBangladeshiPhone(phone);
     _logRequest(endpoint);
     try {
       final response = await _apiClient.dio.post(
         endpoint,
-        data: data,
+        data: {'phone': normalized, 'password': password},
+      );
+      if (response.statusCode == 200) {
+        return Success(AuthResponse.fromJson(response.data));
+      }
+      return Failure(message: _extractErrorMessage(response));
+    } on DioException catch (e) {
+      _logDioError(e);
+      return Failure(message: _handleDioError(e, isLoginRequest: true));
+    } catch (e) {
+      debugPrint('[AUTH][LOGIN] unexpected error: $e');
+      return Failure(message: ErrorHandler.defaultError);
+    }
+  }
+
+  /// Step 1 of OTP-first registration: submits the full Student/Teacher
+  /// payload + ID card to the backend. The backend validates everything,
+  /// uploads the card, and sends the OTP. NO user row is created at this
+  /// point — that only happens after the OTP is verified.
+  ///
+  /// Pass role=STUDENT to register a student (studentId + varsityBatch
+  /// required), or role=TEACHER to register a teacher (teacherId required,
+  /// designation optional).
+  Future<Result<String>> initPhoneRegistration({
+    required String role,
+    required String name,
+    required String phone,
+    required String password,
+    required String department,
+    required File idCard,
+    String? studentId,
+    String? varsityBatch,
+    String? teacherId,
+    String? designation,
+  }) async {
+    final normalized = normalizeBangladeshiPhone(phone);
+    final fields = <String, dynamic>{
+      'role': role.toUpperCase(),
+      'name': name,
+      'password': password,
+      'phone': normalized,
+      'department': department,
+      'idCard': await _createFilePart(idCard),
+    };
+    if (role.toUpperCase() == 'STUDENT') {
+      if (studentId == null || studentId.isEmpty) {
+        return Failure(message: 'Student ID is required');
+      }
+      if (varsityBatch == null || varsityBatch.isEmpty) {
+        return Failure(message: 'Varsity batch is required');
+      }
+      fields['studentId'] = studentId;
+      fields['varsityBatch'] = varsityBatch;
+    } else {
+      if (teacherId == null || teacherId.isEmpty) {
+        return Failure(message: 'Teacher ID is required');
+      }
+      fields['teacherId'] = teacherId;
+      fields['designation'] = designation ?? '';
+    }
+    final formData = FormData.fromMap(fields);
+
+    _logRequest(ApiEndpoints.initPhoneRegistration);
+    try {
+      final response = await _apiClient.dio.post(
+        ApiEndpoints.initPhoneRegistration,
+        data: formData,
         options: Options(contentType: 'multipart/form-data'),
       );
       _logResponse(response);
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return Success(AuthResponse.fromJson(response.data));
+        final msg = (response.data is Map && response.data['message'] is String)
+            ? response.data['message'] as String
+            : 'OTP sent successfully';
+        return Success(msg);
       }
       return Failure(message: _extractErrorMessage(response));
     } on DioException catch (e) {
       _logDioError(e);
       return Failure(message: _handleDioError(e));
     } catch (e) {
-      debugPrint('[AUTH] unexpected error: $e');
+      debugPrint('[AUTH][INIT] unexpected error: $e');
       return Failure(message: ErrorHandler.defaultError);
     }
   }
@@ -232,16 +242,11 @@ class AuthRepository {
   void _logResponse(Response response) {
     if (!kDebugMode) return;
     final data = response.data;
-    final isEmailVerified = data is Map ? data['isEmailVerified'] : null;
+    final isVerified = data is Map ? data['isVerified'] : null;
     debugPrint(
-      '[AUTH][RES] status=${response.statusCode} isEmailVerified=$isEmailVerified '
+      '[AUTH][RES] status=${response.statusCode} isVerified=$isVerified '
       'body=${_sanitizeBody(data)}',
     );
-  }
-
-  void _logOtpStatus(int? statusCode, String action) {
-    if (!kDebugMode) return;
-    debugPrint('[AUTH][OTP] action=$action status=$statusCode');
   }
 
   void _logDioError(DioException e) {
@@ -336,9 +341,10 @@ class AuthRepository {
         return ErrorHandler.serverBusyMessage;
       case DioExceptionType.badResponse:
         if (statusCode == 401 || statusCode == 403) {
-          // Wrong password during login is NOT a session expiry.
           if (isLoginRequest) {
-            return 'ইমেইল বা পাসওয়ার্ড সঠিক নয়।';
+            // An invalid phone / wrong password during login is NOT a session
+            // expiry.
+            return ErrorHandler.invalidLogin;
           }
           return ErrorHandler.sessionExpired;
         }

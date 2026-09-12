@@ -1,12 +1,10 @@
-import 'dart:async';
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import '../../core/result.dart';
 import '../../core/storage_service.dart';
 import '../../core/error_handler.dart';
+import '../../core/utils/phone_utils.dart';
 import '../../shared/models/auth_response.dart';
-import '../../shared/models/login_request.dart';
 import 'auth_repository.dart';
 import '../providers.dart';
 
@@ -20,17 +18,17 @@ enum AuthStateStatus {
   needsVerification,
 }
 
+/// Uppercase role (STUDENT / TEACHER) pending OTP verification.
 class AuthState {
   final AuthStateStatus status;
   final String? role;
   final String? displayName;
   final String? email;
+  final String? phone;
   final int? userId;
   final bool isVerified;
   final bool isEduMail;
   final String? error;
-
-  /// Uppercase role (STUDENT / TEACHER) pending OTP verification.
   final String? pendingRole;
 
   const AuthState({
@@ -38,6 +36,7 @@ class AuthState {
     this.role,
     this.displayName,
     this.email,
+    this.phone,
     this.userId,
     this.isVerified = false,
     this.isEduMail = false,
@@ -50,6 +49,7 @@ class AuthState {
     String? role,
     String? displayName,
     String? email,
+    String? phone,
     int? userId,
     bool? isVerified,
     bool? isEduMail,
@@ -61,6 +61,7 @@ class AuthState {
       role: role ?? this.role,
       displayName: displayName ?? this.displayName,
       email: email ?? this.email,
+      phone: phone ?? this.phone,
       userId: userId ?? this.userId,
       isVerified: isVerified ?? this.isVerified,
       isEduMail: isEduMail ?? this.isEduMail,
@@ -76,10 +77,6 @@ class AuthState {
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRepository _authRepo;
   final StorageService _storage;
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-    serverClientId:
-        '111634412431-th7l3d7cqtmrpqhrn16hvs55j2f6f9qa.apps.googleusercontent.com',
-  );
 
   AuthNotifier(this._authRepo, this._storage) : super(const AuthState()) {
     _checkExistingSession();
@@ -89,12 +86,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final hasToken = await _storage.hasToken();
     if (!hasToken) {
       // No token yet: restore a pending OTP verification session if present.
-      final pendingEmail = await _storage.getPendingEmail();
-      if (pendingEmail != null) {
+      final pendingPhone = await _storage.getPendingPhone();
+      if (pendingPhone != null) {
         final pendingRole = await _storage.getPendingRole();
         state = state.copyWith(
           status: AuthStateStatus.needsVerification,
-          email: pendingEmail,
+          phone: pendingPhone,
           role: pendingRole,
           pendingRole: pendingRole?.toUpperCase(),
         );
@@ -132,44 +129,50 @@ class AuthNotifier extends StateNotifier<AuthState> {
       role: _storage.getRole(),
       displayName: _storage.getDisplayName(),
       email: _storage.getUserEmail(),
+      phone: _storage.getUserPhone(),
       userId: _storage.getUserId(),
       isVerified: _storage.isVerified(),
       isEduMail: _storage.isEduMail(),
     );
   }
 
-  Future<void> googleLogin(String role) async {
+  /// Phone + password login. No OTP is involved.
+  /// If the account exists but its phone is not verified yet, the state is
+  /// set to `needsVerification` so the UI can route the user to the OTP step.
+  Future<void> login({
+    required String phone,
+    required String password,
+    required String role,
+  }) async {
     state = state.copyWith(status: AuthStateStatus.loading, error: null);
+
     try {
-      final account = await _googleSignIn.signIn();
-      if (account == null) {
-        state = state.copyWith(status: AuthStateStatus.unauthenticated);
-        return;
-      }
-
-      final authentication = await account.authentication;
-      final idToken = authentication.idToken;
-
-      if (idToken == null) {
-        state = state.copyWith(
-          status: AuthStateStatus.error,
-          error: 'Google ID Token not found',
-        );
-        return;
-      }
-
-      final result = await _authRepo.googleLogin(idToken, role);
+      final normalized = normalizeBangladeshiPhone(phone);
+      final result = _toUpperRole(role) == 'TEACHER'
+          ? await _authRepo.teacherLoginPhone(
+              phone: normalized,
+              password: password,
+            )
+          : await _authRepo.studentLoginPhone(
+              phone: normalized,
+              password: password,
+            );
 
       switch (result) {
         case Success(:final data):
-          await _handleAuthSuccess(data, role.toLowerCase());
+          await _handleAuthSuccess(data, _toLowerRole(role));
         case Failure(:final message):
-          if (_isRegisterFirstMessage(message)) {
+          if (_isVerifyPhoneMessage(message)) {
+            await _storage.setPendingVerification(
+              normalized,
+              _toUpperRole(role),
+            );
             state = state.copyWith(
-              status: AuthStateStatus.needsRegistration,
-              email: account.email,
-              displayName: account.displayName,
-              error: message,
+              status: AuthStateStatus.needsVerification,
+              phone: normalized,
+              role: _toLowerRole(role),
+              pendingRole: _toUpperRole(role),
+              error: ErrorHandler.verifyPhoneFirst,
             );
           } else {
             state = state.copyWith(
@@ -188,60 +191,26 @@ class AuthNotifier extends StateNotifier<AuthState> {
         status: AuthStateStatus.error,
         error: e.toString(),
       );
+    } finally {
+      if (state.status == AuthStateStatus.loading) {
+        state = state.copyWith(status: AuthStateStatus.error);
+      }
     }
   }
 
-  Future<void> login({
-    required String email,
-    required String password,
-    required String role,
-  }) async {
-    state = state.copyWith(status: AuthStateStatus.loading, error: null);
-
-    final req = LoginRequest(email: email, password: password);
-    final Result<AuthResponse> result;
-
-    if (role.toLowerCase() == 'student') {
-      result = await _authRepo.studentLogin(req);
-    } else if (role.toLowerCase() == 'teacher') {
-      result = await _authRepo.teacherLogin(req);
-    } else {
-      result = await _authRepo.adminLogin(req);
-    }
-
-    switch (result) {
-      case Success(:final data):
-        await _handleAuthSuccess(data, role.toLowerCase());
-      case Failure(:final message):
-        if (_isVerifyEmailMessage(message)) {
-          state = state.copyWith(
-            status: AuthStateStatus.needsVerification,
-            email: email,
-            pendingRole: _toUpperRole(role),
-            error: ErrorHandler.verifyEmailFirst,
-          );
-        } else {
-          state = state.copyWith(status: AuthStateStatus.error, error: message);
-        }
-      default:
-        state = state.copyWith(
-          status: AuthStateStatus.error,
-          error: 'Unknown response',
-        );
-    }
-  }
-
-  /// Verifies the six-digit OTP and, on success, saves the session.
+  /// Verifies the six-digit OTP sent during registration. Returns the JWT on
+  /// success, which logs the user in.
   Future<void> verifyOtp({
-    required String email,
+    required String phone,
     required String role,
     required String otp,
   }) async {
     state = state.copyWith(status: AuthStateStatus.loading, error: null);
 
     try {
-      final result = await _authRepo.verifyEmailOtp(
-        email: email,
+      final normalized = normalizeBangladeshiPhone(phone);
+      final result = await _authRepo.verifyPhoneOtp(
+        phone: normalized,
         role: role,
         otp: otp,
       );
@@ -281,105 +250,72 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   /// Resends the OTP. Returns a Result so the screen can manage its own countdown.
   Future<Result<String>> resendOtp({
-    required String email,
+    required String phone,
     required String role,
   }) async {
-    return _authRepo.resendEmailOtp(email: email, role: role);
+    return _authRepo.resendPhoneOtp(
+      phone: normalizeBangladeshiPhone(phone),
+      role: role,
+    );
   }
 
-  Future<void> studentRegister({
+  /// OTP-first registration: submits the full form to /auth/phone-verification/init.
+  /// The backend uploads the ID card and SMS-sends the OTP. After this returns,
+  /// we move the user into the `needsVerification` state holding the phone and role.
+  Future<void> initPhoneRegistration({
+    required String role,
     required String name,
-    required String email,
-    String? password,
-    String? googleIdToken,
-    required String studentId,
+    required String phone,
+    required String password,
     required String department,
-    required String varsityBatch,
     required File idCard,
-  }) async {
-    state = state.copyWith(status: AuthStateStatus.loading, error: null);
-
-    try {
-      final result = await _authRepo.studentRegister(
-        name: name,
-        email: email,
-        password: password,
-        googleIdToken: googleIdToken,
-        studentId: studentId,
-        department: department,
-        varsityBatch: varsityBatch,
-        idCard: idCard,
-      );
-
-      switch (result) {
-        case Success(:final data):
-          await _handleRegisterSuccess(
-            data,
-            'student',
-            fallbackEmail: email.trim(),
-          );
-        case Failure(:final message):
-          state = state.copyWith(status: AuthStateStatus.error, error: message);
-        default:
-          state = state.copyWith(
-            status: AuthStateStatus.error,
-            error: 'Unknown response',
-          );
-      }
-    } catch (e) {
-      state = state.copyWith(
-        status: AuthStateStatus.error,
-        error: e.toString(),
-      );
-    } finally {
-      // Always leave the loading state on success, DioException, timeout,
-      // validation error, or any unexpected exception.
-      if (state.status == AuthStateStatus.loading) {
-        state = state.copyWith(status: AuthStateStatus.error);
-      }
-    }
-  }
-
-  Future<void> teacherRegister({
-    required String name,
-    required String email,
-    String? password,
-    String? googleIdToken,
-    required String teacherId,
-    required String department,
+    String? studentId,
+    String? varsityBatch,
+    String? teacherId,
     String? designation,
-    String? phone,
-    required File idCard,
   }) async {
     state = state.copyWith(status: AuthStateStatus.loading, error: null);
 
     try {
-      final result = await _authRepo.teacherRegister(
+      final normalized = normalizeBangladeshiPhone(phone);
+      final result = await _authRepo.initPhoneRegistration(
+        role: role.toLowerCase(),
         name: name,
-        email: email,
+        phone: normalized,
         password: password,
-        googleIdToken: googleIdToken,
-        teacherId: teacherId,
         department: department,
-        designation: designation,
-        phone: phone,
         idCard: idCard,
+        studentId: studentId,
+        varsityBatch: varsityBatch,
+        teacherId: teacherId,
+        designation: designation,
       );
 
       switch (result) {
-        case Success(:final data):
-          await _handleRegisterSuccess(
-            data,
-            'teacher',
-            fallbackEmail: email.trim(),
+        case Success():
+          // Backend has both uploaded the ID card AND sent the OTP. We don't
+          // get a token yet — that arrives only on OTP verification — so put
+          // the user in the `needsVerification` state.
+          await _storage.setPendingVerification(normalized, _toUpperRole(role));
+          state = state.copyWith(
+            status: AuthStateStatus.needsVerification,
+            role: role.toLowerCase(),
+            phone: normalized,
+            displayName: name,
+            pendingRole: _toUpperRole(role),
+            error: null,
           );
         case Failure(:final message):
-          state = state.copyWith(status: AuthStateStatus.error, error: message);
-        default:
           state = state.copyWith(
             status: AuthStateStatus.error,
-            error: 'Unknown response',
+            error: message,
           );
+        case Loading():
+          // No-op; shouldn't reach here in practice but keeps the switch exhaustive.
+          break;
+        case Empty():
+          // Result hasn't materialized yet; ignore.
+          break;
       }
     } catch (e) {
       state = state.copyWith(
@@ -387,17 +323,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
         error: e.toString(),
       );
     } finally {
-      // Always leave the loading state on success, DioException, timeout,
-      // validation error, or any unexpected exception.
       if (state.status == AuthStateStatus.loading) {
         state = state.copyWith(status: AuthStateStatus.error);
       }
     }
   }
-
   Future<void> _handleAuthSuccess(AuthResponse data, String role) async {
     // Clear pending verification as we are now logged in
     await _storage.setPendingVerification(null, null);
+
+    final phone = data.phone != null && data.phone!.isNotEmpty
+        ? normalizeBangladeshiPhone(data.phone!)
+        : state.phone;
 
     await _storage.saveSession(
       token: data.accessToken!,
@@ -405,6 +342,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       role: data.role?.toLowerCase() ?? role,
       name: data.name ?? 'User',
       email: data.email ?? '',
+      phone: phone,
       userId: data.id,
       isVerified: data.isVerified ?? false,
       isEduMail: data.isEduMail ?? false,
@@ -414,76 +352,31 @@ class AuthNotifier extends StateNotifier<AuthState> {
       role: data.role?.toLowerCase() ?? role,
       displayName: data.name ?? 'User',
       email: data.email ?? '',
+      phone: phone,
       userId: data.id,
       isVerified: data.isVerified ?? false,
       isEduMail: data.isEduMail ?? false,
+      pendingRole: null,
     );
-  }
-
-  /// Registration returns no token until the email OTP is verified.
-  /// If the response has no access token, we save a pending OTP session and
-  /// hold the user at the OTP screen. We never log the user in here.
-  Future<void> _handleRegisterSuccess(
-    AuthResponse data,
-    String role, {
-    String? fallbackEmail,
-  }) async {
-    final hasToken = data.accessToken != null && data.accessToken!.isNotEmpty;
-    final verified = data.isVerified ?? false;
-
-    if (!hasToken || !verified) {
-      final email = data.email?.trim().isNotEmpty == true
-          ? data.email
-          : fallbackEmail;
-
-      // Persist a pending OTP session (email + role) in secure storage so it
-      // survives app restart. The OTP itself is never stored.
-      if (email != null && email.isNotEmpty) {
-        await _storage.setPendingVerification(email, _toUpperRole(role));
-      }
-
-      state = state.copyWith(
-        status: AuthStateStatus.needsVerification,
-        role: role,
-        email: email,
-        displayName: data.name,
-        userId: data.id,
-        pendingRole: _toUpperRole(role),
-        error: null,
-      );
-      return;
-    }
-
-    await _handleAuthSuccess(data, role);
   }
 
   String _toUpperRole(String role) => role.trim().toUpperCase();
   String _toLowerRole(String role) => role.trim().toLowerCase();
 
-  bool _isVerifyEmailMessage(String message) {
+  bool _isVerifyPhoneMessage(String message) {
     final m = message.toLowerCase();
-    return m.contains('verify your email') ||
-        m.contains('verify email') ||
-        m.contains('email is not verified') ||
-        m.contains('please verify') ||
+    return m.contains('verify your phone') ||
+        m.contains('phone is not verified') ||
+        m.contains('phone number not verified') ||
         m.contains('not verified') ||
-        // Matches the friendly Bengali translation from ErrorHandler.friendly
         m == ErrorHandler.verifyEmailFirst.toLowerCase() ||
+        m == ErrorHandler.verifyPhoneFirst.toLowerCase() ||
+        m.contains('ফোন যাচাই') ||
         m.contains('ইমেইল যাচাই');
-  }
-
-  bool _isRegisterFirstMessage(String message) {
-    final m = message.toLowerCase();
-    return m.contains('register first') ||
-        m.contains('not registered') ||
-        // Matches the friendly Bengali translation from ErrorHandler.friendly
-        m == ErrorHandler.friendly('register first').toLowerCase() ||
-        m.contains('নিবন্ধন');
   }
 
   Future<void> logout() async {
     await _storage.clearSession();
-    await _googleSignIn.signOut();
     state = const AuthState(status: AuthStateStatus.unauthenticated);
   }
 

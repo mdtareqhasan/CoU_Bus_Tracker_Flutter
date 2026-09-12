@@ -21,18 +21,22 @@ class ApiEndpoints {
   static String schedulesByBus(int busId) => '/schedules/bus/$busId';
   static const String activeNotices = '/notices/active';
 
-  static const String studentRegister = '/auth/student/register';
-  static const String studentLogin = '/auth/student/login';
-  static const String teacherRegister = '/auth/teacher/register';
-  static const String teacherLogin = '/auth/teacher/login';
-  static const String adminLogin = '/auth/admin/login';
-  static const String googleLogin = '/auth/google/login';
+  // Registration has been unified into a single OTP-first endpoint.
+  // The Student/Teacher row is only created on successful OTP verification.
+  static const String initPhoneRegistration = '/auth/phone-verification/init';
+  static const String verifyPhoneOtp = '/auth/phone-verification/verify';
+  static const String resendPhoneOtp = '/auth/phone-verification/resend';
+  /// Legacy send endpoint — kept for reference. Prefer /resend for in-flow
+  /// resends, and /init for new registrations.
+  static const String sendPhoneOtp = '/auth/phone-verification/send';
+
+  static const String studentLoginPhone = '/auth/student/login';
+  static const String teacherLoginPhone = '/auth/teacher/login';
+
   static const String studentProfile = '/auth/student/me';
   static const String teacherProfile = '/auth/teacher/me';
   static const String studentUploadIdCard = '/auth/student/upload-id-card';
   static const String teacherUploadIdCard = '/auth/teacher/upload-id-card';
-  static const String emailVerify = '/auth/email-verification/verify';
-  static const String emailResend = '/auth/email-verification/resend';
   static const String appVersion = '/app/version';
   static const String publicConfig = '/config';
 }
@@ -47,8 +51,9 @@ class StorageKeys {
   static const String isVerified = 'is_verified';
   static const String isEduMail = 'is_edu_mail';
   static const String themeMode = 'theme_mode';
-  static const String verificationEmail = 'pending_verification_email';
   static const String verificationRole = 'pending_verification_role';
+  static const String userPhone = 'user_phone';
+  static const String pendingPhone = 'pending_verification_phone';
   static const String languageCode = 'language_code';
   static const String cachedBuses = 'cached_buses';
   static const String cachedSchedules = 'cached_schedules';
@@ -56,4 +61,5 @@ class StorageKeys {
   static String cachedBusDetail(int id) => 'cached_bus_detail_$id';
   static const String cacheTimestamp = 'cache_timestamp';
   static const String skippedVersion = 'skipped_version';
+  static const String registrationDraft = 'registration_draft';
 }

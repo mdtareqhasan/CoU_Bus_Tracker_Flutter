@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import '../../app/theme.dart';
+import '../../core/utils/phone_utils.dart';
 import 'auth_provider.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -24,30 +25,36 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _studentIdController = TextEditingController();
   final _teacherIdController = TextEditingController();
   final _departmentController = TextEditingController();
   final _batchController = TextEditingController();
   final _designationController = TextEditingController();
-  final _phoneController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
   File? _idCardImage;
   final ImagePicker _picker = ImagePicker();
-  bool _obscurePassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
     _nameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
+    _phoneController.dispose();
     _studentIdController.dispose();
     _teacherIdController.dispose();
     _departmentController.dispose();
     _batchController.dispose();
     _designationController.dispose();
-    _phoneController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -144,8 +151,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       if (next.status == AuthStateStatus.authenticated) {
         context.go('/home');
       } else if (next.status == AuthStateStatus.needsVerification) {
+        final phone = next.phone ?? _phoneController.text.trim();
+        if (phone.isEmpty) return;
         context.pushReplacement(
-          '/auth/otp?email=${next.email ?? _emailController.text.trim()}&role=${widget.role.toUpperCase()}',
+          '/auth/otp?phone=$phone&role=${widget.role.toUpperCase()}',
         );
       } else if (next.status == AuthStateStatus.error && next.error != null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -167,18 +176,22 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         value: SystemUiOverlayStyle.light,
         child: Scaffold(
           backgroundColor: AppTheme.backgroundLight,
-          body: Container(
-            height: double.infinity,
-            width: double.infinity,
-            color: AppTheme.backgroundLight,
+          resizeToAvoidBottomInset: false,
+          body: GestureDetector(
+            onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
             child: CustomScrollView(
-              physics: const BouncingScrollPhysics(),
-              slivers: [
-                _buildSliverAppBar(context, roleTitle),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppTheme.space24),
-                    child: Form(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  _buildSliverAppBar(context, roleTitle),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        AppTheme.space24,
+                        AppTheme.space24,
+                        AppTheme.space24,
+                        MediaQuery.of(context).viewInsets.bottom + AppTheme.space48,
+                      ),
+                      child: Form(
                       key: _formKey,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -200,12 +213,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               .slideY(begin: 0.2, end: 0),
                           const SizedBox(height: AppTheme.space8),
                           const Text(
-                            'আপনার পরিচয় নিশ্চিত করতে আইডি কার্ড আপলোড করুন',
+                            'আপনার পরিচয় নিশ্চিত করতে আইডি কার্ড বা ভর্তির ফর্ম আপলোড করুন',
                             textAlign: TextAlign.center,
                             style: TextStyle(color: AppTheme.textSecondary),
                           ).animate().fadeIn(delay: 200.ms),
-                          const SizedBox(height: AppTheme.space32),
-                          _buildIdCardPicker(),
+                          const SizedBox(height: AppTheme.space24),
+                          _buildDocumentPicker(),
                           const SizedBox(height: AppTheme.space32),
                           _buildTextField(
                                 controller: _nameController,
@@ -219,50 +232,34 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               .slideX(begin: 0.1, end: 0),
                           const SizedBox(height: AppTheme.space12),
                           _buildTextField(
-                                controller: _emailController,
-                                label: 'ইমেইল',
-                                icon: Icons.email_outlined,
-                                keyboardType: TextInputType.emailAddress,
+                                controller: _phoneController,
+                                label: 'ফোন নম্বর',
+                                icon: Icons.phone_android_rounded,
+                                keyboardType: TextInputType.phone,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                  LengthLimitingTextInputFormatter(11),
+                                ],
                                 validator: (v) {
                                   if (v == null || v.isEmpty)
-                                    return 'ইমেইল দিন';
-                                  if (!v.contains('@')) return 'সঠিক ইমেইল দিন';
-                                  return null;
-                                },
-                              )
-                              .animate()
-                              .fadeIn(delay: 400.ms)
-                              .slideX(begin: 0.1, end: 0),
-                          const SizedBox(height: 8),
-                          _buildEduMailInfo(),
-                          const SizedBox(height: 12),
-                          _buildTextField(
-                                controller: _passwordController,
-                                label: 'পাসওয়ার্ড',
-                                icon: Icons.lock_outline_rounded,
-                                obscureText: _obscurePassword,
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    _obscurePassword
-                                        ? Icons.visibility_outlined
-                                        : Icons.visibility_off_outlined,
-                                    color: AppTheme.textHint,
-                                  ),
-                                  onPressed: () => setState(
-                                    () => _obscurePassword = !_obscurePassword,
-                                  ),
-                                ),
-                                validator: (v) {
-                                  if (v == null || v.isEmpty)
-                                    return 'পাসওয়ার্ড দিন';
-                                  if (v.length < 8)
-                                    return 'কমপক্ষে ৮ অক্ষর দিন';
+                                    return 'ফোন নম্বর দিন';
+                                  if (!isValidBangladeshiPhone(v))
+                                    return 'সঠিক ফোন নম্বর দিন (01XXXXXXXXX)';
                                   return null;
                                 },
                               )
                               .animate()
                               .fadeIn(delay: 500.ms)
                               .slideX(begin: 0.1, end: 0),
+                          const SizedBox(height: AppTheme.space8),
+                          const Text(
+                            'নিবন্ধনের পর এই নম্বরে OTP পাঠানো হবে',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: AppTheme.textHint,
+                              fontSize: 12,
+                            ),
+                          ).animate().fadeIn(delay: 550.ms),
                           if (widget.role == 'student') ...[
                             const SizedBox(height: AppTheme.space12),
                             _buildTextField(
@@ -335,30 +332,70 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 .animate()
                                 .fadeIn(delay: 800.ms)
                                 .slideX(begin: 0.1, end: 0),
-                            const SizedBox(height: AppTheme.space12),
-                            _buildTextField(
-                                  controller: _phoneController,
-                                  label: 'ফোন নাম্বার',
-                                  icon: Icons.phone_android_rounded,
-                                  keyboardType: TextInputType.phone,
-                                  validator: (v) {
-                                    if (v == null || v.isEmpty)
-                                      return 'ফোন নাম্বার দিন';
-                                    final cleaned = v.replaceAll(
-                                      RegExp(r'[\s\-]'),
-                                      '',
-                                    );
-                                    if (!RegExp(
-                                      r'^01[3-9]\d{8}$',
-                                    ).hasMatch(cleaned))
-                                      return 'সঠিক ১১ ডিজিটের বাংলাদেশি নাম্বার দিন';
-                                    return null;
-                                  },
-                                )
-                                .animate()
-                                .fadeIn(delay: 900.ms)
-                                .slideX(begin: 0.1, end: 0),
                           ],
+                          const SizedBox(height: AppTheme.space32),
+                          _buildTextField(
+                                controller: _passwordController,
+                                label: 'পাসওয়ার্ড',
+                                icon: Icons.lock_outline_rounded,
+                                obscureText: _obscurePassword,
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscurePassword
+                                        ? Icons.visibility_off_outlined
+                                        : Icons.visibility_outlined,
+                                    size: 20,
+                                    color: AppTheme.textSecondary,
+                                  ),
+                                  onPressed: () => setState(
+                                    () => _obscurePassword = !_obscurePassword,
+                                  ),
+                                ),
+                                validator: (v) {
+                                  if (v == null || v.isEmpty) {
+                                    return 'পাসওয়ার্ড দিন';
+                                  }
+                                  if (v.length < 8) {
+                                    return 'পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে';
+                                  }
+                                  return null;
+                                },
+                              )
+                              .animate()
+                              .fadeIn(delay: 900.ms)
+                              .slideX(begin: 0.1, end: 0),
+                          const SizedBox(height: AppTheme.space12),
+                          _buildTextField(
+                                controller: _confirmPasswordController,
+                                label: 'পাসওয়ার্ড আবার দিন',
+                                icon: Icons.lock_outline_rounded,
+                                obscureText: _obscureConfirmPassword,
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscureConfirmPassword
+                                        ? Icons.visibility_off_outlined
+                                        : Icons.visibility_outlined,
+                                    size: 20,
+                                    color: AppTheme.textSecondary,
+                                  ),
+                                  onPressed: () => setState(
+                                    () => _obscureConfirmPassword =
+                                        !_obscureConfirmPassword,
+                                  ),
+                                ),
+                                validator: (v) {
+                                  if (v == null || v.isEmpty) {
+                                    return 'পাসওয়ার্ড আবার দিন';
+                                  }
+                                  if (v != _passwordController.text) {
+                                    return 'পাসওয়ার্ড মিলছে না';
+                                  }
+                                  return null;
+                                },
+                              )
+                              .animate()
+                              .fadeIn(delay: 1000.ms)
+                              .slideX(begin: 0.1, end: 0),
                           const SizedBox(height: AppTheme.space32),
                           _buildRegisterButton(authState),
                           const SizedBox(height: AppTheme.space16),
@@ -397,7 +434,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     );
   }
 
-  Widget _buildEduMailInfo() {
+  /// আইডি কার্ড না থাকলে ভর্তির ফর্ম দেওয়ার ব্যাখ্যা।
+  Widget _buildDocumentNote() {
     return Container(
       padding: const EdgeInsets.all(AppTheme.space12),
       decoration: BoxDecoration(
@@ -417,8 +455,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               gradient: AppTheme.primaryGradient,
             ),
             child: const Icon(
-              Icons.mail_outline_rounded,
-              size: 15,
+              Icons.info_outline_rounded,
+              size: 16,
               color: Colors.white,
             ),
           ),
@@ -428,7 +466,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'এডু ইমেইল ব্যবহার করুন',
+                  'আইডি কার্ড না থাকলেও সমস্যা নেই!',
                   style: TextStyle(
                     fontSize: 12.5,
                     color: AppTheme.primaryBlue,
@@ -437,11 +475,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
                 SizedBox(height: 3),
                 Text(
-                  'বিশ্ববিদ্যালয়ের ইমেইল (edu mail) থাকলে সেটি ব্যবহার করুন। না থাকলে ব্যক্তিগত ইমেইলও ব্যবহার করতে পারবেন।',
+                  'আইডি কার্ড আছে এমন ছাত্রছাত্রীরা তাদের আইডি কার্ডের ছবি '
+                  'আপলোড করবেন। যাদের আইডি কার্ড এখনো তৈরি হয়নি, তারা '
+                  'পরিবর্তে ভর্তির ফর্ম / ভর্তি ভাউচারের ছবি আপলোড করতে '
+                  'পারবেন।',
                   style: TextStyle(
                     fontSize: 11.5,
                     color: AppTheme.textSecondary,
-                    height: 1.45,
+                    height: 1.5,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -450,10 +491,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           ),
         ],
       ),
-    ).animate().fadeIn(delay: 450.ms);
+    );
   }
 
-  Widget _buildIdCardPicker() {
+  Widget _buildDocumentPicker() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -479,9 +520,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     ? AppTheme.primaryBlue.withOpacity(0.3)
                     : AppTheme.successGreen,
                 width: 2,
-                style: _idCardImage == null
-                    ? BorderStyle.solid
-                    : BorderStyle.solid,
               ),
             ),
             child: _idCardImage != null
@@ -521,7 +559,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       ),
                       const SizedBox(height: 12),
                       const Text(
-                        'আইডি কার্ডের ছবি সিলেক্ট করুন',
+                        'ছবি সিলেক্ট করুন',
                         style: TextStyle(color: AppTheme.textSecondary),
                       ),
                       if (_idCardImage == null)
@@ -560,6 +598,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   ),
           ),
         ),
+        const SizedBox(height: 12),
+        _buildDocumentNote(),
       ],
     );
   }
@@ -617,12 +657,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     bool obscureText = false,
     Widget? suffixIcon,
     TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
       style: const TextStyle(
         color: AppTheme.textPrimary,
         fontWeight: FontWeight.w500,
@@ -702,13 +744,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   }
 
   void _register() {
+    FocusManager.instance.primaryFocus?.unfocus();
     if (_idCardImage == null) {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('আইডি কার্ড প্রয়োজন'),
+          title: const Text('নথি প্রয়োজন'),
           content: const Text(
-            'নিবন্ধন সম্পন্ন করতে আপনার বিশ্ববিদ্যালয় আইডি কার্ডের ছবি আপলোড করা বাধ্যতামূলক।',
+            'নিবন্ধন সম্পন্ন করতে আপনার বিশ্ববিদ্যালয় আইডি কার্ড অথবা ভর্তির ফর্মের ছবি আপলোড করা বাধ্যতামূলক।',
           ),
           actions: [
             TextButton(
@@ -722,32 +765,29 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     }
 
     if (_formKey.currentState!.validate()) {
-      if (widget.role == 'student') {
-        ref
-            .read(authProvider.notifier)
-            .studentRegister(
-              name: _nameController.text.trim(),
-              email: _emailController.text.trim(),
-              password: _passwordController.text,
-              studentId: _studentIdController.text.trim(),
-              department: _departmentController.text.trim(),
-              varsityBatch: _batchController.text.trim(),
-              idCard: _idCardImage!,
-            );
-      } else {
-        ref
-            .read(authProvider.notifier)
-            .teacherRegister(
-              name: _nameController.text.trim(),
-              email: _emailController.text.trim(),
-              password: _passwordController.text,
-              teacherId: _teacherIdController.text.trim(),
-              department: _departmentController.text.trim(),
-              designation: _designationController.text.trim(),
-              phone: _phoneController.text.trim(),
-              idCard: _idCardImage!,
-            );
-      }
+      final phone = _phoneController.text.trim();
+      final password = _passwordController.text;
+      final role = widget.role; // 'student' or 'teacher'
+      ref.read(authProvider.notifier).initPhoneRegistration(
+            role: role,
+            name: _nameController.text.trim(),
+            phone: phone,
+            password: password,
+            department: _departmentController.text.trim(),
+            idCard: _idCardImage!,
+            studentId: role == 'student'
+                ? _studentIdController.text.trim()
+                : null,
+            varsityBatch: role == 'student'
+                ? _batchController.text.trim()
+                : null,
+            teacherId: role == 'teacher'
+                ? _teacherIdController.text.trim()
+                : null,
+            designation: role == 'teacher'
+                ? _designationController.text.trim()
+                : null,
+          );
     }
   }
 }

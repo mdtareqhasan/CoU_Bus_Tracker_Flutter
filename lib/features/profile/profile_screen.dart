@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../app/theme.dart';
+import '../../core/utils/phone_utils.dart';
 import '../auth/auth_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -39,8 +40,11 @@ class ProfileScreen extends ConsumerWidget {
       pinned: true,
       backgroundColor: AppTheme.primaryBlue,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new_rounded,
-            color: Colors.white, size: 20),
+        icon: const Icon(
+          Icons.arrow_back_ios_new_rounded,
+          color: Colors.white,
+          size: 20,
+        ),
         onPressed: () => context.go('/home'),
       ),
       title: const Text(
@@ -235,7 +239,9 @@ class ProfileScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          authState.email ?? '',
+          authState.phone != null && authState.phone!.isNotEmpty
+              ? maskBangladeshiPhone(authState.phone!)
+              : (authState.email ?? ''),
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: 12),
@@ -278,9 +284,11 @@ class ProfileScreen extends ConsumerWidget {
           const Divider(indent: 48, height: 1),
           _buildInfoRow(
             context,
-            'ইমেইল',
-            authState.email ?? '—',
-            Icons.email_outlined,
+            'ফোন নম্বর',
+            authState.phone != null && authState.phone!.isNotEmpty
+                ? maskBangladeshiPhone(authState.phone!)
+                : '—',
+            Icons.phone_android_rounded,
           ),
           const Divider(indent: 48, height: 1),
           _buildInfoRow(

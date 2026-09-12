@@ -27,6 +27,7 @@ class StorageService {
     required String role,
     required String name,
     required String email,
+    String? phone,
     int? userId,
     bool isVerified = false,
     bool isEduMail = false,
@@ -38,6 +39,9 @@ class StorageService {
     await _prefs.setString(StorageKeys.userRole, role);
     await _prefs.setString(StorageKeys.displayName, name);
     await _prefs.setString(StorageKeys.userEmail, email);
+    if (phone != null && phone.isNotEmpty) {
+      await _prefs.setString(StorageKeys.userPhone, phone);
+    }
     if (userId != null) await _prefs.setInt(StorageKeys.userId, userId);
     await _prefs.setBool(StorageKeys.isVerified, isVerified);
     await _prefs.setBool(StorageKeys.isEduMail, isEduMail);
@@ -55,21 +59,19 @@ class StorageService {
   String? getRole() => _prefs.getString(StorageKeys.userRole);
   String? getDisplayName() => _prefs.getString(StorageKeys.displayName);
   String? getUserEmail() => _prefs.getString(StorageKeys.userEmail);
+  String? getUserPhone() => _prefs.getString(StorageKeys.userPhone);
   int? getUserId() => _prefs.getInt(StorageKeys.userId);
   bool isVerified() => _prefs.getBool(StorageKeys.isVerified) ?? false;
   bool isEduMail() => _prefs.getBool(StorageKeys.isEduMail) ?? false;
 
   /// Pending OTP verification session. Stored securely so it survives app
   /// restart. The OTP value itself is NEVER persisted.
-  Future<void> setPendingVerification(String? email, String? role) async {
-    if (email == null) {
-      await _secureStorage.delete(key: StorageKeys.verificationEmail);
+  Future<void> setPendingVerification(String? phone, String? role) async {
+    if (phone == null) {
+      await _secureStorage.delete(key: StorageKeys.pendingPhone);
       await _secureStorage.delete(key: StorageKeys.verificationRole);
     } else {
-      await _secureStorage.write(
-        key: StorageKeys.verificationEmail,
-        value: email,
-      );
+      await _secureStorage.write(key: StorageKeys.pendingPhone, value: phone);
       await _secureStorage.write(
         key: StorageKeys.verificationRole,
         value: role ?? 'STUDENT',
@@ -77,8 +79,8 @@ class StorageService {
     }
   }
 
-  Future<String?> getPendingEmail() async {
-    return await _secureStorage.read(key: StorageKeys.verificationEmail);
+  Future<String?> getPendingPhone() async {
+    return await _secureStorage.read(key: StorageKeys.pendingPhone);
   }
 
   Future<String?> getPendingRole() async {
@@ -100,11 +102,12 @@ class StorageService {
   Future<void> clearSession() async {
     await _secureStorage.delete(key: StorageKeys.accessToken);
     await _secureStorage.delete(key: StorageKeys.tokenType);
-    await _secureStorage.delete(key: StorageKeys.verificationEmail);
+    await _secureStorage.delete(key: StorageKeys.pendingPhone);
     await _secureStorage.delete(key: StorageKeys.verificationRole);
     await _prefs.remove(StorageKeys.userRole);
     await _prefs.remove(StorageKeys.displayName);
     await _prefs.remove(StorageKeys.userEmail);
+    await _prefs.remove(StorageKeys.userPhone);
     await _prefs.remove(StorageKeys.userId);
     await _prefs.remove(StorageKeys.isVerified);
     await _prefs.remove(StorageKeys.isEduMail);
@@ -187,4 +190,42 @@ class StorageService {
   Future<void> clearCachedConfig() async {
     await _prefs.remove(_configKey);
   }
+
+  // --- Registration draft (survives OTP round-trip & app background) ---
+  Future<void> saveRegistrationDraft(Map<String, String> draft) async {
+    // store as simple string map; image File path is saved separately
+    for (final e in draft.entries) {
+      await _prefs.setString('${StorageKeys.registrationDraft}_${e.key}', e.value);
+    }
+  }
+
+  Map<String, String> getRegistrationDraft() {
+    const keys = [
+      'name', 'phone', 'studentId', 'teacherId',
+      'department', 'batch', 'designation', 'password', 'confirmPassword', 'role',
+    ];
+    final out = <String, String>{};
+    for (final k in keys) {
+      final v = _prefs.getString('${StorageKeys.registrationDraft}_$k');
+      if (v != null && v.isNotEmpty) out[k] = v;
+    }
+    return out;
+  }
+
+  Future<void> clearRegistrationDraft() async {
+    const keys = [
+      'name', 'phone', 'studentId', 'teacherId',
+      'department', 'batch', 'designation', 'password', 'confirmPassword', 'role', 'imagePath',
+    ];
+    for (final k in keys) {
+      await _prefs.remove('${StorageKeys.registrationDraft}_$k');
+    }
+  }
+
+  Future<void> saveRegistrationImagePath(String path) async {
+    await _prefs.setString('${StorageKeys.registrationDraft}_imagePath', path);
+  }
+
+  String? getRegistrationImagePath() =>
+      _prefs.getString('${StorageKeys.registrationDraft}_imagePath');
 }

@@ -11,7 +11,7 @@ import '../features/notices/notice_screen.dart';
 import '../features/auth/role_screen.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/register_screen.dart';
-import '../features/auth/email_otp_verification_screen.dart';
+import '../features/auth/phone_otp_verification_screen.dart';
 import '../features/auth/upload_id_screen.dart';
 import '../features/profile/profile_screen.dart';
 import '../features/about/about_screen.dart';
@@ -107,9 +107,9 @@ final appRouter = GoRouter(
       path: '/auth/otp',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
-        final email = state.uri.queryParameters['email'] ?? '';
+        final phone = state.uri.queryParameters['phone'] ?? '';
         final role = state.uri.queryParameters['role'] ?? 'student';
-        return EmailOtpVerificationScreen(email: email, role: role);
+        return PhoneOtpVerificationScreen(phone: phone, role: role);
       },
     ),
     GoRoute(

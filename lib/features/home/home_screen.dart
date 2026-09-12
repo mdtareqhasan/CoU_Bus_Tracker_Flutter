@@ -238,7 +238,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ),
                         const SizedBox(height: AppTheme.space4),
                         Text(
-                          'CoU Bus Tracker',
+                          'কুবি যাত্রা',
                           style: GoogleFonts.plusJakartaSans(
                             color: Colors.white,
                             fontSize: 26,

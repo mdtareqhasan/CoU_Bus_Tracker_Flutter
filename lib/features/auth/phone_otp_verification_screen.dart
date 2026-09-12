@@ -5,28 +5,34 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../app/theme.dart';
+import '../../core/error_handler.dart';
 import '../../core/result.dart';
+import '../../core/utils/phone_utils.dart';
 import 'auth_provider.dart';
 
-class EmailOtpVerificationScreen extends ConsumerStatefulWidget {
-  final String email;
+/// 6-digit phone OTP verification. Used after registration via
+/// /phone-verification/verify (OTP is only ever sent during registration).
+class PhoneOtpVerificationScreen extends ConsumerStatefulWidget {
+  final String phone;
   final String role;
 
-  const EmailOtpVerificationScreen({
+  const PhoneOtpVerificationScreen({
     super.key,
-    required this.email,
+    required this.phone,
     required this.role,
   });
 
   @override
-  ConsumerState<EmailOtpVerificationScreen> createState() =>
-      _EmailOtpVerificationScreenState();
+  ConsumerState<PhoneOtpVerificationScreen> createState() =>
+      _PhoneOtpVerificationScreenState();
 }
 
-class _EmailOtpVerificationScreenState
-    extends ConsumerState<EmailOtpVerificationScreen> {
+class _PhoneOtpVerificationScreenState
+    extends ConsumerState<PhoneOtpVerificationScreen> {
   static const int _otpLength = 6;
-  static const int _resendCooldown = 60;
+
+  /// OTPs expire after 2 minutes per the backend rule.
+  static const int _otpLifetimeSeconds = 120;
 
   final List<TextEditingController> _boxes = List.generate(
     _otpLength,
@@ -66,7 +72,7 @@ class _EmailOtpVerificationScreenState
 
   void _startCountdown() {
     _countdownTimer?.cancel();
-    setState(() => _countdown = _resendCooldown);
+    setState(() => _countdown = _otpLifetimeSeconds);
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted && _countdown > 0) {
         setState(() => _countdown--);
@@ -79,6 +85,12 @@ class _EmailOtpVerificationScreenState
   String get _enteredOtp => _boxes.map((c) => c.text).join();
 
   bool get _isComplete => _enteredOtp.length == _otpLength;
+
+  String get _formatCountdown {
+    final minutes = (_countdown ~/ 60).toString().padLeft(2, '0');
+    final seconds = (_countdown % 60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
 
   void _handleDigitChanged(int index, String value) {
     // If multiple digits arrived (e.g. pasted), distribute across boxes.
@@ -103,6 +115,9 @@ class _EmailOtpVerificationScreenState
     // Auto-submit when the last box is filled.
     if (_isComplete && _boxes[_otpLength - 1].text.isNotEmpty) {
       FocusManager.instance.primaryFocus?.unfocus();
+      Timer(const Duration(milliseconds: 250), () {
+        if (mounted && _isComplete && !_isVerifying) _verify();
+      });
     }
   }
 
@@ -117,6 +132,12 @@ class _EmailOtpVerificationScreenState
 
     final target = digits.length >= _otpLength ? _otpLength - 1 : digits.length;
     _focusNodes[target].requestFocus();
+
+    if (digits.length >= _otpLength) {
+      Timer(const Duration(milliseconds: 250), () {
+        if (mounted && _isComplete && !_isVerifying) _verify();
+      });
+    }
   }
 
   Future<void> _verify() async {
@@ -134,11 +155,11 @@ class _EmailOtpVerificationScreenState
     try {
       await ref
           .read(authProvider.notifier)
-          .verifyOtp(email: widget.email, role: widget.role, otp: _enteredOtp);
+          .verifyOtp(phone: widget.phone, role: widget.role, otp: _enteredOtp);
 
       if (!mounted) return;
-      final state = ref.read(authProvider);
-      if (state.status == AuthStateStatus.authenticated) {
+      final authState = ref.read(authProvider);
+      if (authState.status == AuthStateStatus.authenticated) {
         _clearOtp();
         // Replace the whole auth stack so back navigation cannot return to
         // registration/login or the OTP page after a successful verify.
@@ -146,8 +167,16 @@ class _EmailOtpVerificationScreenState
       } else {
         setState(() {
           _isVerifying = false;
-          _error = state.error ?? 'ভেরিফিকেশন ব্যর্থ হয়েছে। আবার চেষ্টা করুন।';
+          _error =
+              authState.error ?? 'ভেরিফিকেশন ব্যর্থ হয়েছে। আবার চেষ্টা করুন।';
         });
+
+        // OTP expired → backend auto-triggers a refresh, mirror that in the UI
+        // by immediately resending and resetting the countdown.
+        final message = authState.error ?? '';
+        if (message.contains('মেয়াদ') || message == ErrorHandler.otpExpired) {
+          _autoResendOnExpiry();
+        }
       }
     } catch (_) {
       if (!mounted) return;
@@ -162,6 +191,46 @@ class _EmailOtpVerificationScreenState
     }
   }
 
+  Future<void> _autoResendOnExpiry() async {
+    if (_isResending) return;
+    setState(() {
+      _isResending = true;
+      _clearOtp();
+    });
+
+    Result<String> result;
+    try {
+      result = await ref
+          .read(authProvider.notifier)
+          .resendOtp(phone: widget.phone, role: widget.role);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isResending = false);
+      return;
+    } finally {
+      if (mounted) {
+        setState(() => _isResending = false);
+      }
+    }
+
+    if (!mounted) return;
+
+    switch (result) {
+      case Success():
+        _startCountdown();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('OTP মেয়াদোত্তীর্ণ হয়েছে। নতুন OTP পাঠানো হয়েছে।'),
+            backgroundColor: AppTheme.success,
+          ),
+        );
+      case Failure(:final message):
+        setState(() => _error = message);
+      default:
+        break;
+    }
+  }
+
   Future<void> _resend() async {
     if (_countdown > 0 || _isResending) return;
     setState(() {
@@ -173,7 +242,7 @@ class _EmailOtpVerificationScreenState
     try {
       result = await ref
           .read(authProvider.notifier)
-          .resendOtp(email: widget.email, role: widget.role);
+          .resendOtp(phone: widget.phone, role: widget.role);
     } catch (_) {
       if (!mounted) return;
       setState(() {
@@ -211,9 +280,11 @@ class _EmailOtpVerificationScreenState
     }
   }
 
-  void _goBackToRegistration() {
+  void _goBackToEntryScreen() {
+    FocusManager.instance.primaryFocus?.unfocus();
     _clearOtp();
-    context.go('/auth/register?role=${widget.role.toLowerCase()}');
+    final lowerRole = widget.role.toLowerCase();
+    context.go('/auth/register?role=$lowerRole');
   }
 
   @override
@@ -224,20 +295,25 @@ class _EmailOtpVerificationScreenState
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) _goBackToRegistration();
+        if (!didPop) {
+          // If the OTP verify is running, ignore back so no state is lost.
+          if (!_isVerifying) _goBackToEntryScreen();
+        }
       },
       child: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light,
         child: Scaffold(
           backgroundColor: AppTheme.backgroundLight,
           resizeToAvoidBottomInset: false,
-          body: CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              _buildSliverAppBar(context),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(
+          body: GestureDetector(
+            onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+            child: CustomScrollView(
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                _buildSliverAppBar(context),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(
                     AppTheme.space24,
                     AppTheme.space24,
                     AppTheme.space24,
@@ -250,7 +326,7 @@ class _EmailOtpVerificationScreenState
                       _buildHeaderIllustration(),
                       const SizedBox(height: AppTheme.space32),
                       Text(
-                        'ইমেইল যাচাইকরণ',
+                        'ফোন নম্বর যাচাইকরণ',
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.headlineSmall
                             ?.copyWith(
@@ -259,17 +335,18 @@ class _EmailOtpVerificationScreenState
                             ),
                       ).animate().fadeIn(delay: 200.ms),
                       const SizedBox(height: AppTheme.space12),
-                      Text(
-                        'আমরা আপনার ইমেইলে ৬ সংখ্যার একটি verification code পাঠিয়েছি।',
+                      const Text(
+                        'আমরা আপনার ফোনে ৬ সংখ্যার একটি verification code '
+                        'পাঠিয়েছি।',
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppTheme.textSecondary,
                           height: 1.5,
                         ),
                       ).animate().fadeIn(delay: 300.ms),
                       const SizedBox(height: AppTheme.space8),
                       Text(
-                        widget.email,
+                        maskBangladeshiPhone(widget.phone),
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           color: AppTheme.primaryBlue,
@@ -286,7 +363,7 @@ class _EmailOtpVerificationScreenState
                       const SizedBox(height: AppTheme.space24),
                       _buildResendSection(),
                       const SizedBox(height: AppTheme.space24),
-                      _buildChangeEmailButton(),
+                      _buildChangePhoneButton(),
                       const SizedBox(height: AppTheme.space48),
                     ],
                   ),
@@ -296,8 +373,9 @@ class _EmailOtpVerificationScreenState
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildSliverAppBar(BuildContext context) {
     return SliverAppBar(
@@ -309,10 +387,10 @@ class _EmailOtpVerificationScreenState
           color: Colors.white,
           size: 20,
         ),
-        onPressed: _goBackToRegistration,
+        onPressed: _isVerifying ? null : _goBackToEntryScreen,
       ),
       title: const Text(
-        'ইমেইল যাচাইকরণ',
+        'ফোন নম্বর যাচাইকরণ',
         style: TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
@@ -348,11 +426,7 @@ class _EmailOtpVerificationScreenState
             ),
           ],
         ),
-        child: const Icon(
-          Icons.mark_email_read_rounded,
-          color: Colors.white,
-          size: 38,
-        ),
+        child: const Icon(Icons.sms_rounded, color: Colors.white, size: 38),
       ),
     ).animate().scale(duration: 500.ms, curve: Curves.easeOutBack);
   }
@@ -488,8 +562,8 @@ class _EmailOtpVerificationScreenState
         const SizedBox(height: AppTheme.space8),
         if (_countdown > 0)
           Text(
-            'আবার পাঠাতে $_countdown সেকেন্ড অপেক্ষা করুন',
-            style: TextStyle(
+            'নতুন কোড পাঠাতে $_formatCountdown অবশিষ্ট',
+            style: const TextStyle(
               color: AppTheme.textHint,
               fontWeight: FontWeight.w600,
             ),
@@ -515,16 +589,16 @@ class _EmailOtpVerificationScreenState
     );
   }
 
-  Widget _buildChangeEmailButton() {
+  Widget _buildChangePhoneButton() {
     return TextButton.icon(
-      onPressed: _goBackToRegistration,
+      onPressed: _isVerifying ? null : _goBackToEntryScreen,
       icon: const Icon(
         Icons.edit_outlined,
         size: 18,
         color: AppTheme.textSecondary,
       ),
       label: const Text(
-        'ইমেইল পরিবর্তন / নিবন্ধনে ফিরে যান',
+        'ফোন নম্বর পরিবর্তন / নিবন্ধনে ফিরে যান',
         style: TextStyle(
           color: AppTheme.textSecondary,
           fontWeight: FontWeight.w600,
