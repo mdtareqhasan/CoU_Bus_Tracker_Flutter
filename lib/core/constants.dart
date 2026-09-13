@@ -1,7 +1,6 @@
 /// Backend API base URL — hardcoded. Config (version, maintenance, etc.)
 /// is fetched from `/api/config` on this server at cold launch.
-const String kBaseUrl =
-    'https://cou-bus-tracker-backend-admin-frontend.onrender.com';
+const String kBaseUrl = 'https://api.kubijatra.com';
 
 const String kDefaultPlayStoreUrl =
     'https://play.google.com/store/apps/details?id=com.cse.coubustracker';

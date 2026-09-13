@@ -98,7 +98,7 @@ class AboutScreen extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         Text(
-          'CoU Bus Tracker',
+          'কুবি যাত্রা',
           style: Theme.of(
             context,
           ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
