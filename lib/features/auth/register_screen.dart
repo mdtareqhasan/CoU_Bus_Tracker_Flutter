@@ -26,10 +26,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _studentIdController = TextEditingController();
+  final _rollNumberController = TextEditingController();
   final _teacherIdController = TextEditingController();
   final _departmentController = TextEditingController();
-  final _batchController = TextEditingController();
+  final _sessionController = TextEditingController();
   final _designationController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -48,10 +48,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   void dispose() {
     _nameController.dispose();
     _phoneController.dispose();
-    _studentIdController.dispose();
+    _rollNumberController.dispose();
     _teacherIdController.dispose();
     _departmentController.dispose();
-    _batchController.dispose();
+    _sessionController.dispose();
     _designationController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -213,7 +213,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               .slideY(begin: 0.2, end: 0),
                           const SizedBox(height: AppTheme.space8),
                           const Text(
-                            'আপনার পরিচয় নিশ্চিত করতে আইডি কার্ড বা ভর্তির ফর্ম আপলোড করুন',
+                            'আইডি কার্ড অথবা ভর্তির ফর্ম আপলোড করুন',
                             textAlign: TextAlign.center,
                             style: TextStyle(color: AppTheme.textSecondary),
                           ).animate().fadeIn(delay: 200.ms),
@@ -263,11 +263,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           if (widget.role == 'student') ...[
                             const SizedBox(height: AppTheme.space12),
                             _buildTextField(
-                                  controller: _studentIdController,
-                                  label: 'শিক্ষার্থী আইডি',
+                                  controller: _rollNumberController,
+                                  label: 'রোল নম্বর',
                                   icon: Icons.badge_outlined,
+                                  hint: 'যেমন: 12208055',
                                   validator: (v) => v == null || v.isEmpty
-                                      ? 'আইডি দিন'
+                                      ? 'রোল নম্বর দিন'
                                       : null,
                                 )
                                 .animate()
@@ -278,6 +279,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                   controller: _departmentController,
                                   label: 'বিভাগ',
                                   icon: Icons.business_outlined,
+                                  hint: 'যেমন: CSE, EEE, BBA',
                                   validator: (v) => v == null || v.isEmpty
                                       ? 'বিভাগ দিন'
                                       : null,
@@ -287,11 +289,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 .slideX(begin: 0.1, end: 0),
                             const SizedBox(height: AppTheme.space12),
                             _buildTextField(
-                                  controller: _batchController,
-                                  label: 'ব্যাচ',
+                                  controller: _sessionController,
+                                  label: 'সেশন',
                                   icon: Icons.class_outlined,
+                                  hint: 'যেমন: 2021-22',
                                   validator: (v) => v == null || v.isEmpty
-                                      ? 'ব্যাচ দিন'
+                                      ? 'সেশন দিন'
                                       : null,
                                 )
                                 .animate()
@@ -466,7 +469,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'আইডি কার্ড না থাকলেও সমস্যা নেই!',
+                  'আইডি কার্ড বা ভর্তির ফর্ম — যেকোনো একটি দিন!',
                   style: TextStyle(
                     fontSize: 12.5,
                     color: AppTheme.primaryBlue,
@@ -475,10 +478,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
                 SizedBox(height: 3),
                 Text(
-                  'আইডি কার্ড আছে এমন ছাত্রছাত্রীরা তাদের আইডি কার্ডের ছবি '
-                  'আপলোড করবেন। যাদের আইডি কার্ড এখনো তৈরি হয়নি, তারা '
-                  'পরিবর্তে ভর্তির ফর্ম / ভর্তি ভাউচারের ছবি আপলোড করতে '
-                  'পারবেন।',
+                  '• আইডি কার্ড আছে → আইডি কার্ডের ছবি আপলোড করুন\n'
+                  '• আইডি কার্ড নেই → ভর্তির ফর্ম / ভর্তি ভাউচারের ছবি আপলোড করুন\n'
+                  '• উভয়ই কমিলা বিশ্ববিদ্যালয়ের হতে হবে',
                   style: TextStyle(
                     fontSize: 11.5,
                     color: AppTheme.textSecondary,
@@ -499,7 +501,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'বিশ্ববিদ্যালয় আইডি কার্ডের ছবি (MANDATORY)',
+          'পরিচয়পত্র / ভর্তির ফর্মের ছবি (MANDATORY)',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 14,
@@ -564,7 +566,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       ),
                       if (_idCardImage == null)
                         const Text(
-                          '(JPG/PNG — আপলোডের আগে ৩০০ KB-এ অটো কমপ্রেস হবে)',
+                          '(JPG/PNG — আইডি কার্ড অথবা ভর্তির ফর্ম)',
                           style: TextStyle(
                             color: AppTheme.textHint,
                             fontSize: 11,
@@ -659,6 +661,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     TextInputType? keyboardType,
     List<TextInputFormatter>? inputFormatters,
     String? Function(String?)? validator,
+    String? hint,
   }) {
     return TextFormField(
       controller: controller,
@@ -671,9 +674,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       ),
       decoration: InputDecoration(
         labelText: label,
+        hintText: hint,
         labelStyle: const TextStyle(
           color: AppTheme.textSecondary,
           fontSize: 14,
+        ),
+        hintStyle: const TextStyle(
+          color: AppTheme.textHint,
+          fontSize: 13,
         ),
         prefixIcon: Icon(icon, color: AppTheme.primaryBlue, size: 20),
         suffixIcon: suffixIcon,
@@ -775,11 +783,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             password: password,
             department: _departmentController.text.trim(),
             idCard: _idCardImage!,
-            studentId: role == 'student'
-                ? _studentIdController.text.trim()
+            rollNumber: role == 'student'
+                ? _rollNumberController.text.trim()
                 : null,
-            varsityBatch: role == 'student'
-                ? _batchController.text.trim()
+            session: role == 'student'
+                ? _sessionController.text.trim()
                 : null,
             teacherId: role == 'teacher'
                 ? _teacherIdController.text.trim()

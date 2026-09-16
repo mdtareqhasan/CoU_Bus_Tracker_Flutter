@@ -134,6 +134,69 @@ class AuthRepository {
     return _loginPhone(ApiEndpoints.teacherLoginPhone, phone, password);
   }
 
+  /// Step 1 of password reset: sends OTP to the phone number.
+  Future<Result<String>> forgotPasswordInit({
+    required String phone,
+    required String role,
+  }) async {
+    final normalized = normalizeBangladeshiPhone(phone);
+    _logRequest(ApiEndpoints.forgotPasswordInit);
+    try {
+      final response = await _apiClient.dio.post(
+        ApiEndpoints.forgotPasswordInit,
+        data: {'phone': normalized, 'role': role.toUpperCase()},
+      );
+      if (response.statusCode == 200) {
+        final msg = (response.data is Map && response.data['message'] is String)
+            ? response.data['message'] as String
+            : 'OTP sent successfully';
+        return Success(msg);
+      }
+      return Failure(message: _extractErrorMessage(response));
+    } on DioException catch (e) {
+      _logDioError(e);
+      return Failure(message: _handleDioError(e));
+    } catch (e) {
+      debugPrint('[AUTH][FORGOT-PWD] unexpected error: $e');
+      return Failure(message: ErrorHandler.defaultError);
+    }
+  }
+
+  /// Step 2 of password reset: verifies OTP and sets new password.
+  Future<Result<String>> forgotPasswordVerify({
+    required String phone,
+    required String role,
+    required String otp,
+    required String newPassword,
+  }) async {
+    final normalized = normalizeBangladeshiPhone(phone);
+    _logRequest(ApiEndpoints.forgotPasswordVerify);
+    try {
+      final response = await _apiClient.dio.post(
+        ApiEndpoints.forgotPasswordVerify,
+        data: {
+          'phone': normalized,
+          'role': role.toUpperCase(),
+          'otp': otp,
+          'newPassword': newPassword,
+        },
+      );
+      if (response.statusCode == 200) {
+        final msg = (response.data is Map && response.data['message'] is String)
+            ? response.data['message'] as String
+            : 'Password reset successful';
+        return Success(msg);
+      }
+      return Failure(message: _extractErrorMessage(response));
+    } on DioException catch (e) {
+      _logDioError(e);
+      return Failure(message: _handleDioError(e));
+    } catch (e) {
+      debugPrint('[AUTH][FORGOT-PWD-VERIFY] unexpected error: $e');
+      return Failure(message: ErrorHandler.defaultError);
+    }
+  }
+
   Future<Result<AuthResponse>> _loginPhone(
     String endpoint,
     String phone,
@@ -174,8 +237,8 @@ class AuthRepository {
     required String password,
     required String department,
     required File idCard,
-    String? studentId,
-    String? varsityBatch,
+    String? rollNumber,
+    String? session,
     String? teacherId,
     String? designation,
   }) async {
@@ -189,14 +252,14 @@ class AuthRepository {
       'idCard': await _createFilePart(idCard),
     };
     if (role.toUpperCase() == 'STUDENT') {
-      if (studentId == null || studentId.isEmpty) {
-        return Failure(message: 'Student ID is required');
+      if (rollNumber == null || rollNumber.isEmpty) {
+        return Failure(message: 'Roll number is required');
       }
-      if (varsityBatch == null || varsityBatch.isEmpty) {
-        return Failure(message: 'Varsity batch is required');
+      if (session == null || session.isEmpty) {
+        return Failure(message: 'Session is required');
       }
-      fields['studentId'] = studentId;
-      fields['varsityBatch'] = varsityBatch;
+      fields['rollNumber'] = rollNumber;
+      fields['session'] = session;
     } else {
       if (teacherId == null || teacherId.isEmpty) {
         return Failure(message: 'Teacher ID is required');

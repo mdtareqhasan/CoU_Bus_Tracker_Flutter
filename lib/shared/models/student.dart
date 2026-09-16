@@ -7,9 +7,9 @@ class Student {
   final int? id;
   final String? name;
   final String? email;
-  final String? studentId;
+  final String? rollNumber;
   final String? department;
-  final String? varsityBatch;
+  final String? session;
   final String? idCardImageUrl;
   final bool? isEduMail;
   final bool? isVerified;
@@ -20,9 +20,9 @@ class Student {
     this.id,
     this.name,
     this.email,
-    this.studentId,
+    this.rollNumber,
     this.department,
-    this.varsityBatch,
+    this.session,
     this.idCardImageUrl,
     this.isEduMail,
     this.isVerified,

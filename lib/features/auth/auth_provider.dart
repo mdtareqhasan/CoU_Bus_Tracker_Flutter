@@ -30,6 +30,7 @@ class AuthState {
   final bool isEduMail;
   final String? error;
   final String? pendingRole;
+  final String? idCardImageUrl;
 
   const AuthState({
     this.status = AuthStateStatus.initial,
@@ -42,6 +43,7 @@ class AuthState {
     this.isEduMail = false,
     this.error,
     this.pendingRole,
+    this.idCardImageUrl,
   });
 
   AuthState copyWith({
@@ -55,6 +57,7 @@ class AuthState {
     bool? isEduMail,
     String? error,
     String? pendingRole,
+    String? idCardImageUrl,
   }) {
     return AuthState(
       status: status ?? this.status,
@@ -67,6 +70,7 @@ class AuthState {
       isEduMail: isEduMail ?? this.isEduMail,
       error: error,
       pendingRole: pendingRole ?? this.pendingRole,
+      idCardImageUrl: idCardImageUrl ?? this.idCardImageUrl,
     );
   }
 
@@ -124,6 +128,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
 
     // Token accepted (or backend unreachable) → mark authenticated.
+    // Fetch profile to get idCardImageUrl
+    String? idCardImageUrl;
+    try {
+      final endpoint = role == 'teacher'
+          ? '/auth/teacher/me'
+          : '/auth/student/me';
+      final response = await _authRepo._apiClient.dio.get<dynamic>(endpoint);
+      if (response.statusCode == 200 && response.data is Map) {
+        idCardImageUrl = response.data['idCardImageUrl'] as String?;
+      }
+    } catch (_) {
+      // Ignore profile fetch errors
+    }
+
     state = state.copyWith(
       status: AuthStateStatus.authenticated,
       role: _storage.getRole(),
@@ -133,6 +151,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       userId: _storage.getUserId(),
       isVerified: _storage.isVerified(),
       isEduMail: _storage.isEduMail(),
+      idCardImageUrl: idCardImageUrl,
     );
   }
 
@@ -259,6 +278,32 @@ class AuthNotifier extends StateNotifier<AuthState> {
     );
   }
 
+  /// Sends OTP for password reset.
+  Future<Result<String>> forgotPasswordInit({
+    required String phone,
+    required String role,
+  }) async {
+    return _authRepo.forgotPasswordInit(
+      phone: normalizeBangladeshiPhone(phone),
+      role: role,
+    );
+  }
+
+  /// Verifies OTP and resets password.
+  Future<Result<String>> forgotPasswordVerify({
+    required String phone,
+    required String role,
+    required String otp,
+    required String newPassword,
+  }) async {
+    return _authRepo.forgotPasswordVerify(
+      phone: normalizeBangladeshiPhone(phone),
+      role: role,
+      otp: otp,
+      newPassword: newPassword,
+    );
+  }
+
   /// OTP-first registration: submits the full form to /auth/phone-verification/init.
   /// The backend uploads the ID card and SMS-sends the OTP. After this returns,
   /// we move the user into the `needsVerification` state holding the phone and role.
@@ -269,8 +314,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
     required String password,
     required String department,
     required File idCard,
-    String? studentId,
-    String? varsityBatch,
+    String? rollNumber,
+    String? session,
     String? teacherId,
     String? designation,
   }) async {
@@ -285,8 +330,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
         password: password,
         department: department,
         idCard: idCard,
-        studentId: studentId,
-        varsityBatch: varsityBatch,
+        rollNumber: rollNumber,
+        session: session,
         teacherId: teacherId,
         designation: designation,
       );
@@ -347,6 +392,21 @@ class AuthNotifier extends StateNotifier<AuthState> {
       isVerified: data.isVerified ?? false,
       isEduMail: data.isEduMail ?? false,
     );
+
+    // Fetch profile to get idCardImageUrl
+    String? idCardImageUrl;
+    try {
+      final endpoint = (data.role?.toLowerCase() ?? role) == 'teacher'
+          ? '/auth/teacher/me'
+          : '/auth/student/me';
+      final response = await _authRepo._apiClient.dio.get<dynamic>(endpoint);
+      if (response.statusCode == 200 && response.data is Map) {
+        idCardImageUrl = response.data['idCardImageUrl'] as String?;
+      }
+    } catch (_) {
+      // Ignore profile fetch errors - idCardImageUrl will be null
+    }
+
     state = state.copyWith(
       status: AuthStateStatus.authenticated,
       role: data.role?.toLowerCase() ?? role,
@@ -357,6 +417,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       isVerified: data.isVerified ?? false,
       isEduMail: data.isEduMail ?? false,
       pendingRole: null,
+      idCardImageUrl: idCardImageUrl,
     );
   }
 

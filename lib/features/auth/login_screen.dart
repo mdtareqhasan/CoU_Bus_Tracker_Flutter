@@ -172,7 +172,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               .slideX(begin: 0.1, end: 0),
                           const SizedBox(height: AppTheme.space32),
                           _buildLoginButton(authState),
-                          const SizedBox(height: AppTheme.space16),
+                          const SizedBox(height: AppTheme.space12),
+                          TextButton(
+                            onPressed: () =>
+                                context.go('/auth/forgot-password'),
+                            child: const Text(
+                              'পাসওয়ার্ড ভুলে গেছেন?',
+                              style: TextStyle(
+                                color: AppTheme.primaryBlue,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ).animate().fadeIn(delay: 650.ms),
+                          const SizedBox(height: AppTheme.space4),
                           TextButton(
                             onPressed: () => context.go(
                               '/auth/register?role=${widget.role}',

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../app/theme.dart';
 import '../../core/utils/phone_utils.dart';
 import '../auth/auth_provider.dart';
@@ -194,7 +195,11 @@ class ProfileScreen extends ConsumerWidget {
         children: [
           const SizedBox(height: AppTheme.space12),
           _buildProfileHeader(context, authState),
-          const SizedBox(height: AppTheme.space32),
+          const SizedBox(height: AppTheme.space24),
+          if (authState.idCardImageUrl != null &&
+              authState.idCardImageUrl!.isNotEmpty)
+            _buildIdCardSection(context, authState),
+          const SizedBox(height: AppTheme.space24),
           _buildInfoCard(context, authState),
           const SizedBox(height: AppTheme.space32),
           _buildLogoutButton(context, ref),
@@ -262,6 +267,124 @@ class ProfileScreen extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildIdCardSection(BuildContext context, AuthState authState) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppTheme.space16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        boxShadow: AppTheme.softShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryBlue.withOpacity(0.05),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.badge_outlined,
+                  size: 20,
+                  color: AppTheme.primaryBlue,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'আইডি কার্ড',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppTheme.space12),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+            child: GestureDetector(
+              onTap: () => _showFullIdCard(context, authState.idCardImageUrl!),
+              child: CachedNetworkImage(
+                imageUrl: authState.idCardImageUrl!,
+                width: double.infinity,
+                height: 200,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Container(
+                  height: 200,
+                  color: AppTheme.primaryBlue.withOpacity(0.05),
+                  child: const Center(
+                    child: CircularProgressIndicator(
+                      color: AppTheme.primaryBlue,
+                    ),
+                  ),
+                ),
+                errorWidget: (context, url, error) => Container(
+                  height: 200,
+                  color: AppTheme.primaryBlue.withOpacity(0.05),
+                  child: const Center(
+                    child: Icon(
+                      Icons.error_outline,
+                      color: AppTheme.error,
+                      size: 40,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'ছবি দেখতে ট্যাপ করুন',
+            style: TextStyle(
+              color: AppTheme.textHint,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1, end: 0);
+  }
+
+  void _showFullIdCard(BuildContext context, String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.black,
+        insetPadding: const EdgeInsets.all(16),
+        child: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+              Flexible(
+                child: InteractiveViewer(
+                  minScale: 0.5,
+                  maxScale: 4.0,
+                  child: CachedNetworkImage(
+                    imageUrl: imageUrl,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

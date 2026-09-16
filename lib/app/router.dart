@@ -13,6 +13,8 @@ import '../features/auth/login_screen.dart';
 import '../features/auth/register_screen.dart';
 import '../features/auth/phone_otp_verification_screen.dart';
 import '../features/auth/upload_id_screen.dart';
+import '../features/auth/forgot_password_screen.dart';
+import '../features/auth/forgot_password_otp_screen.dart';
 import '../features/profile/profile_screen.dart';
 import '../features/about/about_screen.dart';
 
@@ -116,6 +118,20 @@ final appRouter = GoRouter(
       path: '/auth/upload-id',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const UploadIdScreen(),
+    ),
+    GoRoute(
+      path: '/auth/forgot-password',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ForgotPasswordScreen(),
+    ),
+    GoRoute(
+      path: '/auth/forgot-password-otp',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final phone = state.uri.queryParameters['phone'] ?? '';
+        final role = state.uri.queryParameters['role'] ?? 'STUDENT';
+        return ForgotPasswordOtpScreen(phone: phone, role: role);
+      },
     ),
     GoRoute(
       path: '/about',
