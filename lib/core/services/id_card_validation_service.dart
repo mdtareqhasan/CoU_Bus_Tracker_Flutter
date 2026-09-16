@@ -91,7 +91,9 @@ class IdCardValidationService {
         lowerText.contains('comilla uni') ||
         lowerText.contains('কুমিল্লা') ||
         lowerText.contains('কমিলা') ||
-        lowerText.contains('cou');
+        lowerText.contains('cou') ||
+        lowerText.contains('cumilla') ||
+        lowerText.contains('কুমিল্লা বিশ্ব');
   }
 
   static String? _detectDocumentType(String text, String role) {
@@ -111,6 +113,7 @@ class IdCardValidationService {
       return null;
     }
 
+    // Check for ID card markers
     final isIdCard = lowerText.contains('id card') ||
         lowerText.contains('identity card') ||
         lowerText.contains('non resident') ||
@@ -119,37 +122,34 @@ class IdCardValidationService {
         lowerText.contains('roll no.') ||
         lowerText.contains('blood gr') ||
         lowerText.contains('blood group') ||
-        lowerText.contains('provost') ||
-        lowerText.contains('ডিপার্টমেন্ট');
+        lowerText.contains('provost');
 
+    if (isIdCard) return 'id_card';
+
+    // Check for registration form markers (English + Bangla patterns)
     final isRegistrationForm = lowerText.contains('registration form') ||
-        lowerText.contains('রেজিস্ট্রেশন ফর্ম') ||
-        lowerText.contains('ভর্তির ফর্ম') ||
-        lowerText.contains('ভর্তি ফর্ম') ||
+        lowerText.contains('registration') ||
+        lowerText.contains('রেজিস্ট্রেশন') ||
+        lowerText.contains('ভর্তি') ||
         lowerText.contains('admission') ||
-        lowerText.contains('শিক্ষার্থীর নাম') ||
         lowerText.contains('student name') ||
-        lowerText.contains('মাতার নাম') ||
-        lowerText.contains('পিতার নাম') ||
-        lowerText.contains('অনুদান') ||
-        lowerText.contains('রেজিস্ট্রেশন/আইডি নম্বর') ||
-        lowerText.contains('registration/id no') ||
-        lowerText.contains('সাংগ্রাত আবেদন') ||
-        lowerText.contains('আবেদন ফর্ম') ||
-        lowerText.contains('বাবদ প্রাপ্ত') ||
-        lowerText.contains('শিক্ষাবর্ষ') ||
         lowerText.contains('father') ||
         lowerText.contains('mother') ||
         lowerText.contains('guardian') ||
-        lowerText.contains('blood group') && lowerText.contains('birth') ||
         lowerText.contains('date of birth') ||
+        lowerText.contains('blood group') ||
         lowerText.contains('nationality') ||
         lowerText.contains('religion') ||
         lowerText.contains('marital') ||
-        lowerText.contains('session 20') && lowerText.contains('dept');
+        lowerText.contains('dept') ||
+        lowerText.contains('session');
 
-    if (isIdCard) return 'id_card';
     if (isRegistrationForm) return 'registration_form';
+
+    // If university marker found but no specific markers, still accept
+    // Check if there's a 7-8 digit number (typical roll/registration number)
+    final hasNumber = RegExp(r'\b\d{7,8}\b').hasMatch(text);
+    if (hasNumber) return 'registration_form';
 
     return 'unknown';
   }
