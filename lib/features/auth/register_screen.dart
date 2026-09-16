@@ -92,31 +92,30 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       _isIdCardValid = null;
     });
 
-    // Validate with ML Kit (only for student registration)
-    if (widget.role == 'student') {
-      await _validateIdCard(compressed);
-    } else {
-      // For teachers, just accept the image
-      if (!mounted) return;
-      setState(() {
-        _isValidatingIdCard = false;
-        _isIdCardValid = true;
-        _idCardValidationMessage = null;
-      });
-    }
+    // Validate with ML Kit for both students and teachers
+    await _validateIdCard(compressed);
   }
 
   Future<void> _validateIdCard(File imageFile) async {
     try {
-      final result = await IdCardValidationService.validateIdCard(imageFile);
+      final result = await IdCardValidationService.validateIdCard(imageFile, role: widget.role);
 
       if (!mounted) return;
+
+      String docLabel;
+      if (result.documentType == 'teacher_id_card') {
+        docLabel = 'শিক্ষক আইডি কার্ড';
+      } else if (result.documentType == 'id_card') {
+        docLabel = 'আইডি কার্ড';
+      } else {
+        docLabel = 'ভর্তির ফর্ম';
+      }
 
       setState(() {
         _isValidatingIdCard = false;
         _isIdCardValid = result.isValid;
         _idCardValidationMessage = result.isValid
-            ? '✅ ${result.documentType == "id_card" ? "আইডি কার্ড" : "ভর্তির ফর্ম"} সনাক্ত হয়েছে'
+            ? '✅ $docLabel সনাক্ত হয়েছে'
             : result.errorMessage;
       });
 
@@ -131,11 +130,18 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         if (result.extractedDepartment != null && _departmentController.text.isEmpty) {
           _departmentController.text = result.extractedDepartment!;
         }
+        if (result.extractedDesignation != null && _designationController.text.isEmpty) {
+          _designationController.text = result.extractedDesignation!;
+        }
+        if (result.extractedEmployeeId != null && _teacherIdController.text.isEmpty) {
+          _teacherIdController.text = result.extractedEmployeeId!;
+        }
 
-        // Show auto-fill feedback
         if (result.extractedRollNumber != null ||
             result.extractedSession != null ||
-            result.extractedDepartment != null) {
+            result.extractedDepartment != null ||
+            result.extractedDesignation != null ||
+            result.extractedEmployeeId != null) {
           _showSuccess('তথ্য স্বয়ংক্রিয়ভাবে পূরণ হয়েছে। পরীক্ষা করে নিন।');
         }
       }
@@ -919,14 +925,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       return;
     }
 
-    // Check ML Kit validation for students
-    if (widget.role == 'student' && _isIdCardValid == false) {
+    // Check ML Kit validation for both students and teachers
+    if (_isIdCardValid == false) {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('পরিচয়পত্র যাচাই ব্যর্থ'),
           content: Text(
-            _idCardValidationMessage ?? 'এটি কমিলা বিশ্ববিদ্যালয়ের আইডি কার্ড বা ভর্তির ফর্ম মনে হচ্ছে না। আবার চেষ্টা করুন।',
+            _idCardValidationMessage ?? 'এটি কুমিল্লা বিশ্ববিদ্যালয়ের আইডি কার্ড বা ভর্তির ফর্ম মনে হচ্ছে না। আবার চেষ্টা করুন।',
           ),
           actions: [
             TextButton(
