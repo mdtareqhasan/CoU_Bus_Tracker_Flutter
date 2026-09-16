@@ -42,6 +42,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   bool _isValidatingIdCard = false;
   String? _idCardValidationMessage;
   bool? _isIdCardValid;
+  int _imageKey = 0;
 
   @override
   void initState() {
@@ -90,6 +91,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       _isValidatingIdCard = true;
       _idCardValidationMessage = null;
       _isIdCardValid = null;
+      _imageKey++; // Force image widget to rebuild
     });
 
     // Validate with ML Kit for both students and teachers
@@ -618,6 +620,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         ),
                         child: Image.file(
                           _idCardImage!,
+                          key: ValueKey(_imageKey),
                           width: double.infinity,
                           height: 200,
                           fit: BoxFit.cover,

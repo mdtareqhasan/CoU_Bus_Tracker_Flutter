@@ -26,15 +26,21 @@ class IdCardValidationResult {
 }
 
 class IdCardValidationService {
-  static final _textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
+  static final _latinRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
+  static final _banglaRecognizer = TextRecognizer(script: TextRecognitionScript.bangla);
 
   static Future<IdCardValidationResult> validateIdCard(File imageFile, {String role = 'student'}) async {
     try {
       final inputImage = InputImage.fromFile(imageFile);
-      final recognizedText = await _textRecognizer.processImage(inputImage);
-      final text = recognizedText.text;
 
-      if (text.isEmpty) {
+      // Run both Latin and Bangla recognizers
+      final latinResult = await _latinRecognizer.processImage(inputImage);
+      final banglaResult = await _banglaRecognizer.processImage(inputImage);
+
+      // Combine text from both scripts
+      final text = '${latinResult.text}\n${banglaResult.text}';
+
+      if (text.trim().isEmpty) {
         return const IdCardValidationResult(
           isValid: false,
           errorMessage: 'ছবি থেকে কোনো তথ্য পড়া যায়নি। আবার চেষ্টা করুন।',
@@ -123,6 +129,7 @@ class IdCardValidationService {
     final isRegistrationForm = lowerText.contains('registration form') ||
         lowerText.contains('রেজিস্ট্রেশন ফর্ম') ||
         lowerText.contains('ভর্তির ফর্ম') ||
+        lowerText.contains('ভর্তি ফর্ম') ||
         lowerText.contains('admission') ||
         lowerText.contains('শিক্ষার্থীর নাম') ||
         lowerText.contains('student name') ||
@@ -130,7 +137,12 @@ class IdCardValidationService {
         lowerText.contains('পিতার নাম') ||
         lowerText.contains('অনুদান') ||
         lowerText.contains('রেজিস্ট্রেশন/আইডি নম্বর') ||
-        lowerText.contains('registration/id no');
+        lowerText.contains('registration/id no') ||
+        lowerText.contains('সাংগ্রাত আবেদন') ||
+        lowerText.contains('আবেদন ফর্ম') ||
+        lowerText.contains('বাবদ প্রাপ্ত') ||
+        lowerText.contains('শিক্ষাবর্ষ') ||
+        lowerText.contains('নাম') && lowerText.contains('পিতা');
 
     if (isIdCard) return 'id_card';
     if (isRegistrationForm) return 'registration_form';
@@ -271,6 +283,7 @@ class IdCardValidationService {
   }
 
   static void dispose() {
-    _textRecognizer.close();
+    _latinRecognizer.close();
+    _banglaRecognizer.close();
   }
 }
