@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:tesseract_ocr/tesseract_ocr.dart';
 
 class IdCardValidationResult {
   final bool isValid;
@@ -27,16 +29,55 @@ class IdCardValidationResult {
 
 class IdCardValidationService {
   static final _latinRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
+  static bool _tessdataInitialized = false;
+
+  /// Ensures the Bangla trained data is available for Tesseract.
+  static Future<void> _initTessdata() async {
+    if (_tessdataInitialized) return;
+
+    try {
+      final data = await rootBundle.load('assets/tessdata/ben.traineddata');
+      final bytes = data.buffer.asUint8List();
+      final dir = await getTessdataPath();
+      final file = File('$dir/ben.traineddata');
+      if (!await file.exists()) {
+        await file.writeAsBytes(bytes);
+      }
+      _tessdataInitialized = true;
+    } catch (e) {
+      // Tesseract Bangla not available, will use Latin only
+      _tessdataInitialized = false;
+    }
+  }
 
   static Future<IdCardValidationResult> validateIdCard(File imageFile, {String role = 'student'}) async {
     try {
+      // Ensure Tesseract Bangla data is ready
+      await _initTessdata();
+
       final inputImage = InputImage.fromFile(imageFile);
 
-      // Use Latin script - it recognizes English text on Bangla documents
-      final recognizedText = await _latinRecognizer.processImage(inputImage);
-      final text = recognizedText.text;
+      // Run ML Kit for English text
+      final latinResult = await _latinRecognizer.processImage(inputImage);
+      final latinText = latinResult.text;
 
-      if (text.trim().isEmpty) {
+      // Run Tesseract for Bangla text
+      String banglaText = '';
+      if (_tessdataInitialized) {
+        try {
+          banglaText = await TesseractOcr.extractText(
+            imageFile.path,
+            language: 'ben',
+          );
+        } catch (_) {
+          // Tesseract failed, continue with Latin only
+        }
+      }
+
+      // Combine both texts
+      final combinedText = '$latinText\n$banglaText';
+
+      if (combinedText.trim().isEmpty) {
         return const IdCardValidationResult(
           isValid: false,
           errorMessage: 'ছবি থেকে কোনো তথ্য পড়া যায়নি। আবার চেষ্টা করুন।',
@@ -44,7 +85,7 @@ class IdCardValidationService {
         );
       }
 
-      final docType = _detectDocumentType(text, role);
+      final docType = _detectDocumentType(combinedText, role);
 
       if (docType == null) {
         return IdCardValidationResult(
@@ -52,28 +93,28 @@ class IdCardValidationService {
           errorMessage: role == 'teacher'
               ? 'এটি কুমিল্লা বিশ্ববিদ্যালয়ের শিক্ষক আইডি কার্ড মনে হচ্ছে না।'
               : 'এটি কুমিল্লা বিশ্ববিদ্যালয়ের আইডি কার্ড বা ভর্তির ফর্ম মনে হচ্ছে না।',
-          rawText: text,
+          rawText: combinedText,
         );
       }
 
       if (docType == 'teacher_id_card') {
         return IdCardValidationResult(
           isValid: true,
-          extractedDepartment: _extractDepartment(text),
-          extractedDesignation: _extractDesignation(text),
-          extractedEmployeeId: _extractEmployeeId(text),
+          extractedDepartment: _extractDepartment(combinedText),
+          extractedDesignation: _extractDesignation(combinedText),
+          extractedEmployeeId: _extractEmployeeId(combinedText),
           documentType: docType,
-          rawText: text,
+          rawText: combinedText,
         );
       }
 
       return IdCardValidationResult(
         isValid: true,
-        extractedRollNumber: _extractRollNumber(text),
-        extractedSession: _extractSession(text),
-        extractedDepartment: _extractDepartment(text),
+        extractedRollNumber: _extractRollNumber(combinedText),
+        extractedSession: _extractSession(combinedText),
+        extractedDepartment: _extractDepartment(combinedText),
         documentType: docType,
-        rawText: text,
+        rawText: combinedText,
       );
     } catch (e) {
       return IdCardValidationResult(
@@ -91,9 +132,7 @@ class IdCardValidationService {
         lowerText.contains('comilla uni') ||
         lowerText.contains('কুমিল্লা') ||
         lowerText.contains('কমিলা') ||
-        lowerText.contains('cou') ||
-        lowerText.contains('cumilla') ||
-        lowerText.contains('কুমিল্লা বিশ্ব');
+        lowerText.contains('cumilla');
   }
 
   static String? _detectDocumentType(String text, String role) {
@@ -126,28 +165,30 @@ class IdCardValidationService {
 
     if (isIdCard) return 'id_card';
 
-    // Check for registration form markers (English + Bangla patterns)
+    // Check for registration form markers (English + Bangla)
     final isRegistrationForm = lowerText.contains('registration form') ||
+        lowerText.contains('রেজিস্ট্রেশন ফর্ম') ||
         lowerText.contains('registration') ||
         lowerText.contains('রেজিস্ট্রেশন') ||
-        lowerText.contains('ভর্তি') ||
+        lowerText.contains('ভর্তির ফর্ম') ||
+        lowerText.contains('ভর্তি ফর্ম') ||
         lowerText.contains('admission') ||
-        lowerText.contains('student name') ||
         lowerText.contains('father') ||
         lowerText.contains('mother') ||
         lowerText.contains('guardian') ||
+        lowerText.contains('পিতা') ||
+        lowerText.contains('মাতা') ||
         lowerText.contains('date of birth') ||
-        lowerText.contains('blood group') ||
         lowerText.contains('nationality') ||
         lowerText.contains('religion') ||
-        lowerText.contains('marital') ||
         lowerText.contains('dept') ||
-        lowerText.contains('session');
+        lowerText.contains('বিভাগ') ||
+        lowerText.contains('session') ||
+        lowerText.contains('শিক্ষাবর্ষ');
 
     if (isRegistrationForm) return 'registration_form';
 
-    // If university marker found but no specific markers, still accept
-    // Check if there's a 7-8 digit number (typical roll/registration number)
+    // Fallback: if university marker found and has 7-8 digit number
     final hasNumber = RegExp(r'\b\d{7,8}\b').hasMatch(text);
     if (hasNumber) return 'registration_form';
 
@@ -155,8 +196,12 @@ class IdCardValidationService {
   }
 
   static String? _extractRollNumber(String text) {
-    final lines = text.split('\n');
+    // Try Bangla pattern first: "রেজিস্ট্রেশন/আইডি নম্বর: 12608015"
+    final banglaMatch = RegExp(r'রেজিস্ট্রেশন/আইডি\s*নম্বর[:\s]*(\d{7,8})').firstMatch(text);
+    if (banglaMatch != null) return banglaMatch.group(1);
 
+    // Try English pattern: "Roll No: 12208055"
+    final lines = text.split('\n');
     for (final line in lines) {
       final lowerLine = line.toLowerCase().trim();
 
@@ -164,18 +209,9 @@ class IdCardValidationService {
         final match = RegExp(r'roll\s*no\.?\s*:?\s*(\d+)').firstMatch(lowerLine);
         if (match != null) return match.group(1);
       }
-
-      if (lowerLine.contains('রোল') || lowerLine.contains('roll')) {
-        final match = RegExp(r'(\d{7,8})').firstMatch(line);
-        if (match != null) return match.group(1);
-      }
-
-      if (lowerLine.contains('রেজিস্ট্রেশন') || lowerLine.contains('registration')) {
-        final match = RegExp(r'(\d{7,8})').firstMatch(line);
-        if (match != null) return match.group(1);
-      }
     }
 
+    // Fallback: look for 7-8 digit numbers
     final allNumbers = RegExp(r'\b(\d{7,8})\b').allMatches(text);
     if (allNumbers.isNotEmpty) {
       return allNumbers.first.group(1);
@@ -185,6 +221,11 @@ class IdCardValidationService {
   }
 
   static String? _extractSession(String text) {
+    // Try Bangla pattern: "শিক্ষাবর্ষ 2025-2026"
+    final banglaMatch = RegExp(r'শিক্ষাবর্ষ\s*(\d{4}[-–]\d{4})').firstMatch(text);
+    if (banglaMatch != null) return banglaMatch.group(1);
+
+    // Try English pattern: "Session: 2021-22"
     final sessionMatch = RegExp(
       r'session\s*:?\s*(\d{4}[-–]\d{2,4}(?:\s*\([^)]*\))?)',
       caseSensitive: false,
@@ -195,22 +236,12 @@ class IdCardValidationService {
       return yearMatch != null ? yearMatch.group(1) : session;
     }
 
-    final banglaSessionMatch = RegExp(
-      r'শিক্ষাবর্ষ\s*(\d{4}[-–]\d{4})',
-    ).firstMatch(text);
-    if (banglaSessionMatch != null) {
-      return banglaSessionMatch.group(1);
-    }
-
+    // Try "Session 2025-2026" without colon
     final looseMatch = RegExp(
-      r"(\d{4}[-–]\d{2}(?:\s*\(hon'?s?\))?)",
+      r'session\s+(\d{4}[-–]\d{2,4})',
       caseSensitive: false,
     ).firstMatch(text);
-    if (looseMatch != null) {
-      var session = looseMatch.group(1)!;
-      final yearMatch = RegExp(r'(\d{4}[-–]\d{2})').firstMatch(session);
-      return yearMatch != null ? yearMatch.group(1) : session;
-    }
+    if (looseMatch != null) return looseMatch.group(1);
 
     return null;
   }
@@ -224,8 +255,21 @@ class IdCardValidationService {
       'Information Technology', 'IT', 'Computer Science and Engineering',
     ];
 
+    // Try Bangla pattern: "বিভাগ: CSE"
+    final banglaMatch = RegExp(r'বিভাগ[:\s]*([A-Za-z\s]+)').firstMatch(text);
+    if (banglaMatch != null) {
+      final dept = banglaMatch.group(1)!.trim();
+      for (final known in knownDepartments) {
+        if (dept.toUpperCase().contains(known.toUpperCase())) {
+          return known;
+        }
+      }
+      return dept;
+    }
+
+    // Try English pattern: "Dept: CSE" or "Department: Computer Science"
     final deptMatch = RegExp(
-      r'(?:dept|department|বিভাগ)\s*:?\s*([A-Za-z\s]+)',
+      r'(?:dept|department)\s*:?\s*([A-Za-z\s]+)',
       caseSensitive: false,
     ).firstMatch(text);
     if (deptMatch != null) {
@@ -238,6 +282,7 @@ class IdCardValidationService {
       return dept;
     }
 
+    // Check for department codes directly
     for (final dept in knownDepartments) {
       if (text.toUpperCase().contains(dept.toUpperCase())) {
         return dept;
@@ -254,6 +299,19 @@ class IdCardValidationService {
       'Visiting Professor', 'Professor Emeritus',
     ];
 
+    // Try Bangla pattern: "পদবি: Lecturer"
+    final banglaMatch = RegExp(r'পদবি[:\s]*([A-Za-z\s]+)').firstMatch(text);
+    if (banglaMatch != null) {
+      final desig = banglaMatch.group(1)!.trim();
+      for (final known in designations) {
+        if (desig.toUpperCase().contains(known.toUpperCase())) {
+          return known;
+        }
+      }
+      return desig;
+    }
+
+    // Try English pattern
     final desigMatch = RegExp(
       r'designation\s*:?\s*([A-Za-z\s]+)',
       caseSensitive: false,

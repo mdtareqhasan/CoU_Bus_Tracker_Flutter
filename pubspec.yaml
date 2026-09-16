@@ -41,8 +41,11 @@ dependencies:
   flutter_image_compress: ^2.5.1
   pointer_interceptor: ^0.10.1+1
 
-  # ML Kit (ID Card Validation)
+  # ML Kit (ID Card Validation - English text)
   google_mlkit_text_recognition: ^0.14.0
+
+  # Tesseract OCR (Bangla text recognition)
+  tesseract_ocr: ^0.2.0
 
   # Launcher
   url_launcher: ^6.3.1
@@ -78,3 +81,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/tessdata/
