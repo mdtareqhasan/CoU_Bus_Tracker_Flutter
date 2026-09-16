@@ -44,19 +44,57 @@ class IdCardValidationService {
 
       final lowerText = text.toLowerCase();
 
-      // STRICT: Must find Comilla University marker
+      // Check for university markers
       final hasUniversity = lowerText.contains('comilla university') ||
           lowerText.contains('cumilla university') ||
           lowerText.contains('comilla uni') ||
           lowerText.contains('কুমিল্লা বিশ্ববিদ্যালয়') ||
           lowerText.contains('কমিলা বিশ্ববিদ্যালয়');
 
-      if (!hasUniversity) {
-        return const IdCardValidationResult(
-          isValid: false,
-          errorMessage: 'এটি কুমিল্লা বিশ্ববিদ্যালয়ের আইডি কার্ড বা ভর্তির ফর্ম মনে হচ্ছে না।',
-          rawText: '',
-        );
+      // Check for student ID card markers
+      final hasStudentIdMarkers = lowerText.contains('roll no') ||
+          lowerText.contains('blood group') ||
+          lowerText.contains('provost');
+
+      // Check for registration form markers
+      final hasRegFormMarkers = lowerText.contains('registration') ||
+          lowerText.contains('father') ||
+          lowerText.contains('mother');
+
+      // Check for teacher ID card markers
+      final hasTeacherIdMarkers = lowerText.contains('employee id') ||
+          lowerText.contains('employee no') ||
+          lowerText.contains('designation') ||
+          lowerText.contains('lecturer') ||
+          lowerText.contains('professor');
+
+      // Check for department codes (common in both ID card and registration form)
+      final hasDept = lowerText.contains('cse') ||
+          lowerText.contains('eee') ||
+          lowerText.contains('ece') ||
+          lowerText.contains('bba') ||
+          lowerText.contains('dept') ||
+          lowerText.contains('department') ||
+          lowerText.contains('বিভাগ');
+
+      // Check for 7-8 digit number (roll/registration number)
+      final hasNumber = RegExp(r'\b\d{7,8}\b').hasMatch(text);
+
+      // REJECT if: no university marker AND no document-specific markers
+      if (!hasUniversity &&
+          !hasStudentIdMarkers &&
+          !hasRegFormMarkers &&
+          !hasTeacherIdMarkers) {
+        // Extra check: if has dept + number, might be a document
+        if (hasDept && hasNumber) {
+          // Accept but mark as unknown
+        } else {
+          return const IdCardValidationResult(
+            isValid: false,
+            errorMessage: 'এটি কুমিল্লা বিশ্ববিদ্যালয়ের আইডি কার্ড বা ভর্তির ফর্ম মনে হচ্ছে না।',
+            rawText: '',
+          );
+        }
       }
 
       // University found - detect document type
