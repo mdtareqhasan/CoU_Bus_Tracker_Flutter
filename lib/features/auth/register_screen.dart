@@ -104,21 +104,23 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
       if (!mounted) return;
 
-      String docLabel;
+      String message;
       if (result.documentType == 'teacher_id_card') {
-        docLabel = 'শিক্ষক আইডি কার্ড';
+        message = '✅ শিক্ষক আইডি কার্ড সনাক্ত হয়েছে';
       } else if (result.documentType == 'id_card') {
-        docLabel = 'আইডি কার্ড';
+        message = '✅ আইডি কার্ড সনাক্ত হয়েছে';
+      } else if (result.documentType == 'registration_form') {
+        message = '✅ ভর্তির ফর্ম সনাক্ত হয়েছে';
+      } else if (result.documentType == 'unknown' && result.rawText.isNotEmpty) {
+        message = '✅ ছবি আপলোড হয়েছে - তথ্য ম্যানুয়ালি পূরণ করুন';
       } else {
-        docLabel = 'ভর্তির ফর্ম';
+        message = '✅ ছবি আপলোড হয়েছে - তথ্য ম্যানুয়ালি পূরণ করুন';
       }
 
       setState(() {
         _isValidatingIdCard = false;
         _isIdCardValid = result.isValid;
-        _idCardValidationMessage = result.isValid
-            ? '✅ $docLabel সনাক্ত হয়েছে'
-            : result.errorMessage;
+        _idCardValidationMessage = message;
       });
 
       // Auto-fill fields if valid
@@ -926,26 +928,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           title: const Text('নথি প্রয়োজন'),
           content: const Text(
             'নিবন্ধন সম্পন্ন করতে আপনার বিশ্ববিদ্যালয় আইডি কার্ড অথবা ভর্তির ফর্মের ছবি আপলোড করা বাধ্যতামূলক।',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('ঠিক আছে'),
-            ),
-          ],
-        ),
-      );
-      return;
-    }
-
-    // Check ML Kit validation for both students and teachers
-    if (_isIdCardValid == false) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('পরিচয়পত্র যাচাই ব্যর্থ'),
-          content: Text(
-            _idCardValidationMessage ?? 'এটি কুমিল্লা বিশ্ববিদ্যালয়ের আইডি কার্ড বা ভর্তির ফর্ম মনে হচ্ছে না। আবার চেষ্টা করুন।',
           ),
           actions: [
             TextButton(
