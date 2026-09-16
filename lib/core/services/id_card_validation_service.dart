@@ -51,7 +51,7 @@ class IdCardValidationService {
           lowerText.contains('কমিলা বিশ্ববিদ্যালয়');
 
       if (!hasUniversity) {
-        return const IdCardValidationResult(
+        return IdCardValidationResult(
           isValid: false,
           errorMessage: 'এটি কুমিল্লা বিশ্ববিদ্যালয়ের আইডি কার্ড বা ভর্তির ফর্ম মনে হচ্ছে না।',
           rawText: text,
