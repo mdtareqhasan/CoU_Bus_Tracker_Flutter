@@ -45,7 +45,7 @@ dependencies:
   google_mlkit_text_recognition: ^0.14.0
 
   # Tesseract OCR (Bangla text recognition)
-  tesseract_ocr: ^0.2.0
+  flutter_tesseract_ocr: ^0.4.2
 
   # Launcher
   url_launcher: ^6.3.1

@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-import 'package:tesseract_ocr/tesseract_ocr.dart';
+import 'package:flutter_tesseract_ocr/flutter_tesseract_ocr.dart';
 
 class IdCardValidationResult {
   final bool isValid;
@@ -65,7 +65,7 @@ class IdCardValidationService {
       String banglaText = '';
       if (_tessdataInitialized) {
         try {
-          banglaText = await TesseractOcr.extractText(
+          banglaText = await FlutterTesseractOcr.extractText(
             imageFile.path,
             language: 'ben',
           );
