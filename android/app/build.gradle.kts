@@ -33,7 +33,7 @@ android {
 
     defaultConfig {
         applicationId = "com.cse.coubustracker"
-        minSdk = 21
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -48,10 +48,6 @@ android {
             }
         }
     }
-}
-
-dependencies {
-    implementation("cz.adaptech.tesseract4android:tesseract4android:4.6.0")
 }
 
 kotlin {
