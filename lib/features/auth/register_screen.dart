@@ -9,6 +9,7 @@ import 'package:mime/mime.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import '../../app/theme.dart';
 import '../../core/utils/phone_utils.dart';
+import '../../core/services/id_card_validation_service.dart';
 import 'auth_provider.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -38,6 +39,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   File? _idCardImage;
   final ImagePicker _picker = ImagePicker();
+  bool _isValidatingIdCard = false;
+  String? _idCardValidationMessage;
+  bool? _isIdCardValid;
 
   @override
   void initState() {
@@ -80,9 +84,69 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
     final compressed = await _compressImage(file);
     if (!mounted) return;
+
     setState(() {
       _idCardImage = compressed;
+      _isValidatingIdCard = true;
+      _idCardValidationMessage = null;
+      _isIdCardValid = null;
     });
+
+    // Validate with ML Kit (only for student registration)
+    if (widget.role == 'student') {
+      await _validateIdCard(compressed);
+    } else {
+      // For teachers, just accept the image
+      if (!mounted) return;
+      setState(() {
+        _isValidatingIdCard = false;
+        _isIdCardValid = true;
+        _idCardValidationMessage = null;
+      });
+    }
+  }
+
+  Future<void> _validateIdCard(File imageFile) async {
+    try {
+      final result = await IdCardValidationService.validateIdCard(imageFile);
+
+      if (!mounted) return;
+
+      setState(() {
+        _isValidatingIdCard = false;
+        _isIdCardValid = result.isValid;
+        _idCardValidationMessage = result.isValid
+            ? '✅ ${result.documentType == "id_card" ? "আইডি কার্ড" : "ভর্তির ফর্ম"} সনাক্ত হয়েছে'
+            : result.errorMessage;
+      });
+
+      // Auto-fill fields if valid
+      if (result.isValid) {
+        if (result.extractedRollNumber != null && _rollNumberController.text.isEmpty) {
+          _rollNumberController.text = result.extractedRollNumber!;
+        }
+        if (result.extractedSession != null && _sessionController.text.isEmpty) {
+          _sessionController.text = result.extractedSession!;
+        }
+        if (result.extractedDepartment != null && _departmentController.text.isEmpty) {
+          _departmentController.text = result.extractedDepartment!;
+        }
+
+        // Show auto-fill feedback
+        if (result.extractedRollNumber != null ||
+            result.extractedSession != null ||
+            result.extractedDepartment != null) {
+          _showSuccess('তথ্য স্বয়ংক্রিয়ভাবে পূরণ হয়েছে। পরীক্ষা করে নিন।');
+        }
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isValidatingIdCard = false;
+        _isIdCardValid = null;
+        _idCardValidationMessage = 'ছবি যাচাইয়ে সমস্যা হয়েছে।';
+      });
+    }
   }
 
   Future<File> _compressImage(File original) async {
@@ -140,6 +204,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: AppTheme.error),
+    );
+  }
+
+  void _showSuccess(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: AppTheme.successGreen),
     );
   }
 
@@ -602,6 +673,82 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         ),
         const SizedBox(height: 12),
         _buildDocumentNote(),
+        // Validation status indicator
+        if (_isValidatingIdCard) ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(AppTheme.space12),
+            decoration: BoxDecoration(
+              color: AppTheme.primaryBlue.withOpacity(0.06),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+            ),
+            child: const Row(
+              children: [
+                SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppTheme.primaryBlue,
+                  ),
+                ),
+                SizedBox(width: 12),
+                Text(
+                  'ছবি যাচাই করা হচ্ছে...',
+                  style: TextStyle(
+                    color: AppTheme.primaryBlue,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+        if (_idCardValidationMessage != null && !_isValidatingIdCard) ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(AppTheme.space12),
+            decoration: BoxDecoration(
+              color: _isIdCardValid == true
+                  ? AppTheme.successGreen.withOpacity(0.06)
+                  : AppTheme.error.withOpacity(0.06),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+              border: Border.all(
+                color: _isIdCardValid == true
+                    ? AppTheme.successGreen.withOpacity(0.2)
+                    : AppTheme.error.withOpacity(0.2),
+              ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  _isIdCardValid == true
+                      ? Icons.check_circle_outline
+                      : Icons.error_outline,
+                  size: 18,
+                  color: _isIdCardValid == true
+                      ? AppTheme.successGreen
+                      : AppTheme.error,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    _idCardValidationMessage!,
+                    style: TextStyle(
+                      color: _isIdCardValid == true
+                          ? AppTheme.successGreen
+                          : AppTheme.error,
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -767,6 +914,36 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               child: const Text('ঠিক আছে'),
             ),
           ],
+        ),
+      );
+      return;
+    }
+
+    // Check ML Kit validation for students
+    if (widget.role == 'student' && _isIdCardValid == false) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('পরিচয়পত্র যাচাই ব্যর্থ'),
+          content: Text(
+            _idCardValidationMessage ?? 'এটি কমিলা বিশ্ববিদ্যালয়ের আইডি কার্ড বা ভর্তির ফর্ম মনে হচ্ছে না। আবার চেষ্টা করুন।',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('ঠিক আছে'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    if (_isValidatingIdCard) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('ছবি যাচাই হচ্ছে... অপেক্ষা করুন।'),
+          backgroundColor: AppTheme.primaryBlue,
         ),
       );
       return;
