@@ -516,6 +516,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   /// আইডি কার্ড না থাকলে ভর্তির ফর্ম দেওয়ার ব্যাখ্যা।
   Widget _buildDocumentNote() {
+    final isStudent = widget.role == 'student';
     return Container(
       padding: const EdgeInsets.all(AppTheme.space12),
       decoration: BoxDecoration(
@@ -541,24 +542,30 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             ),
           ),
           const SizedBox(width: AppTheme.space12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'আইডি কার্ড বা ভর্তির ফর্ম — যেকোনো একটি দিন!',
+                  isStudent
+                      ? 'আইডি কার্ড বা ভর্তির ফর্ম — যেকোনো একটি দিন!'
+                      : 'শিক্ষক আইডি কার্ড আপলোড করুন',
                   style: TextStyle(
                     fontSize: 12.5,
                     color: AppTheme.primaryBlue,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 3),
+                const SizedBox(height: 3),
                 Text(
-                  '• আইডি কার্ড আছে → আইডি কার্ডের ছবি আপলোড করুন\n'
-                  '• আইডি কার্ড নেই → ভর্তির ফর্ম / ভর্তি ভাউচারের ছবি আপলোড করুন\n'
-                  '• উভয়ই কমিলা বিশ্ববিদ্যালয়ের হতে হবে',
-                  style: TextStyle(
+                  isStudent
+                      ? '• আইডি কার্ড আছে → আইডি কার্ডের ছবি আপলোড করুন\n'
+                          '• আইডি কার্ড নেই → ভর্তির ফর্ম / ভর্তি ভাউচারের ছবি আপলোড করুন\n'
+                          '• উভয়ই কুমিল্লা বিশ্ববিদ্যালয়ের হতে হবে'
+                      : '• শিক্ষক পরিচয়পত্রের ছবি আপলোড করুন\n'
+                          '• কুমিল্লা বিশ্ববিদ্যালয়ের শিক্ষক আইডি কার্ড হতে হবে\n'
+                          '• ডিপার্টমেন্ট ও পদবি স্বয়ংক্রিয়ভাবে পূরণ হবে',
+                  style: const TextStyle(
                     fontSize: 11.5,
                     color: AppTheme.textSecondary,
                     height: 1.5,
@@ -574,12 +581,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   }
 
   Widget _buildDocumentPicker() {
+    final isStudent = widget.role == 'student';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'পরিচয়পত্র / ভর্তির ফর্মের ছবি (MANDATORY)',
-          style: TextStyle(
+        Text(
+          isStudent ? 'পরিচয়পত্র / ভর্তির ফর্মের ছবি (MANDATORY)' : 'শিক্ষক পরিচয়পত্রের ছবি (MANDATORY)',
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 14,
             color: AppTheme.textPrimary,
@@ -642,9 +650,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         style: TextStyle(color: AppTheme.textSecondary),
                       ),
                       if (_idCardImage == null)
-                        const Text(
-                          '(JPG/PNG — আইডি কার্ড অথবা ভর্তির ফর্ম)',
-                          style: TextStyle(
+                        Text(
+                          isStudent
+                              ? '(JPG/PNG — আইডি কার্ড অথবা ভর্তির ফর্ম)'
+                              : '(JPG/PNG — শিক্ষক আইডি কার্ড)',
+                          style: const TextStyle(
                             color: AppTheme.textHint,
                             fontSize: 11,
                           ),
