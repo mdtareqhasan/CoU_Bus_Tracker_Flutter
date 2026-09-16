@@ -27,18 +27,14 @@ class IdCardValidationResult {
 
 class IdCardValidationService {
   static final _latinRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
-  static final _banglaRecognizer = TextRecognizer(script: TextRecognitionScript.bangla);
 
   static Future<IdCardValidationResult> validateIdCard(File imageFile, {String role = 'student'}) async {
     try {
       final inputImage = InputImage.fromFile(imageFile);
 
-      // Run both Latin and Bangla recognizers
-      final latinResult = await _latinRecognizer.processImage(inputImage);
-      final banglaResult = await _banglaRecognizer.processImage(inputImage);
-
-      // Combine text from both scripts
-      final text = '${latinResult.text}\n${banglaResult.text}';
+      // Use Latin script - it recognizes English text on Bangla documents
+      final recognizedText = await _latinRecognizer.processImage(inputImage);
+      final text = recognizedText.text;
 
       if (text.trim().isEmpty) {
         return const IdCardValidationResult(
@@ -142,7 +138,15 @@ class IdCardValidationService {
         lowerText.contains('আবেদন ফর্ম') ||
         lowerText.contains('বাবদ প্রাপ্ত') ||
         lowerText.contains('শিক্ষাবর্ষ') ||
-        lowerText.contains('নাম') && lowerText.contains('পিতা');
+        lowerText.contains('father') ||
+        lowerText.contains('mother') ||
+        lowerText.contains('guardian') ||
+        lowerText.contains('blood group') && lowerText.contains('birth') ||
+        lowerText.contains('date of birth') ||
+        lowerText.contains('nationality') ||
+        lowerText.contains('religion') ||
+        lowerText.contains('marital') ||
+        lowerText.contains('session 20') && lowerText.contains('dept');
 
     if (isIdCard) return 'id_card';
     if (isRegistrationForm) return 'registration_form';
@@ -284,6 +288,5 @@ class IdCardValidationService {
 
   static void dispose() {
     _latinRecognizer.close();
-    _banglaRecognizer.close();
   }
 }
