@@ -50,6 +50,10 @@ android {
     }
 }
 
+dependencies {
+    implementation("cz.adaptech.tesseract4android:tesseract4android:4.6.0")
+}
+
 kotlin {
     compilerOptions {
         jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17

@@ -44,6 +44,9 @@ dependencies:
   # ML Kit (ID Card Validation)
   google_mlkit_text_recognition: ^0.14.0
 
+  # Path provider (Tesseract tessdata)
+  path_provider: ^2.1.5
+
   # Launcher
   url_launcher: ^6.3.1
   webview_flutter: ^4.9.0
