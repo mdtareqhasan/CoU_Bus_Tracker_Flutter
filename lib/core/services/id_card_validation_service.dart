@@ -44,63 +44,23 @@ class IdCardValidationService {
 
       final lowerText = text.toLowerCase();
 
-      // Check for university markers
+      // STRICT: Must find "Comilla University" or "Cumilla University"
       final hasUniversity = lowerText.contains('comilla university') ||
           lowerText.contains('cumilla university') ||
-          lowerText.contains('comilla uni') ||
           lowerText.contains('কুমিল্লা বিশ্ববিদ্যালয়') ||
           lowerText.contains('কমিলা বিশ্ববিদ্যালয়');
 
-      // Check for student ID card markers
-      final hasStudentIdMarkers = lowerText.contains('roll no') ||
-          lowerText.contains('blood group') ||
-          lowerText.contains('provost');
-
-      // Check for registration form markers
-      final hasRegFormMarkers = lowerText.contains('registration') ||
-          lowerText.contains('father') ||
-          lowerText.contains('mother');
-
-      // Check for teacher ID card markers
-      final hasTeacherIdMarkers = lowerText.contains('employee id') ||
-          lowerText.contains('employee no') ||
-          lowerText.contains('designation') ||
-          lowerText.contains('lecturer') ||
-          lowerText.contains('professor');
-
-      // Check for department codes (common in both ID card and registration form)
-      final hasDept = lowerText.contains('cse') ||
-          lowerText.contains('eee') ||
-          lowerText.contains('ece') ||
-          lowerText.contains('bba') ||
-          lowerText.contains('dept') ||
-          lowerText.contains('department') ||
-          lowerText.contains('বিভাগ');
-
-      // Check for 7-8 digit number (roll/registration number)
-      final hasNumber = RegExp(r'\b\d{7,8}\b').hasMatch(text);
-
-      // REJECT if: no university marker AND no document-specific markers
-      if (!hasUniversity &&
-          !hasStudentIdMarkers &&
-          !hasRegFormMarkers &&
-          !hasTeacherIdMarkers) {
-        // Extra check: if has dept + number, might be a document
-        if (hasDept && hasNumber) {
-          // Accept but mark as unknown
-        } else {
-          return const IdCardValidationResult(
-            isValid: false,
-            errorMessage: 'এটি কুমিল্লা বিশ্ববিদ্যালয়ের আইডি কার্ড বা ভর্তির ফর্ম মনে হচ্ছে না।',
-            rawText: '',
-          );
-        }
+      if (!hasUniversity) {
+        return const IdCardValidationResult(
+          isValid: false,
+          errorMessage: 'এটি কুমিল্লা বিশ্ববিদ্যালয়ের আইডি কার্ড বা ভর্তির ফর্ম মনে হচ্ছে না।',
+          rawText: text,
+        );
       }
 
-      // University found - detect document type
+      // University found - now detect type
       if (role == 'teacher') {
-        final isTeacherCard = lowerText.contains('identity card') ||
-            lowerText.contains('employee id') ||
+        final isTeacherCard = lowerText.contains('employee id') ||
             lowerText.contains('employee no') ||
             lowerText.contains('designation') ||
             lowerText.contains('lecturer') ||
@@ -119,33 +79,22 @@ class IdCardValidationService {
 
         return const IdCardValidationResult(
           isValid: false,
-          errorMessage: 'শিক্ষক আইডি কার্ড সনাক্ত হয়নি। "Comilla University" + "Employee ID" থাকা দরকার।',
+          errorMessage: 'শিক্ষক আইডি কার্ড সনাক্ত হয়নি।',
           rawText: '',
         );
       }
 
-      // Student - detect ID card or registration form
-      final isIdCard = lowerText.contains('id card') ||
-          lowerText.contains('identity card') ||
-          lowerText.contains('roll no') ||
+      // Student
+      final isIdCard = lowerText.contains('roll no') ||
           lowerText.contains('blood group');
 
-      final isRegistrationForm = lowerText.contains('registration form') ||
-          lowerText.contains('registration') ||
+      final isRegistrationForm = lowerText.contains('registration') ||
           lowerText.contains('father') ||
-          lowerText.contains('mother') ||
-          lowerText.contains('dept') ||
-          lowerText.contains('session');
+          lowerText.contains('mother');
 
-      String docType;
-      if (isIdCard) {
-        docType = 'id_card';
-      } else if (isRegistrationForm) {
-        docType = 'registration_form';
-      } else {
-        // University found but no specific markers - still accept
-        docType = 'unknown';
-      }
+      String docType = 'unknown';
+      if (isIdCard) docType = 'id_card';
+      else if (isRegistrationForm) docType = 'registration_form';
 
       return IdCardValidationResult(
         isValid: true,
@@ -159,7 +108,7 @@ class IdCardValidationService {
     } catch (e) {
       return const IdCardValidationResult(
         isValid: false,
-        errorMessage: 'ছবি প্রক্রিয়াকরণে সমস্যা হয়েছে। আবার চেষ্টা করুন।',
+        errorMessage: 'ছবি প্রক্রিয়াকরণে সমস্যা হয়েছে।',
         rawText: '',
       );
     }
@@ -183,16 +132,14 @@ class IdCardValidationService {
       r'session\s*:?\s*(\d{4}[-–]\d{2,4})',
       caseSensitive: false,
     ).firstMatch(text);
-    if (match != null) return match.group(1);
-    return null;
+    return match?.group(1);
   }
 
   static String? _extractDepartment(String text) {
     final knownDepartments = [
-      'CSE', 'EEE', 'ECE', 'BBA', 'MBA', 'LLB', 'LLM',
+      'CSE', 'EEE', 'ECE', 'BBA', 'MBA', 'LLB',
       'Economics', 'English', 'Bangla', 'Mathematics', 'Physics',
-      'Chemistry', 'Botany', 'Zoology', 'Sociology',
-      'Computer Science and Engineering',
+      'Chemistry', 'Sociology', 'Computer Science and Engineering',
     ];
 
     final match = RegExp(

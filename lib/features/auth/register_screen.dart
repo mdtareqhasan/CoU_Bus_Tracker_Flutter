@@ -950,6 +950,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       return;
     }
 
+    // Block if ML Kit rejected the image
+    if (_isIdCardValid == false) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_idCardValidationMessage ?? 'সঠিক ছবি দিন।'),
+          backgroundColor: AppTheme.error,
+        ),
+      );
+      return;
+    }
+
     if (_formKey.currentState!.validate()) {
       final phone = _phoneController.text.trim();
       final password = _passwordController.text;
