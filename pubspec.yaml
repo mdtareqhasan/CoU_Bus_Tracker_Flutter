@@ -44,6 +44,9 @@ dependencies:
   # ML Kit (ID Card Validation - English text)
   google_mlkit_text_recognition: ^0.14.0
 
+  # Tesseract OCR (Bangla text recognition)
+  flutter_tesseract_ocr: ^0.4.2
+
   # Launcher
   url_launcher: ^6.3.1
   webview_flutter: ^4.9.0
