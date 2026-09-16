@@ -180,7 +180,7 @@ class IdCardValidationService {
 
     // Pattern: "2021-22(Hon's)" without "Session:" prefix
     final looseMatch = RegExp(
-      r'(\d{4}[-–]\d{2}(?:\s*\(hon\'?s?\))?)',
+      r"(\d{4}[-–]\d{2}(?:\s*\(hon'?s?\))?)",
       caseSensitive: false,
     ).firstMatch(text);
     if (looseMatch != null) {

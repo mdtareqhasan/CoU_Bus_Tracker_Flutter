@@ -26,6 +26,25 @@ class AuthRepository {
     return _getProfile(endpoint);
   }
 
+  /// Fetches the profile data for the given role.
+  /// Returns Success with the profile map, or Failure on error.
+  Future<Result<Map<String, dynamic>>> getProfile(String role) async {
+    final endpoint = role.toLowerCase() == 'teacher'
+        ? ApiEndpoints.teacherProfile
+        : ApiEndpoints.studentProfile;
+    try {
+      final response = await _apiClient.dio.get<dynamic>(endpoint);
+      if (response.statusCode == 200 && response.data is Map) {
+        return Success(Map<String, dynamic>.from(response.data as Map));
+      }
+      return Failure(message: _extractErrorMessage(response));
+    } on DioException catch (e) {
+      return Failure(message: _handleDioError(e));
+    } catch (e) {
+      return Failure(message: ErrorHandler.defaultError);
+    }
+  }
+
   Future<Result<bool>> _getProfile(String endpoint) async {
     try {
       final response = await _apiClient.dio.get<dynamic>(endpoint);

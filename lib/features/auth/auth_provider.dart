@@ -131,12 +131,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     // Fetch profile to get idCardImageUrl
     String? idCardImageUrl;
     try {
-      final endpoint = role == 'teacher'
-          ? '/auth/teacher/me'
-          : '/auth/student/me';
-      final response = await _authRepo._apiClient.dio.get<dynamic>(endpoint);
-      if (response.statusCode == 200 && response.data is Map) {
-        idCardImageUrl = response.data['idCardImageUrl'] as String?;
+      final profileResult = await _authRepo.getProfile(role);
+      if (profileResult case Success(:final data)) {
+        idCardImageUrl = data['idCardImageUrl'] as String?;
       }
     } catch (_) {
       // Ignore profile fetch errors
@@ -396,12 +393,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     // Fetch profile to get idCardImageUrl
     String? idCardImageUrl;
     try {
-      final endpoint = (data.role?.toLowerCase() ?? role) == 'teacher'
-          ? '/auth/teacher/me'
-          : '/auth/student/me';
-      final response = await _authRepo._apiClient.dio.get<dynamic>(endpoint);
-      if (response.statusCode == 200 && response.data is Map) {
-        idCardImageUrl = response.data['idCardImageUrl'] as String?;
+      final profileResult = await _authRepo.getProfile(data.role?.toLowerCase() ?? role);
+      if (profileResult case Success(:final data)) {
+        idCardImageUrl = data['idCardImageUrl'] as String?;
       }
     } catch (_) {
       // Ignore profile fetch errors - idCardImageUrl will be null
