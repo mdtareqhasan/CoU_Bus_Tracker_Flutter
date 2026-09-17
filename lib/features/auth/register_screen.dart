@@ -946,11 +946,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       return;
     }
 
-    // Block if ML Kit rejected the image
-    if (_isIdCardValid == false) {
+    // Block if ML Kit rejected the image or hasn't validated yet
+    if (_isIdCardValid != true) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(_idCardValidationMessage ?? 'সঠিক ছবি দিন।'),
+          content: Text(_idCardValidationMessage ?? 'সঠিক আইডি কার্ড দিন।'),
           backgroundColor: AppTheme.error,
         ),
       );

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
 class IdCardValidationResult {
@@ -34,7 +35,12 @@ class IdCardValidationService {
       final recognizedText = await _textRecognizer.processImage(inputImage);
       final text = recognizedText.text;
 
+      debugPrint('=== ID CARD VALIDATION ===');
+      debugPrint('Role: $role');
+      debugPrint('OCR text: $text');
+
       if (text.trim().isEmpty) {
+        debugPrint('FAIL: Empty text');
         return const IdCardValidationResult(
           isValid: false,
           errorMessage: 'ছবি থেকে কোনো তথ্য পড়া যায়নি। আইডি কার্ডের ছবি দিন।',
@@ -44,12 +50,14 @@ class IdCardValidationService {
 
       final lowerText = text.toLowerCase();
 
-      // STRICT: Must find "Comilla University" in English
       final hasUniversity = lowerText.contains('comilla university') ||
           lowerText.contains('cumilla university') ||
           lowerText.contains('comilla uni');
 
+      debugPrint('Has university: $hasUniversity');
+
       if (!hasUniversity) {
+        debugPrint('FAIL: No Comilla University found');
         return IdCardValidationResult(
           isValid: false,
           errorMessage: 'এটি কুমিল্লা বিশ্ববিদ্যালয়ের আইডি কার্ড মনে হচ্ছে না।',
@@ -57,14 +65,11 @@ class IdCardValidationService {
         );
       }
 
-      // TEACHER validation
       if (role == 'teacher') {
-        // Teacher ID card must have employee id AND (designation OR lecturer/professor)
         final hasEmployeeId = lowerText.contains('employee id') ||
             lowerText.contains('employee no') ||
-            lowerText.contains('employee id :') ||
-            lowerText.contains('employee id:') ||
-            RegExp(r'employee\s*id\s*:\s*\d+').hasMatch(lowerText);
+            RegExp(r'employee\s*id\s*:\s*\d+').hasMatch(lowerText) ||
+            RegExp(r'employee\s*i\.d\.?\s*:?\s*\d+').hasMatch(lowerText);
 
         final hasDesignation = lowerText.contains('designation') ||
             lowerText.contains('lecturer') ||
@@ -72,19 +77,22 @@ class IdCardValidationService {
             lowerText.contains('associate professor') ||
             lowerText.contains('assistant professor');
 
-        // Reject if it's a student ID card (has roll no)
-        final isStudentCard = lowerText.contains('roll no') ||
+        final hasStudentOnlyMarkers = lowerText.contains('roll no') ||
             lowerText.contains('roll no.');
 
-        if (isStudentCard && !hasEmployeeId) {
-          return const IdCardValidationResult(
+        debugPrint('Teacher: hasEmployeeId=$hasEmployeeId, hasDesignation=$hasDesignation, hasStudentOnly=$hasStudentOnlyMarkers');
+
+        if (hasStudentOnlyMarkers) {
+          debugPrint('FAIL: Student card for teacher');
+          return IdCardValidationResult(
             isValid: false,
             errorMessage: 'এটি শিক্ষার্থীর আইডি কার্ড। শিক্ষক আইডি কার্ড দিন।',
-            rawText: '',
+            rawText: text,
           );
         }
 
         if (hasEmployeeId && hasDesignation) {
+          debugPrint('PASS: Teacher ID card');
           return IdCardValidationResult(
             isValid: true,
             extractedDepartment: _extractDepartment(text),
@@ -95,6 +103,7 @@ class IdCardValidationService {
           );
         }
 
+        debugPrint('FAIL: Not teacher ID card');
         return const IdCardValidationResult(
           isValid: false,
           errorMessage: 'শিক্ষক আইডি কার্ড সনাক্ত হয়নি। শিক্ষক পরিচয়পত্রের ছবি দিন।',
@@ -102,26 +111,24 @@ class IdCardValidationService {
         );
       }
 
-      // STUDENT validation - ONLY accept ID card
-      // Student ID card markers: roll no, blood group, id no, session with (Hon's)
-      final hasRollNo = lowerText.contains('roll no') ||
-          lowerText.contains('roll no.');
-      final hasBloodGroup = lowerText.contains('blood gr') ||
-          lowerText.contains('blood group');
-      final hasIdNo = lowerText.contains('id no') ||
-          lowerText.contains('id no.');
-      final hasHonors = lowerText.contains("hon's") ||
-          lowerText.contains('hons');
+      // STUDENT - ONLY ID card accepted
+      final hasRollNo = lowerText.contains('roll no') || lowerText.contains('roll no.');
+      final hasBloodGroup = lowerText.contains('blood gr') || lowerText.contains('blood group');
+      final hasIdNo = lowerText.contains('id no') || lowerText.contains('id no.');
+      final hasHonors = lowerText.contains("hon's") || lowerText.contains('hons');
 
-      // Count how many ID card markers are found
-      int idCardMarkers = 0;
-      if (hasRollNo) idCardMarkers++;
-      if (hasBloodGroup) idCardMarkers++;
-      if (hasIdNo) idCardMarkers++;
-      if (hasHonors) idCardMarkers++;
+      debugPrint('Student: hasRollNo=$hasRollNo, hasBloodGroup=$hasBloodGroup, hasIdNo=$hasIdNo, hasHonors=$hasHonors');
 
-      // Need at least 2 markers to confirm it's a student ID card
-      if (idCardMarkers >= 2) {
+      int markers = 0;
+      if (hasRollNo) markers++;
+      if (hasBloodGroup) markers++;
+      if (hasIdNo) markers++;
+      if (hasHonors) markers++;
+
+      debugPrint('Student markers count: $markers');
+
+      if (markers >= 2) {
+        debugPrint('PASS: Student ID card');
         return IdCardValidationResult(
           isValid: true,
           extractedRollNumber: _extractRollNumber(text),
@@ -132,7 +139,7 @@ class IdCardValidationService {
         );
       }
 
-      // Reject - not a student ID card
+      debugPrint('FAIL: Not a student ID card');
       return const IdCardValidationResult(
         isValid: false,
         errorMessage: 'শুধুমাত্র আইডি কার্ড গ্রহণযোগ্য। ভর্তির ফর্ম বা অন্যান্য ছবি দেওয়া যাবে না।',
@@ -140,6 +147,7 @@ class IdCardValidationService {
       );
 
     } catch (e) {
+      debugPrint('VALIDATION ERROR: $e');
       return const IdCardValidationResult(
         isValid: false,
         errorMessage: 'ছবি প্রক্রিয়াকরণে সমস্যা হয়েছে।',
