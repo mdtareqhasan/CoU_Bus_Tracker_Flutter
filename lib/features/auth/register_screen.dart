@@ -109,12 +109,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         message = '✅ শিক্ষক আইডি কার্ড সনাক্ত হয়েছে';
       } else if (result.documentType == 'id_card') {
         message = '✅ আইডি কার্ড সনাক্ত হয়েছে';
-      } else if (result.documentType == 'registration_form') {
-        message = '✅ ভর্তির ফর্ম সনাক্ত হয়েছে';
-      } else if (result.documentType == 'unknown' && result.rawText.isNotEmpty) {
-        message = '✅ ছবি আপলোড হয়েছে - তথ্য ম্যানুয়ালি পূরণ করুন';
       } else {
-        message = '✅ ছবি আপলোড হয়েছে - তথ্য ম্যানুয়ালি পূরণ করুন';
+        message = '✅ ছবি আপলোড হয়েছে';
       }
 
       setState(() {

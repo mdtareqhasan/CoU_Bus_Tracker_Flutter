@@ -37,7 +37,7 @@ class IdCardValidationService {
       if (text.trim().isEmpty) {
         return const IdCardValidationResult(
           isValid: false,
-          errorMessage: 'ছবি থেকে কোনো তথ্য পড়া যায়নি। আইডি কার্ড বা ভর্তির ফর্মের ছবি দিন।',
+          errorMessage: 'ছবি থেকে কোনো তথ্য পড়া যায়নি। আইডি কার্ডের ছবি দিন।',
           rawText: '',
         );
       }
@@ -52,20 +52,39 @@ class IdCardValidationService {
       if (!hasUniversity) {
         return IdCardValidationResult(
           isValid: false,
-          errorMessage: 'এটি কুমিল্লা বিশ্ববিদ্যালয়ের আইডি কার্ড বা ভর্তির ফর্ম মনে হচ্ছে না।',
+          errorMessage: 'এটি কুমিল্লা বিশ্ববিদ্যালয়ের আইডি কার্ড মনে হচ্ছে না।',
           rawText: text,
         );
       }
 
-      // University found - detect type
+      // TEACHER validation
       if (role == 'teacher') {
-        final isTeacherCard = lowerText.contains('employee id') ||
+        // Teacher ID card must have employee id AND (designation OR lecturer/professor)
+        final hasEmployeeId = lowerText.contains('employee id') ||
             lowerText.contains('employee no') ||
-            lowerText.contains('designation') ||
-            lowerText.contains('lecturer') ||
-            lowerText.contains('professor');
+            lowerText.contains('employee id :') ||
+            lowerText.contains('employee id:') ||
+            RegExp(r'employee\s*id\s*:\s*\d+').hasMatch(lowerText);
 
-        if (isTeacherCard) {
+        final hasDesignation = lowerText.contains('designation') ||
+            lowerText.contains('lecturer') ||
+            lowerText.contains('professor') ||
+            lowerText.contains('associate professor') ||
+            lowerText.contains('assistant professor');
+
+        // Reject if it's a student ID card (has roll no)
+        final isStudentCard = lowerText.contains('roll no') ||
+            lowerText.contains('roll no.');
+
+        if (isStudentCard && !hasEmployeeId) {
+          return const IdCardValidationResult(
+            isValid: false,
+            errorMessage: 'এটি শিক্ষার্থীর আইডি কার্ড। শিক্ষক আইডি কার্ড দিন।',
+            rawText: '',
+          );
+        }
+
+        if (hasEmployeeId && hasDesignation) {
           return IdCardValidationResult(
             isValid: true,
             extractedDepartment: _extractDepartment(text),
@@ -78,32 +97,46 @@ class IdCardValidationService {
 
         return const IdCardValidationResult(
           isValid: false,
-          errorMessage: 'শিক্ষক আইডি কার্ড সনাক্ত হয়নি।',
+          errorMessage: 'শিক্ষক আইডি কার্ড সনাক্ত হয়নি। শিক্ষক পরিচয়পত্রের ছবি দিন।',
           rawText: '',
         );
       }
 
-      // Student - detect ID card or registration form
-      final isIdCard = lowerText.contains('roll no') ||
+      // STUDENT validation - ONLY accept ID card
+      // Student ID card markers: roll no, blood group, id no, session with (Hon's)
+      final hasRollNo = lowerText.contains('roll no') ||
+          lowerText.contains('roll no.');
+      final hasBloodGroup = lowerText.contains('blood gr') ||
           lowerText.contains('blood group');
+      final hasIdNo = lowerText.contains('id no') ||
+          lowerText.contains('id no.');
+      final hasHonors = lowerText.contains("hon's") ||
+          lowerText.contains('hons');
 
-      final isRegistrationForm = lowerText.contains('registration') ||
-          lowerText.contains('father') ||
-          lowerText.contains('mother') ||
-          lowerText.contains('dept') ||
-          lowerText.contains('session');
+      // Count how many ID card markers are found
+      int idCardMarkers = 0;
+      if (hasRollNo) idCardMarkers++;
+      if (hasBloodGroup) idCardMarkers++;
+      if (hasIdNo) idCardMarkers++;
+      if (hasHonors) idCardMarkers++;
 
-      String docType = 'unknown';
-      if (isIdCard) docType = 'id_card';
-      else if (isRegistrationForm) docType = 'registration_form';
+      // Need at least 2 markers to confirm it's a student ID card
+      if (idCardMarkers >= 2) {
+        return IdCardValidationResult(
+          isValid: true,
+          extractedRollNumber: _extractRollNumber(text),
+          extractedSession: _extractSession(text),
+          extractedDepartment: _extractDepartment(text),
+          documentType: 'id_card',
+          rawText: text,
+        );
+      }
 
-      return IdCardValidationResult(
-        isValid: true,
-        extractedRollNumber: _extractRollNumber(text),
-        extractedSession: _extractSession(text),
-        extractedDepartment: _extractDepartment(text),
-        documentType: docType,
-        rawText: text,
+      // Reject - not a student ID card
+      return const IdCardValidationResult(
+        isValid: false,
+        errorMessage: 'শুধুমাত্র আইডি কার্ড গ্রহণযোগ্য। ভর্তির ফর্ম বা অন্যান্য ছবি দেওয়া যাবে না।',
+        rawText: '',
       );
 
     } catch (e) {
