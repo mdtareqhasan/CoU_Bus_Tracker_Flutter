@@ -187,7 +187,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           const SizedBox(height: AppTheme.space4),
                           TextButton(
                             onPressed: () => context.go(
-                              '/auth/register?role=${widget.role}',
+                              '/auth/email-register?role=${widget.role}',
                             ),
                             child: Text.rich(
                               TextSpan(

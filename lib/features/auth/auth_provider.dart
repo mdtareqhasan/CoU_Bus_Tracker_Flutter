@@ -91,11 +91,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
     if (!hasToken) {
       // No token yet: restore a pending OTP verification session if present.
       final pendingPhone = await _storage.getPendingPhone();
+      final pendingEmail = await _storage.getPendingEmail();
       if (pendingPhone != null) {
         final pendingRole = await _storage.getPendingRole();
         state = state.copyWith(
           status: AuthStateStatus.needsVerification,
           phone: pendingPhone,
+          role: pendingRole,
+          pendingRole: pendingRole?.toUpperCase(),
+        );
+      } else if (pendingEmail != null) {
+        final pendingRole = await _storage.getPendingRole();
+        state = state.copyWith(
+          status: AuthStateStatus.needsVerification,
+          email: pendingEmail,
           role: pendingRole,
           pendingRole: pendingRole?.toUpperCase(),
         );
@@ -275,6 +284,133 @@ class AuthNotifier extends StateNotifier<AuthState> {
     );
   }
 
+  /// Email OTP-first registration: submits the form to /auth/email-verification/init.
+  /// The backend sends the email OTP. After this returns, we put the user in
+  /// `needsVerification` until they verify the email OTP.
+  Future<void> initEmailRegistration({
+    required String role,
+    required String name,
+    required String email,
+    required String password,
+    required String department,
+    String? rollNumber,
+    String? session,
+    String? employeeId,
+    String? designation,
+  }) async {
+    state = state.copyWith(status: AuthStateStatus.loading, error: null);
+
+    try {
+      final result = await _authRepo.initEmailRegistration(
+        role: _toEmailRole(role),
+        name: name,
+        email: email,
+        password: password,
+        department: department,
+        rollNumber: rollNumber,
+        session: session,
+        employeeId: employeeId,
+        designation: designation,
+      );
+
+      switch (result) {
+        case Success():
+          await _storage.setPendingVerificationEmail(
+            email,
+            _toEmailRole(role),
+          );
+          state = state.copyWith(
+            status: AuthStateStatus.needsVerification,
+            role: role.toLowerCase(),
+            email: email,
+            displayName: name,
+            pendingRole: _toEmailRole(role),
+            error: null,
+          );
+        case Failure(:final message):
+          state = state.copyWith(
+            status: AuthStateStatus.error,
+            error: message,
+          );
+        case Loading():
+          break;
+        case Empty():
+          break;
+      }
+    } catch (e) {
+      state = state.copyWith(
+        status: AuthStateStatus.error,
+        error: e.toString(),
+      );
+    } finally {
+      if (state.status == AuthStateStatus.loading) {
+        state = state.copyWith(status: AuthStateStatus.error);
+      }
+    }
+  }
+
+  /// Verifies the six-digit email OTP. On success, logs the user in.
+  Future<void> verifyEmailOtp({
+    required String email,
+    required String role,
+    required String otp,
+  }) async {
+    state = state.copyWith(status: AuthStateStatus.loading, error: null);
+
+    try {
+      final result = await _authRepo.verifyEmailOtp(
+        email: email,
+        role: _toEmailRole(role),
+        otp: otp,
+      );
+
+      switch (result) {
+        case Success(:final data):
+          if (data.accessToken == null || data.accessToken!.isEmpty) {
+            state = state.copyWith(
+              status: AuthStateStatus.error,
+              error:
+                  'ভেরিফিকেশন সফল হলেও টোকেন পাওয়া যায়নি। আবার চেষ্টা করুন।',
+            );
+            return;
+          }
+          await _handleAuthSuccess(data, role.toLowerCase());
+        case Failure(:final message):
+          state = state.copyWith(status: AuthStateStatus.error, error: message);
+        default:
+          state = state.copyWith(
+            status: AuthStateStatus.error,
+            error: 'Unknown response',
+          );
+      }
+    } catch (e) {
+      state = state.copyWith(
+        status: AuthStateStatus.error,
+        error: e.toString(),
+      );
+    } finally {
+      if (state.status == AuthStateStatus.loading) {
+        state = state.copyWith(status: AuthStateStatus.error);
+      }
+    }
+  }
+
+  /// Resends the email OTP. Returns a Result so the screen can manage its own countdown.
+  Future<Result<String>> resendEmailOtp({
+    required String email,
+    required String role,
+  }) async {
+    return _authRepo.resendEmailOtp(
+      email: email,
+      role: _toEmailRole(role),
+    );
+  }
+
+  String _toEmailRole(String role) {
+    final upper = role.trim().toUpperCase();
+    return upper == 'TEACHER' ? 'EMPLOYEE' : upper;
+  }
+
   /// Sends OTP for password reset.
   Future<Result<String>> forgotPasswordInit({
     required String phone,
@@ -373,6 +509,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> _handleAuthSuccess(AuthResponse data, String role) async {
     // Clear pending verification as we are now logged in
     await _storage.setPendingVerification(null, null);
+    await _storage.setPendingVerificationEmail(null, null);
 
     final phone = data.phone != null && data.phone!.isNotEmpty
         ? normalizeBangladeshiPhone(data.phone!)

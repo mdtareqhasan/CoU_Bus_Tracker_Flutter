@@ -71,6 +71,7 @@ class AuthInterceptor extends Interceptor {
   static final _publicPaths = RegExp(
     r'/auth/(student|teacher)/(login|register)'
     r'|/auth/phone-verification/(send|verify|resend|init)'
+    r'|/auth/email-verification/(send|verify|resend|init)'
     r'|/config'
     r'|/app/version'
     r'|/notices/active'
