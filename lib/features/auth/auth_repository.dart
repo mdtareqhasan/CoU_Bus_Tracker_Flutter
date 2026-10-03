@@ -153,6 +153,35 @@ class AuthRepository {
     return _loginPhone(ApiEndpoints.teacherLoginPhone, phone, password);
   }
 
+  /// Email + password login for a student or teacher/employee.
+  Future<Result<AuthResponse>> emailLogin({
+    required String role,
+    required String email,
+    required String password,
+  }) async {
+    _logRequest(ApiEndpoints.emailLogin);
+    try {
+      final response = await _apiClient.dio.post(
+        ApiEndpoints.emailLogin,
+        data: {
+          'role': role.toUpperCase(),
+          'email': email.trim().toLowerCase(),
+          'password': password,
+        },
+      );
+      if (response.statusCode == 200) {
+        return Success(AuthResponse.fromJson(response.data));
+      }
+      return Failure(message: _extractErrorMessage(response));
+    } on DioException catch (e) {
+      _logDioError(e);
+      return Failure(message: _handleDioError(e, isLoginRequest: true));
+    } catch (e) {
+      debugPrint('[AUTH][EMAIL-LOGIN] unexpected error: $e');
+      return Failure(message: ErrorHandler.defaultError);
+    }
+  }
+
   /// Step 1 of password reset: sends OTP to the phone number.
   Future<Result<String>> forgotPasswordInit({
     required String phone,

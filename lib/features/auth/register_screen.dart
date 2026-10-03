@@ -472,7 +472,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           const SizedBox(height: AppTheme.space16),
                           TextButton(
                             onPressed: () =>
-                                context.go('/auth/login?role=${widget.role}'),
+                                context.go('/auth/email-login?role=${widget.role}'),
                             child: Text.rich(
                               TextSpan(
                                 text: 'ইতিমধ্যে অ্যাকাউন্ট আছে? ',
@@ -1072,7 +1072,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             rollNumber: role == 'student'
                 ? _rollNumberController.text.trim()
                 : null,
-            session: role == 'student' ? _sessionController.text.trim() : null,
+            session: role == 'student'
+                ? sessionValueByLabel[_sessionController.text.trim()] ?? _sessionController.text.trim()
+                : null,
             teacherId: role == 'teacher'
                 ? _teacherIdController.text.trim()
                 : null,

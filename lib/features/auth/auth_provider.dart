@@ -223,6 +223,62 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  /// Email + password login. No OTP is involved. If the account exists but
+  /// its email is not verified yet, the state is set to `needsVerification`.
+  Future<void> loginWithEmail({
+    required String email,
+    required String password,
+    required String role,
+  }) async {
+    state = state.copyWith(status: AuthStateStatus.loading, error: null);
+
+    try {
+      final result = await _authRepo.emailLogin(
+        role: _toEmailRole(role),
+        email: email,
+        password: password,
+      );
+
+      switch (result) {
+        case Success(:final data):
+          await _handleAuthSuccess(data, role.toLowerCase());
+        case Failure(:final message):
+          if (_isVerifyPhoneMessage(message)) {
+            await _storage.setPendingVerificationEmail(
+              email,
+              _toEmailRole(role),
+            );
+            state = state.copyWith(
+              status: AuthStateStatus.needsVerification,
+              email: email,
+              role: role.toLowerCase(),
+              pendingRole: _toEmailRole(role),
+              error: ErrorHandler.verifyEmailFirst,
+            );
+          } else {
+            state = state.copyWith(
+              status: AuthStateStatus.error,
+              error: message,
+            );
+          }
+        default:
+          state = state.copyWith(
+            status: AuthStateStatus.error,
+            error: 'Unknown response',
+          );
+      }
+    } catch (e) {
+      state = state.copyWith(
+        status: AuthStateStatus.error,
+        error: e.toString(),
+      );
+    } finally {
+      if (state.status == AuthStateStatus.loading) {
+        state = state.copyWith(status: AuthStateStatus.error);
+      }
+    }
+  }
+
   /// Verifies the six-digit OTP sent during registration. Returns the JWT on
   /// success, which logs the user in.
   Future<void> verifyOtp({

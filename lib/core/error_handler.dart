@@ -34,7 +34,7 @@ class ErrorHandler {
   static String get coldStartMessage =>
       'সার্ভার চালু হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...';
 
-  static String get invalidLogin => 'ফোন নম্বর বা পাসওয়ার্ড সঠিক নয়।';
+  static String get invalidLogin => 'ইমেইল অথবা পাসওয়ার্ড সঠিক নয়।';
   static String get invalidOtp => 'ভুল ওটিপি। আবার চেষ্টা করুন।';
   static String get otpExpired =>
       'ওটিপির মেয়াদ শেষ হয়ে গেছে। আবার কোড পাঠান।';
@@ -78,6 +78,9 @@ class ErrorHandler {
         m.contains('phone is not verified') ||
         m.contains('phone number not verified')) {
       return verifyPhoneFirst;
+    }
+    if (m.contains('not found with this email') || m.contains('email not found') || m.contains('user not found')) {
+      return invalidLogin;
     }
     if (m.contains('not found with this phone') ||
         m.contains('no user found') ||

@@ -10,3 +10,18 @@ const List<String> sessionOptions = [
   '২০২৪-২০২৫',
   '২০২৫-২০২৬',
 ];
+
+/// Maps the Bengali session labels shown in the UI to the English values
+/// expected by the backend validation pattern.
+const Map<String, String> sessionValueByLabel = {
+  '২০১৬-২০১৭': '2016-2017',
+  '২০১৭-২০১৮': '2017-2018',
+  '২০১৮-২০১৯': '2018-2019',
+  '২০১৯-২০২০': '2019-2020',
+  '২০২০-২০২১': '2020-2021',
+  '২০২১-২০২২': '2021-2022',
+  '২০২২-২০২৩': '2022-2023',
+  '২০২৩-২০২৪': '2023-2024',
+  '২০২৪-২০২৫': '2024-2025',
+  '২০২৫-২০২৬': '2025-2026',
+};

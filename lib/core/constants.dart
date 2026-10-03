@@ -40,6 +40,7 @@ class ApiEndpoints {
 
   static const String studentLoginPhone = '/auth/student/login';
   static const String teacherLoginPhone = '/auth/teacher/login';
+  static const String emailLogin = '/auth/email-login';
 
   static const String studentProfile = '/auth/student/me';
   static const String teacherProfile = '/auth/teacher/me';

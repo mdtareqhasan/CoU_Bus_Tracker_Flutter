@@ -72,6 +72,7 @@ class AuthInterceptor extends Interceptor {
     r'/auth/(student|teacher)/(login|register)'
     r'|/auth/phone-verification/(send|verify|resend|init)'
     r'|/auth/email-verification/(send|verify|resend|init)'
+    r'|/auth/email-login'
     r'|/config'
     r'|/app/version'
     r'|/notices/active'
