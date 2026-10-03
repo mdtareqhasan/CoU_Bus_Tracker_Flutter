@@ -1,6 +1,10 @@
-/// Backend API base URL — hardcoded. Config (version, maintenance, etc.)
-/// is fetched from `/api/config` on this server at cold launch.
-const String kBaseUrl = 'https://api.kubijatra.com';
+import 'package:flutter/foundation.dart';
+
+/// Backend API base URL — debug builds hit the local Docker backend,
+/// release/profile builds hit the production API.
+const String kBaseUrl = kDebugMode
+    ? 'http://localhost:8081'
+    : 'https://api.kubijatra.com';
 
 const String kDefaultPlayStoreUrl =
     'https://play.google.com/store/apps/details?id=com.cse.coubustracker';
@@ -29,6 +33,11 @@ class ApiEndpoints {
   /// resends, and /init for new registrations.
   static const String sendPhoneOtp = '/auth/phone-verification/send';
 
+  static const String initEmailRegistration = '/auth/email-verification/init';
+  static const String verifyEmailOtp = '/auth/email-verification/verify';
+  static const String resendEmailOtp = '/auth/email-verification/resend';
+  static const String sendEmailOtp = '/auth/email-verification/send';
+
   static const String studentLoginPhone = '/auth/student/login';
   static const String teacherLoginPhone = '/auth/teacher/login';
 
@@ -55,6 +64,7 @@ class StorageKeys {
   static const String verificationRole = 'pending_verification_role';
   static const String userPhone = 'user_phone';
   static const String pendingPhone = 'pending_verification_phone';
+  static const String pendingEmail = 'pending_verification_email';
   static const String languageCode = 'language_code';
   static const String cachedBuses = 'cached_buses';
   static const String cachedSchedules = 'cached_schedules';
