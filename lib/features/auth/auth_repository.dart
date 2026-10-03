@@ -483,12 +483,17 @@ class AuthRepository {
     final data = response.data;
     if (data is Map) {
       final message = data['message'];
-      if (message is String && message.trim().isNotEmpty) {
+      final isGenericValidationMessage = message is String &&
+          message.trim().toLowerCase() == 'validation failed';
+      if (message is String && message.trim().isNotEmpty && !isGenericValidationMessage) {
         return ErrorHandler.friendly(message);
       }
       final errors = data['errors'];
       if (errors is Map && errors.isNotEmpty) {
         return _formatValidationErrors(errors);
+      }
+      if (message is String && message.trim().isNotEmpty) {
+        return ErrorHandler.friendly(message);
       }
     }
     return ErrorHandler.getMessage(response.statusCode, null);
@@ -521,12 +526,17 @@ class AuthRepository {
     if (response?.data is Map) {
       final data = response!.data as Map;
       final message = data['message'];
-      if (message is String && message.trim().isNotEmpty) {
+      final isGenericValidationMessage = message is String &&
+          message.trim().toLowerCase() == 'validation failed';
+      if (message is String && message.trim().isNotEmpty && !isGenericValidationMessage) {
         return ErrorHandler.friendly(message);
       }
       final errors = data['errors'];
       if (errors is Map && errors.isNotEmpty) {
         return _formatValidationErrors(errors);
+      }
+      if (message is String && message.trim().isNotEmpty) {
+        return ErrorHandler.friendly(message);
       }
     }
 
