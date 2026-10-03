@@ -5,6 +5,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/theme.dart';
 import 'auth_provider.dart';
+import 'department_options.dart';
+import 'session_options.dart';
 
 class EmailRegistrationScreen extends ConsumerStatefulWidget {
   final String role;
@@ -15,7 +17,8 @@ class EmailRegistrationScreen extends ConsumerStatefulWidget {
       _EmailRegistrationScreenState();
 }
 
-class _EmailRegistrationScreenState extends ConsumerState<EmailRegistrationScreen> {
+class _EmailRegistrationScreenState
+    extends ConsumerState<EmailRegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -26,6 +29,8 @@ class _EmailRegistrationScreenState extends ConsumerState<EmailRegistrationScree
   final _sessionController = TextEditingController();
   final _employeeIdController = TextEditingController();
   final _designationController = TextEditingController();
+  String? _selectedDepartment;
+  String? _selectedSession;
 
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
@@ -51,17 +56,19 @@ class _EmailRegistrationScreenState extends ConsumerState<EmailRegistrationScree
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
 
-    await ref.read(authProvider.notifier).initEmailRegistration(
-      role: widget.role,
-      name: _nameController.text.trim(),
-      email: _emailController.text.trim(),
-      password: _passwordController.text,
-      department: _departmentController.text.trim(),
-      rollNumber: isStudent ? _rollNumberController.text.trim() : null,
-      session: isStudent ? _sessionController.text.trim() : null,
-      employeeId: isStudent ? null : _employeeIdController.text.trim(),
-      designation: isStudent ? null : _designationController.text.trim(),
-    );
+    await ref
+        .read(authProvider.notifier)
+        .initEmailRegistration(
+          role: widget.role,
+          name: _nameController.text.trim(),
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+          department: _departmentController.text.trim(),
+          rollNumber: isStudent ? _rollNumberController.text.trim() : null,
+          session: isStudent ? _sessionController.text.trim() : null,
+          employeeId: isStudent ? null : _employeeIdController.text.trim(),
+          designation: isStudent ? null : _designationController.text.trim(),
+        );
 
     if (!mounted) return;
     final state = ref.read(authProvider);
@@ -75,9 +82,9 @@ class _EmailRegistrationScreenState extends ConsumerState<EmailRegistrationScree
     }
 
     if (state.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(state.error!)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(state.error!)));
     }
   }
 
@@ -184,13 +191,93 @@ class _EmailRegistrationScreenState extends ConsumerState<EmailRegistrationScree
                             ),
                           ).animate().fadeIn(delay: 450.ms),
                           const SizedBox(height: AppTheme.space12),
-                          _buildTextField(
-                                controller: _departmentController,
-                                label: 'বিভাগ',
-                                icon: Icons.business_outlined,
-                                hint: 'যেমন: CSE, EEE, BBA',
+                          DropdownButtonFormField<String>(
+                                decoration: InputDecoration(
+                                  labelText: (widget.role == 'student')
+                                      ? 'বিভাগ'
+                                      : 'বিভাগ/অফিস',
+                                  prefixIcon: Icon(
+                                    Icons.business_outlined,
+                                    color: AppTheme.primaryBlue,
+                                    size: 20,
+                                  ),
+                                  isDense: true,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 10,
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      AppTheme.radiusMedium,
+                                    ),
+                                    borderSide: BorderSide(
+                                      color: AppTheme.primaryBlue.withOpacity(
+                                        0.2,
+                                      ),
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      AppTheme.radiusMedium,
+                                    ),
+                                    borderSide: BorderSide(
+                                      color: AppTheme.primaryBlue.withOpacity(
+                                        0.1,
+                                      ),
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      AppTheme.radiusMedium,
+                                    ),
+                                    borderSide: const BorderSide(
+                                      color: AppTheme.primaryBlue,
+                                      width: 2,
+                                    ),
+                                  ),
+                                ),
+                                hint: Text(
+                                  (widget.role == 'student')
+                                      ? 'বিভাগ নির্বাচন করুন'
+                                      : 'বিভাগ/অফিস নির্বাচন করুন',
+                                ),
+                                value: _selectedDepartment,
+                                items:
+                                    (isStudent
+                                            ? departmentOptions
+                                            : teacherDepartmentOptions)
+                                        .map(
+                                          (department) =>
+                                              DropdownMenuItem<String>(
+                                                value: department,
+                                                child: ConstrainedBox(
+                                                  constraints: BoxConstraints(
+                                                    maxWidth:
+                                                        MediaQuery.of(
+                                                          context,
+                                                        ).size.width -
+                                                        100,
+                                                  ),
+                                                  child: Text(
+                                                    department,
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ),
+                                        )
+                                        .toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedDepartment = value;
+                                    _departmentController.text = value ?? '';
+                                  });
+                                },
                                 validator: (v) =>
-                                    v == null || v.isEmpty ? 'বিভাগ দিন' : null,
+                                    v == null ? 'বিভাগ দিন' : null,
                               )
                               .animate()
                               .fadeIn(delay: 500.ms)
@@ -210,15 +297,43 @@ class _EmailRegistrationScreenState extends ConsumerState<EmailRegistrationScree
                                 .fadeIn(delay: 600.ms)
                                 .slideX(begin: 0.1, end: 0),
                             const SizedBox(height: AppTheme.space12),
-                            _buildTextField(
-                                  controller: _sessionController,
-                                  label: 'সেশন',
-                                  icon: Icons.class_outlined,
-                                  hint: 'যেমন: 2021-22',
-                                  validator: (v) => v == null || v.isEmpty
-                                      ? 'সেশন দিন'
-                                      : null,
-                                )
+                            DropdownButtonFormField<String>(
+                              decoration: InputDecoration(
+                                labelText: 'সেশন',
+                                prefixIcon: Icon(Icons.class_outlined, color: AppTheme.primaryBlue, size: 20),
+                                isDense: true,
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                                  borderSide: BorderSide(color: AppTheme.primaryBlue.withOpacity(0.2)),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                                  borderSide: BorderSide(color: AppTheme.primaryBlue.withOpacity(0.1)),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                                  borderSide: const BorderSide(color: AppTheme.primaryBlue, width: 2),
+                                ),
+                              ),
+                              hint: const Text('সেশন নির্বাচন করুন'),
+                              value: _selectedSession,
+                              items: sessionOptions
+                                  .map((session) => DropdownMenuItem<String>(
+                                        value: session,
+                                        child: Text(session),
+                                      ))
+                                  .toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedSession = value;
+                                  _sessionController.text = value ?? '';
+                                });
+                              },
+                              validator: (v) => v == null ? 'সেশন দিন' : null,
+                            )
                                 .animate()
                                 .fadeIn(delay: 700.ms)
                                 .slideX(begin: 0.1, end: 0),

@@ -10,6 +10,8 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import '../../app/theme.dart';
 import '../../core/utils/phone_utils.dart';
 import '../../core/services/id_card_validation_service.dart';
+import 'department_options.dart';
+import 'session_options.dart';
 import 'auth_provider.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -33,6 +35,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _sessionController = TextEditingController();
   final _designationController = TextEditingController();
   final _passwordController = TextEditingController();
+  String? _selectedDepartment;
+  String? _selectedSession;
   final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
@@ -100,7 +104,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   Future<void> _validateIdCard(File imageFile) async {
     try {
-      final result = await IdCardValidationService.validateIdCard(imageFile, role: widget.role);
+      final result = await IdCardValidationService.validateIdCard(
+        imageFile,
+        role: widget.role,
+      );
 
       if (!mounted) return;
 
@@ -121,19 +128,25 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
       // Auto-fill fields if valid
       if (result.isValid) {
-        if (result.extractedRollNumber != null && _rollNumberController.text.isEmpty) {
+        if (result.extractedRollNumber != null &&
+            _rollNumberController.text.isEmpty) {
           _rollNumberController.text = result.extractedRollNumber!;
         }
-        if (result.extractedSession != null && _sessionController.text.isEmpty) {
+        if (result.extractedSession != null &&
+            _sessionController.text.isEmpty) {
           _sessionController.text = result.extractedSession!;
+          _selectedSession = result.extractedSession!;
         }
-        if (result.extractedDepartment != null && _departmentController.text.isEmpty) {
+        if (result.extractedDepartment != null &&
+            _departmentController.text.isEmpty) {
           _departmentController.text = result.extractedDepartment!;
         }
-        if (result.extractedDesignation != null && _designationController.text.isEmpty) {
+        if (result.extractedDesignation != null &&
+            _designationController.text.isEmpty) {
           _designationController.text = result.extractedDesignation!;
         }
-        if (result.extractedEmployeeId != null && _teacherIdController.text.isEmpty) {
+        if (result.extractedEmployeeId != null &&
+            _teacherIdController.text.isEmpty) {
           _teacherIdController.text = result.extractedEmployeeId!;
         }
 
@@ -257,18 +270,19 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           body: GestureDetector(
             onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
             child: CustomScrollView(
-                physics: const BouncingScrollPhysics(),
-                slivers: [
-                  _buildSliverAppBar(context, roleTitle),
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        AppTheme.space24,
-                        AppTheme.space24,
-                        AppTheme.space24,
-                        MediaQuery.of(context).viewInsets.bottom + AppTheme.space48,
-                      ),
-                      child: Form(
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                _buildSliverAppBar(context, roleTitle),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      AppTheme.space24,
+                      AppTheme.space24,
+                      AppTheme.space24,
+                      MediaQuery.of(context).viewInsets.bottom +
+                          AppTheme.space48,
+                    ),
+                    child: Form(
                       key: _formKey,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -352,28 +366,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 .fadeIn(delay: 600.ms)
                                 .slideX(begin: 0.1, end: 0),
                             const SizedBox(height: AppTheme.space12),
-                            _buildTextField(
-                                  controller: _departmentController,
-                                  label: 'বিভাগ',
-                                  icon: Icons.business_outlined,
-                                  hint: 'যেমন: CSE, EEE, BBA',
-                                  validator: (v) => v == null || v.isEmpty
-                                      ? 'বিভাগ দিন'
-                                      : null,
-                                )
+                            _buildDepartmentDropdown()
                                 .animate()
                                 .fadeIn(delay: 700.ms)
                                 .slideX(begin: 0.1, end: 0),
                             const SizedBox(height: AppTheme.space12),
-                            _buildTextField(
-                                  controller: _sessionController,
-                                  label: 'সেশন',
-                                  icon: Icons.class_outlined,
-                                  hint: 'যেমন: 2021-22',
-                                  validator: (v) => v == null || v.isEmpty
-                                      ? 'সেশন দিন'
-                                      : null,
-                                )
+                            _buildSessionDropdown()
                                 .animate()
                                 .fadeIn(delay: 800.ms)
                                 .slideX(begin: 0.1, end: 0),
@@ -392,14 +390,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 .fadeIn(delay: 600.ms)
                                 .slideX(begin: 0.1, end: 0),
                             const SizedBox(height: AppTheme.space12),
-                            _buildTextField(
-                                  controller: _departmentController,
-                                  label: 'বিভাগ',
-                                  icon: Icons.business_outlined,
-                                  validator: (v) => v == null || v.isEmpty
-                                      ? 'বিভাগ দিন'
-                                      : null,
-                                )
+                            _buildDepartmentDropdown()
                                 .animate()
                                 .fadeIn(delay: 700.ms)
                                 .slideX(begin: 0.1, end: 0),
@@ -560,11 +551,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 Text(
                   isStudent
                       ? '• আইডি কার্ড আছে → আইডি কার্ডের ছবি আপলোড করুন\n'
-                          '• আইডি কার্ড নেই → ভর্তির ফর্ম / ভর্তি ভাউচারের ছবি আপলোড করুন\n'
-                          '• উভয়ই কুমিল্লা বিশ্ববিদ্যালয়ের হতে হবে'
+                            '• আইডি কার্ড নেই → ভর্তির ফর্ম / ভর্তি ভাউচারের ছবি আপলোড করুন\n'
+                            '• উভয়ই কুমিল্লা বিশ্ববিদ্যালয়ের হতে হবে'
                       : '• শিক্ষক পরিচয়পত্রের ছবি আপলোড করুন\n'
-                          '• কুমিল্লা বিশ্ববিদ্যালয়ের শিক্ষক আইডি কার্ড হতে হবে\n'
-                          '• ডিপার্টমেন্ট ও পদবি স্বয়ংক্রিয়ভাবে পূরণ হবে',
+                            '• কুমিল্লা বিশ্ববিদ্যালয়ের শিক্ষক আইডি কার্ড হতে হবে\n'
+                            '• ডিপার্টমেন্ট ও পদবি স্বয়ংক্রিয়ভাবে পূরণ হবে',
                   style: const TextStyle(
                     fontSize: 11.5,
                     color: AppTheme.textSecondary,
@@ -586,7 +577,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          isStudent ? 'পরিচয়পত্র / ভর্তির ফর্মের ছবি (MANDATORY)' : 'শিক্ষক পরিচয়পত্রের ছবি (MANDATORY)',
+          isStudent
+              ? 'পরিচয়পত্র / ভর্তির ফর্মের ছবি (MANDATORY)'
+              : 'শিক্ষক পরিচয়পত্রের ছবি (MANDATORY)',
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 14,
@@ -843,10 +836,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           color: AppTheme.textSecondary,
           fontSize: 14,
         ),
-        hintStyle: const TextStyle(
-          color: AppTheme.textHint,
-          fontSize: 13,
-        ),
+        hintStyle: const TextStyle(color: AppTheme.textHint, fontSize: 13),
         prefixIcon: Icon(icon, color: AppTheme.primaryBlue, size: 20),
         suffixIcon: suffixIcon,
         filled: true,
@@ -865,6 +855,115 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         ),
       ),
       validator: validator,
+    );
+  }
+
+  Widget _buildDepartmentDropdown() {
+    return DropdownButtonFormField<String>(
+      decoration: InputDecoration(
+        labelText: (widget.role == 'student') ? 'বিভাগ' : 'বিভাগ/অফিস',
+        labelStyle: const TextStyle(
+          color: AppTheme.textSecondary,
+          fontSize: 14,
+        ),
+        prefixIcon: Icon(
+          Icons.business_outlined,
+          color: AppTheme.primaryBlue,
+          size: 20,
+        ),
+        isDense: true,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 10,
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          borderSide: BorderSide(color: AppTheme.primaryBlue.withOpacity(0.2)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          borderSide: BorderSide(color: AppTheme.primaryBlue.withOpacity(0.1)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          borderSide: const BorderSide(color: AppTheme.primaryBlue, width: 2),
+        ),
+      ),
+      hint: Text(
+        (widget.role == 'student')
+            ? 'বিভাগ নির্বাচন করুন'
+            : 'বিভাগ/অফিস নির্বাচন করুন',
+      ),
+      initialValue: _selectedDepartment,
+      items:
+          (widget.role == 'teacher'
+                  ? teacherDepartmentOptions
+                  : departmentOptions)
+              .map(
+                (department) => DropdownMenuItem<String>(
+                  value: department,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: MediaQuery.of(context).size.width - 100,
+                    ),
+                    child: Text(
+                      department,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              )
+              .toList(),
+      onChanged: (value) {
+        setState(() {
+          _selectedDepartment = value;
+          _departmentController.text = value ?? '';
+        });
+      },
+      validator: (v) => v == null ? 'বিভাগ দিন' : null,
+    );
+  }
+
+  Widget _buildSessionDropdown() {
+    return DropdownButtonFormField<String>(
+      decoration: InputDecoration(
+        labelText: 'সেশন',
+        prefixIcon: Icon(Icons.class_outlined, color: AppTheme.primaryBlue, size: 20),
+        isDense: true,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          borderSide: BorderSide(color: AppTheme.primaryBlue.withOpacity(0.2)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          borderSide: BorderSide(color: AppTheme.primaryBlue.withOpacity(0.1)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          borderSide: const BorderSide(color: AppTheme.primaryBlue, width: 2),
+        ),
+      ),
+      hint: const Text('সেশন নির্বাচন করুন'),
+      value: _selectedSession,
+      items: sessionOptions
+          .map((session) => DropdownMenuItem<String>(
+                value: session,
+                child: Text(session),
+              ))
+          .toList(),
+      onChanged: (value) {
+        setState(() {
+          _selectedSession = value;
+          _sessionController.text = value ?? '';
+        });
+      },
+      validator: (v) => v == null ? 'সেশন দিন' : null,
     );
   }
 
@@ -961,7 +1060,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       final phone = _phoneController.text.trim();
       final password = _passwordController.text;
       final role = widget.role; // 'student' or 'teacher'
-      ref.read(authProvider.notifier).initPhoneRegistration(
+      ref
+          .read(authProvider.notifier)
+          .initPhoneRegistration(
             role: role,
             name: _nameController.text.trim(),
             phone: phone,
@@ -971,9 +1072,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             rollNumber: role == 'student'
                 ? _rollNumberController.text.trim()
                 : null,
-            session: role == 'student'
-                ? _sessionController.text.trim()
-                : null,
+            session: role == 'student' ? _sessionController.text.trim() : null,
             teacherId: role == 'teacher'
                 ? _teacherIdController.text.trim()
                 : null,
