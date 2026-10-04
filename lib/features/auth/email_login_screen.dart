@@ -151,7 +151,7 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                             _buildLoginButton(authState),
                             const SizedBox(height: AppTheme.space12),
                             TextButton(
-                              onPressed: () => context.go('/auth/forgot-password'),
+                              onPressed: () => context.go('/auth/forgot-password-email'),
                               child: const Text(
                                 'পাসওয়ার্ড ভুলে গেছেন?',
                                 style: TextStyle(

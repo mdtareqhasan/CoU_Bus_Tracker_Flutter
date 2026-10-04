@@ -467,6 +467,32 @@ class AuthNotifier extends StateNotifier<AuthState> {
     return upper == 'TEACHER' ? 'EMPLOYEE' : upper;
   }
 
+  /// Email password reset: sends OTP through /auth/forgot-password-email/init.
+  Future<Result<String>> forgotPasswordEmailInit({
+    required String email,
+    required String role,
+  }) async {
+    return _authRepo.forgotPasswordEmailInit(
+      email: email,
+      role: _toEmailRole(role),
+    );
+  }
+
+  /// Email password reset: verifies OTP and sets new password.
+  Future<Result<String>> forgotPasswordEmailVerify({
+    required String email,
+    required String role,
+    required String otp,
+    required String newPassword,
+  }) async {
+    return _authRepo.forgotPasswordEmailVerify(
+      email: email,
+      role: _toEmailRole(role),
+      otp: otp,
+      newPassword: newPassword,
+    );
+  }
+
   /// Sends OTP for password reset.
   Future<Result<String>> forgotPasswordInit({
     required String phone,

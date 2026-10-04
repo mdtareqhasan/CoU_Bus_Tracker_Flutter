@@ -17,7 +17,9 @@ import '../features/auth/email_otp_verification_screen.dart';
 import '../features/auth/phone_otp_verification_screen.dart';
 import '../features/auth/upload_id_screen.dart';
 import '../features/auth/forgot_password_screen.dart';
+import '../features/auth/forgot_password_email_screen.dart';
 import '../features/auth/forgot_password_otp_screen.dart';
+import '../features/auth/forgot_password_email_otp_screen.dart';
 import '../features/profile/profile_screen.dart';
 import '../features/about/about_screen.dart';
 
@@ -146,6 +148,20 @@ final appRouter = GoRouter(
       path: '/auth/upload-id',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const UploadIdScreen(),
+    ),
+    GoRoute(
+      path: '/auth/forgot-password-email',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ForgotPasswordEmailScreen(),
+    ),
+    GoRoute(
+      path: '/auth/forgot-password-email-otp',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final email = state.uri.queryParameters['email'] ?? '';
+        final role = state.uri.queryParameters['role'] ?? 'STUDENT';
+        return ForgotPasswordEmailOtpScreen(email: email, role: role);
+      },
     ),
     GoRoute(
       path: '/auth/forgot-password',

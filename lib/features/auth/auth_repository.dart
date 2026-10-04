@@ -385,6 +385,67 @@ class AuthRepository {
     }
   }
 
+  /// Step 1 of email password reset: sends OTP to the email.
+  Future<Result<String>> forgotPasswordEmailInit({
+    required String email,
+    required String role,
+  }) async {
+    _logRequest(ApiEndpoints.forgotPasswordEmailInit);
+    try {
+      final response = await _apiClient.dio.post(
+        ApiEndpoints.forgotPasswordEmailInit,
+        data: {'email': email.trim().toLowerCase(), 'role': role.toUpperCase()},
+      );
+      if (response.statusCode == 200) {
+        final msg = (response.data is Map && response.data['message'] is String)
+            ? response.data['message'] as String
+            : 'OTP sent successfully';
+        return Success(msg);
+      }
+      return Failure(message: _extractErrorMessage(response));
+    } on DioException catch (e) {
+      _logDioError(e);
+      return Failure(message: _handleDioError(e));
+    } catch (e) {
+      debugPrint('[AUTH][FORGOT-EMAIL] unexpected error: $e');
+      return Failure(message: ErrorHandler.defaultError);
+    }
+  }
+
+  /// Step 2 of email password reset: verifies OTP and sets new password.
+  Future<Result<String>> forgotPasswordEmailVerify({
+    required String email,
+    required String role,
+    required String otp,
+    required String newPassword,
+  }) async {
+    _logRequest(ApiEndpoints.forgotPasswordEmailVerify);
+    try {
+      final response = await _apiClient.dio.post(
+        ApiEndpoints.forgotPasswordEmailVerify,
+        data: {
+          'email': email.trim().toLowerCase(),
+          'role': role.toUpperCase(),
+          'otp': otp,
+          'newPassword': newPassword,
+        },
+      );
+      if (response.statusCode == 200) {
+        final msg = (response.data is Map && response.data['message'] is String)
+            ? response.data['message'] as String
+            : 'Password reset successful';
+        return Success(msg);
+      }
+      return Failure(message: _extractErrorMessage(response));
+    } on DioException catch (e) {
+      _logDioError(e);
+      return Failure(message: _handleDioError(e));
+    } catch (e) {
+      debugPrint('[AUTH][FORGOT-EMAIL-VERIFY] unexpected error: $e');
+      return Failure(message: ErrorHandler.defaultError);
+    }
+  }
+
   /// Step 1 of OTP-first registration: submits the full Student/Teacher
   /// payload + ID card to the backend. The backend validates everything,
   /// uploads the card, and sends the OTP. NO user row is created at this

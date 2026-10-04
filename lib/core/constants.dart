@@ -48,6 +48,8 @@ class ApiEndpoints {
   static const String teacherUploadIdCard = '/auth/teacher/upload-id-card';
   static const String forgotPasswordInit = '/auth/forgot-password/init';
   static const String forgotPasswordVerify = '/auth/forgot-password/verify';
+  static const String forgotPasswordEmailInit = '/auth/forgot-password-email/init';
+  static const String forgotPasswordEmailVerify = '/auth/forgot-password-email/verify';
   static const String appVersion = '/app/version';
   static const String publicConfig = '/config';
 }
