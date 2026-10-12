@@ -10,6 +10,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import '../../app/theme.dart';
 import '../../core/utils/phone_utils.dart';
 import '../../core/services/id_card_validation_service.dart';
+import 'auth_notification_permission.dart';
 import 'department_options.dart';
 import 'session_options.dart';
 import 'auth_provider.dart';
@@ -239,6 +240,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
     ref.listen<AuthState>(authProvider, (prev, next) {
       if (next.status == AuthStateStatus.authenticated) {
+        requestPostAuthNotificationPermissionAfterNavigation(context);
         context.go('/home');
       } else if (next.status == AuthStateStatus.needsVerification) {
         final phone = next.phone ?? _phoneController.text.trim();
@@ -471,8 +473,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           _buildRegisterButton(authState),
                           const SizedBox(height: AppTheme.space16),
                           TextButton(
-                            onPressed: () =>
-                                context.go('/auth/email-login?role=${widget.role}'),
+                            onPressed: () => context.go(
+                              '/auth/email-login?role=${widget.role}',
+                            ),
                             child: Text.rich(
                               TextSpan(
                                 text: 'ইতিমধ্যে অ্যাকাউন্ট আছে? ',
@@ -931,9 +934,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     return DropdownButtonFormField<String>(
       decoration: InputDecoration(
         labelText: 'সেশন',
-        prefixIcon: Icon(Icons.class_outlined, color: AppTheme.primaryBlue, size: 20),
+        prefixIcon: Icon(
+          Icons.class_outlined,
+          color: AppTheme.primaryBlue,
+          size: 20,
+        ),
         isDense: true,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 10,
+        ),
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(
@@ -952,10 +962,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       hint: const Text('সেশন নির্বাচন করুন'),
       value: _selectedSession,
       items: sessionOptions
-          .map((session) => DropdownMenuItem<String>(
-                value: session,
-                child: Text(session),
-              ))
+          .map(
+            (session) =>
+                DropdownMenuItem<String>(value: session, child: Text(session)),
+          )
           .toList(),
       onChanged: (value) {
         setState(() {
@@ -1073,7 +1083,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ? _rollNumberController.text.trim()
                 : null,
             session: role == 'student'
-                ? sessionValueByLabel[_sessionController.text.trim()] ?? _sessionController.text.trim()
+                ? sessionValueByLabel[_sessionController.text.trim()] ??
+                      _sessionController.text.trim()
                 : null,
             teacherId: role == 'teacher'
                 ? _teacherIdController.text.trim()

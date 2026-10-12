@@ -1,1 +1,29 @@
-{"installed":{"client_id":"111634412431-t3hjk2g1fsfoguagsmaqmdc7ouflaivt.apps.googleusercontent.com","project_id":"medicare-hms-489718","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs"}}
+{
+  "project_info": {
+    "project_number": "1000198506879",
+    "project_id": "cou-bus-tracker-f4c8c",
+    "storage_bucket": "cou-bus-tracker-f4c8c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1000198506879:android:a46c93aefe2a546458324a",
+        "android_client_info": {
+          "package_name": "com.cse.coubustracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCk2CzYk21HVzezh-IHcSM1g2cn_uLDpuM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

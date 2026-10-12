@@ -8,6 +8,7 @@ import '../../app/theme.dart';
 import '../../core/error_handler.dart';
 import '../../core/result.dart';
 import '../../core/utils/phone_utils.dart';
+import 'auth_notification_permission.dart';
 import 'auth_provider.dart';
 
 /// 6-digit phone OTP verification. Used after registration via
@@ -163,6 +164,7 @@ class _PhoneOtpVerificationScreenState
         _clearOtp();
         // Replace the whole auth stack so back navigation cannot return to
         // registration/login or the OTP page after a successful verify.
+        requestPostAuthNotificationPermissionAfterNavigation(context);
         context.go('/home');
       } else {
         setState(() {
@@ -314,68 +316,69 @@ class _PhoneOtpVerificationScreenState
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(
-                    AppTheme.space24,
-                    AppTheme.space24,
-                    AppTheme.space24,
-                    MediaQuery.of(context).viewInsets.bottom + AppTheme.space48,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const SizedBox(height: AppTheme.space12),
-                      _buildHeaderIllustration(),
-                      const SizedBox(height: AppTheme.space32),
-                      Text(
-                        'ফোন নম্বর যাচাইকরণ',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.headlineSmall
-                            ?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.textPrimary,
-                            ),
-                      ).animate().fadeIn(delay: 200.ms),
-                      const SizedBox(height: AppTheme.space12),
-                      const Text(
-                        'আমরা আপনার ফোনে ৬ সংখ্যার একটি verification code '
-                        'পাঠিয়েছি।',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: AppTheme.textSecondary,
-                          height: 1.5,
-                        ),
-                      ).animate().fadeIn(delay: 300.ms),
-                      const SizedBox(height: AppTheme.space8),
-                      Text(
-                        maskBangladeshiPhone(widget.phone),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: AppTheme.primaryBlue,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                        ),
-                      ).animate().fadeIn(delay: 350.ms),
-                      const SizedBox(height: AppTheme.space40),
-                      _buildOtpBoxes(),
-                      const SizedBox(height: AppTheme.space24),
-                      if (_error != null) _buildErrorBanner(),
-                      const SizedBox(height: AppTheme.space16),
-                      _buildVerifyButton(isLoading),
-                      const SizedBox(height: AppTheme.space24),
-                      _buildResendSection(),
-                      const SizedBox(height: AppTheme.space24),
-                      _buildChangePhoneButton(),
-                      const SizedBox(height: AppTheme.space48),
-                    ],
+                      AppTheme.space24,
+                      AppTheme.space24,
+                      AppTheme.space24,
+                      MediaQuery.of(context).viewInsets.bottom +
+                          AppTheme.space48,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: AppTheme.space12),
+                        _buildHeaderIllustration(),
+                        const SizedBox(height: AppTheme.space32),
+                        Text(
+                          'ফোন নম্বর যাচাইকরণ',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.textPrimary,
+                              ),
+                        ).animate().fadeIn(delay: 200.ms),
+                        const SizedBox(height: AppTheme.space12),
+                        const Text(
+                          'আমরা আপনার ফোনে ৬ সংখ্যার একটি verification code '
+                          'পাঠিয়েছি।',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: AppTheme.textSecondary,
+                            height: 1.5,
+                          ),
+                        ).animate().fadeIn(delay: 300.ms),
+                        const SizedBox(height: AppTheme.space8),
+                        Text(
+                          maskBangladeshiPhone(widget.phone),
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: AppTheme.primaryBlue,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
+                        ).animate().fadeIn(delay: 350.ms),
+                        const SizedBox(height: AppTheme.space40),
+                        _buildOtpBoxes(),
+                        const SizedBox(height: AppTheme.space24),
+                        if (_error != null) _buildErrorBanner(),
+                        const SizedBox(height: AppTheme.space16),
+                        _buildVerifyButton(isLoading),
+                        const SizedBox(height: AppTheme.space24),
+                        _buildResendSection(),
+                        const SizedBox(height: AppTheme.space24),
+                        _buildChangePhoneButton(),
+                        const SizedBox(height: AppTheme.space48),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildSliverAppBar(BuildContext context) {
     return SliverAppBar(

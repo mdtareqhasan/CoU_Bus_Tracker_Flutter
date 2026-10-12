@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 /// Backend API base URL — debug builds hit the local Docker backend,
 /// release/profile builds hit the production API.
 const String kBaseUrl = kDebugMode
-    ? 'http://localhost:8081'
+    ? 'http://192.168.31.62:8081'
     : 'https://api.kubijatra.com';
 
 const String kDefaultPlayStoreUrl =
@@ -29,6 +29,7 @@ class ApiEndpoints {
   static const String initPhoneRegistration = '/auth/phone-verification/init';
   static const String verifyPhoneOtp = '/auth/phone-verification/verify';
   static const String resendPhoneOtp = '/auth/phone-verification/resend';
+
   /// Legacy send endpoint — kept for reference. Prefer /resend for in-flow
   /// resends, and /init for new registrations.
   static const String sendPhoneOtp = '/auth/phone-verification/send';
@@ -48,8 +49,10 @@ class ApiEndpoints {
   static const String teacherUploadIdCard = '/auth/teacher/upload-id-card';
   static const String forgotPasswordInit = '/auth/forgot-password/init';
   static const String forgotPasswordVerify = '/auth/forgot-password/verify';
-  static const String forgotPasswordEmailInit = '/auth/forgot-password-email/init';
-  static const String forgotPasswordEmailVerify = '/auth/forgot-password-email/verify';
+  static const String forgotPasswordEmailInit =
+      '/auth/forgot-password-email/init';
+  static const String forgotPasswordEmailVerify =
+      '/auth/forgot-password-email/verify';
   static const String appVersion = '/app/version';
   static const String publicConfig = '/config';
 }

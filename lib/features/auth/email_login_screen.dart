@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../app/theme.dart';
+import 'auth_notification_permission.dart';
 import 'auth_provider.dart';
 
 class EmailLoginScreen extends ConsumerStatefulWidget {
@@ -33,6 +34,7 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
 
     ref.listen<AuthState>(authProvider, (prev, next) {
       if (next.status == AuthStateStatus.authenticated) {
+        requestPostAuthNotificationPermissionAfterNavigation(context);
         context.go('/home');
       } else if (next.status == AuthStateStatus.needsVerification) {
         final email = next.email ?? _emailController.text.trim();
@@ -77,7 +79,8 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                         AppTheme.space24,
                         AppTheme.space24,
                         AppTheme.space24,
-                        MediaQuery.of(context).viewInsets.bottom + AppTheme.space24,
+                        MediaQuery.of(context).viewInsets.bottom +
+                            AppTheme.space24,
                       ),
                       child: Form(
                         key: _formKey,
@@ -88,70 +91,89 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                             _buildHeaderIllustration(),
                             const SizedBox(height: AppTheme.space32),
                             Text(
-                              roleTitle,
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.headlineSmall
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.textPrimary,
-                                  ),
-                            ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2, end: 0),
+                                  roleTitle,
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: AppTheme.textPrimary,
+                                      ),
+                                )
+                                .animate()
+                                .fadeIn(delay: 200.ms)
+                                .slideY(begin: 0.2, end: 0),
                             const SizedBox(height: AppTheme.space8),
                             Text(
                               widget.role == 'student'
                                   ? 'এডুমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন'
                                   : 'প্রতিষ্ঠানিক ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন',
                               textAlign: TextAlign.center,
-                              style: const TextStyle(color: AppTheme.textSecondary),
+                              style: const TextStyle(
+                                color: AppTheme.textSecondary,
+                              ),
                             ).animate().fadeIn(delay: 300.ms),
                             const SizedBox(height: AppTheme.space40),
                             _buildTextField(
-                              controller: _emailController,
-                              label: widget.role == 'student' ? 'এডুমেইল' : 'প্রতিষ্ঠানিক ইমেইল',
-                              icon: Icons.email_outlined,
-                              keyboardType: TextInputType.emailAddress,
-                              validator: (v) {
-                                if (v == null || v.isEmpty) {
-                                  return 'ইমেইল দিন';
-                                }
-                                return RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(v)
-                                    ? null
-                                    : 'সঠিক ইমেইল দিন';
-                              },
-                            ).animate().fadeIn(delay: 400.ms).slideX(begin: 0.1, end: 0),
+                                  controller: _emailController,
+                                  label: widget.role == 'student'
+                                      ? 'এডুমেইল'
+                                      : 'প্রতিষ্ঠানিক ইমেইল',
+                                  icon: Icons.email_outlined,
+                                  keyboardType: TextInputType.emailAddress,
+                                  validator: (v) {
+                                    if (v == null || v.isEmpty) {
+                                      return 'ইমেইল দিন';
+                                    }
+                                    return RegExp(
+                                          r'^[^@]+@[^@]+\.[^@]+',
+                                        ).hasMatch(v)
+                                        ? null
+                                        : 'সঠিক ইমেইল দিন';
+                                  },
+                                )
+                                .animate()
+                                .fadeIn(delay: 400.ms)
+                                .slideX(begin: 0.1, end: 0),
                             const SizedBox(height: AppTheme.space32),
                             _buildTextField(
-                              controller: _passwordController,
-                              label: 'পাসওয়ার্ড',
-                              icon: Icons.lock_outline_rounded,
-                              obscureText: _obscurePassword,
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _obscurePassword
-                                      ? Icons.visibility_off_outlined
-                                      : Icons.visibility_outlined,
-                                  size: 20,
-                                  color: AppTheme.textSecondary,
-                                ),
-                                onPressed: () => setState(
-                                  () => _obscurePassword = !_obscurePassword,
-                                ),
-                              ),
-                              validator: (v) {
-                                if (v == null || v.isEmpty) {
-                                  return 'পাসওয়ার্ড দিন';
-                                }
-                                if (v.length < 8) {
-                                  return 'পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে';
-                                }
-                                return null;
-                              },
-                            ).animate().fadeIn(delay: 500.ms).slideX(begin: 0.1, end: 0),
+                                  controller: _passwordController,
+                                  label: 'পাসওয়ার্ড',
+                                  icon: Icons.lock_outline_rounded,
+                                  obscureText: _obscurePassword,
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _obscurePassword
+                                          ? Icons.visibility_off_outlined
+                                          : Icons.visibility_outlined,
+                                      size: 20,
+                                      color: AppTheme.textSecondary,
+                                    ),
+                                    onPressed: () => setState(
+                                      () =>
+                                          _obscurePassword = !_obscurePassword,
+                                    ),
+                                  ),
+                                  validator: (v) {
+                                    if (v == null || v.isEmpty) {
+                                      return 'পাসওয়ার্ড দিন';
+                                    }
+                                    if (v.length < 8) {
+                                      return 'পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে';
+                                    }
+                                    return null;
+                                  },
+                                )
+                                .animate()
+                                .fadeIn(delay: 500.ms)
+                                .slideX(begin: 0.1, end: 0),
                             const SizedBox(height: AppTheme.space32),
                             _buildLoginButton(authState),
                             const SizedBox(height: AppTheme.space12),
                             TextButton(
-                              onPressed: () => context.go('/auth/forgot-password-email'),
+                              onPressed: () =>
+                                  context.go('/auth/forgot-password-email'),
                               child: const Text(
                                 'পাসওয়ার্ড ভুলে গেছেন?',
                                 style: TextStyle(
@@ -343,7 +365,9 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
   void _login() {
     FocusManager.instance.primaryFocus?.unfocus();
     if (_formKey.currentState!.validate()) {
-      ref.read(authProvider.notifier).loginWithEmail(
+      ref
+          .read(authProvider.notifier)
+          .loginWithEmail(
             email: _emailController.text.trim(),
             password: _passwordController.text,
             role: widget.role,
