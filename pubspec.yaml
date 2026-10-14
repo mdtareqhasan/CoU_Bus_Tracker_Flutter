@@ -78,3 +78,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/images/kubi_jatra_images/
