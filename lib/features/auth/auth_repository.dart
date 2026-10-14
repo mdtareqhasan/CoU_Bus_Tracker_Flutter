@@ -241,6 +241,121 @@ class AuthRepository {
     }
   }
 
+  /// Step 1 of email OTP-first registration. Sends the full Student/Employee
+  /// payload to /auth/email-verification/init as JSON. The backend creates the
+  /// user only after the email OTP is verified.
+  Future<Result<String>> initEmailRegistration({
+    required String role,
+    required String name,
+    required String email,
+    required String password,
+    required String department,
+    String? rollNumber,
+    String? session,
+    String? employeeId,
+    String? designation,
+  }) async {
+    final fields = <String, dynamic>{
+      'role': role.toUpperCase(),
+      'name': name,
+      'email': email,
+      'password': password,
+      'department': department,
+    };
+
+    if (role.toUpperCase() == 'STUDENT') {
+      if (rollNumber == null || rollNumber.isEmpty) {
+        return Failure(message: 'Roll number is required');
+      }
+      if (session == null || session.isEmpty) {
+        return Failure(message: 'Session is required');
+      }
+      fields['rollNumber'] = rollNumber;
+      fields['session'] = session;
+    } else {
+      if (employeeId == null || employeeId.isEmpty) {
+        return Failure(message: 'Employee ID is required');
+      }
+      fields['employeeId'] = employeeId;
+      fields['designation'] = designation ?? '';
+    }
+
+    _logRequest(ApiEndpoints.initEmailRegistration);
+    try {
+      final response = await _apiClient.dio.post(
+        ApiEndpoints.initEmailRegistration,
+        data: fields,
+        options: Options(contentType: 'application/json'),
+      );
+      _logResponse(response);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final msg = (response.data is Map && response.data['message'] is String)
+            ? response.data['message'] as String
+            : 'OTP sent successfully';
+        return Success(msg);
+      }
+      return Failure(message: _extractErrorMessage(response));
+    } on DioException catch (e) {
+      _logDioError(e);
+      return Failure(message: _handleDioError(e));
+    } catch (e) {
+      debugPrint('[AUTH][INIT-EMAIL] unexpected error: $e');
+      return Failure(message: ErrorHandler.defaultError);
+    }
+  }
+
+  Future<Result<AuthResponse>> verifyEmailOtp({
+    required String email,
+    required String role,
+    required String otp,
+  }) async {
+    _logRequest(ApiEndpoints.verifyEmailOtp);
+    try {
+      final response = await _apiClient.dio.post(
+        ApiEndpoints.verifyEmailOtp,
+        data: {'email': email, 'role': role.toUpperCase(), 'otp': otp},
+      );
+      _logResponse(response);
+      if (response.statusCode == 200) {
+        return Success(AuthResponse.fromJson(response.data));
+      }
+      return Failure(message: _extractErrorMessage(response));
+    } on DioException catch (e) {
+      _logDioError(e);
+      return Failure(message: _handleDioError(e, isLoginRequest: true));
+    } catch (e) {
+      debugPrint('[AUTH][VERIFY-EMAIL] unexpected error: $e');
+      return Failure(message: ErrorHandler.defaultError);
+    }
+  }
+
+  Future<Result<String>> resendEmailOtp({
+    required String email,
+    required String role,
+  }) async {
+    _logRequest(ApiEndpoints.resendEmailOtp);
+    try {
+      final response = await _apiClient.dio.post(
+        ApiEndpoints.resendEmailOtp,
+        data: {'email': email, 'role': role.toUpperCase()},
+      );
+      _logResponse(response);
+      if (response.statusCode == 200) {
+        final msg = (response.data is Map && response.data['message'] is String)
+            ? response.data['message'] as String
+            : 'OTP resent successfully';
+        return Success(msg);
+      }
+      return Failure(message: _extractErrorMessage(response));
+    } on DioException catch (e) {
+      _logDioError(e);
+      return Failure(message: _handleDioError(e));
+    } catch (e) {
+      debugPrint('[AUTH][RESEND-EMAIL] unexpected error: $e');
+      return Failure(message: ErrorHandler.defaultError);
+    }
+  }
+
   /// Step 1 of OTP-first registration: submits the full Student/Teacher
   /// payload + ID card to the backend. The backend validates everything,
   /// uploads the card, and sends the OTP. NO user row is created at this
@@ -368,12 +483,17 @@ class AuthRepository {
     final data = response.data;
     if (data is Map) {
       final message = data['message'];
-      if (message is String && message.trim().isNotEmpty) {
+      final isGenericValidationMessage = message is String &&
+          message.trim().toLowerCase() == 'validation failed';
+      if (message is String && message.trim().isNotEmpty && !isGenericValidationMessage) {
         return ErrorHandler.friendly(message);
       }
       final errors = data['errors'];
       if (errors is Map && errors.isNotEmpty) {
         return _formatValidationErrors(errors);
+      }
+      if (message is String && message.trim().isNotEmpty) {
+        return ErrorHandler.friendly(message);
       }
     }
     return ErrorHandler.getMessage(response.statusCode, null);
@@ -406,12 +526,17 @@ class AuthRepository {
     if (response?.data is Map) {
       final data = response!.data as Map;
       final message = data['message'];
-      if (message is String && message.trim().isNotEmpty) {
+      final isGenericValidationMessage = message is String &&
+          message.trim().toLowerCase() == 'validation failed';
+      if (message is String && message.trim().isNotEmpty && !isGenericValidationMessage) {
         return ErrorHandler.friendly(message);
       }
       final errors = data['errors'];
       if (errors is Map && errors.isNotEmpty) {
         return _formatValidationErrors(errors);
+      }
+      if (message is String && message.trim().isNotEmpty) {
+        return ErrorHandler.friendly(message);
       }
     }
 

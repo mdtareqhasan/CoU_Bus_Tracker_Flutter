@@ -79,6 +79,23 @@ class StorageService {
     }
   }
 
+  Future<String?> getPendingEmail() async {
+    return await _secureStorage.read(key: StorageKeys.pendingEmail);
+  }
+
+  Future<void> setPendingVerificationEmail(String? email, String? role) async {
+    if (email == null) {
+      await _secureStorage.delete(key: StorageKeys.pendingEmail);
+      await _secureStorage.delete(key: StorageKeys.verificationRole);
+    } else {
+      await _secureStorage.write(key: StorageKeys.pendingEmail, value: email);
+      await _secureStorage.write(
+        key: StorageKeys.verificationRole,
+        value: role ?? 'STUDENT',
+      );
+    }
+  }
+
   Future<String?> getPendingPhone() async {
     return await _secureStorage.read(key: StorageKeys.pendingPhone);
   }

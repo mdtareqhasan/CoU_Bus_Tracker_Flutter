@@ -11,6 +11,8 @@ import '../features/notices/notice_screen.dart';
 import '../features/auth/role_screen.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/register_screen.dart';
+import '../features/auth/email_registration_screen.dart';
+import '../features/auth/email_otp_verification_screen.dart';
 import '../features/auth/phone_otp_verification_screen.dart';
 import '../features/auth/upload_id_screen.dart';
 import '../features/auth/forgot_password_screen.dart';
@@ -103,6 +105,23 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final role = state.uri.queryParameters['role'] ?? 'student';
         return RegisterScreen(role: role);
+      },
+    ),
+    GoRoute(
+      path: '/auth/email-register',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final role = state.uri.queryParameters['role'] ?? 'student';
+        return EmailRegistrationScreen(role: role);
+      },
+    ),
+    GoRoute(
+      path: '/auth/email-otp',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final email = state.uri.queryParameters['email'] ?? '';
+        final role = state.uri.queryParameters['role'] ?? 'student';
+        return EmailOtpVerificationScreen(email: email, role: role);
       },
     ),
     GoRoute(
