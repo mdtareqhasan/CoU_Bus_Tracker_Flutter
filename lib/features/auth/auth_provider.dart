@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/result.dart';
@@ -5,6 +6,7 @@ import '../../core/storage_service.dart';
 import '../../core/error_handler.dart';
 import '../../core/utils/phone_utils.dart';
 import '../../shared/models/auth_response.dart';
+import '../notifications/fcm_token_service.dart';
 import 'auth_repository.dart';
 import '../providers.dart';
 
@@ -81,8 +83,10 @@ class AuthState {
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRepository _authRepo;
   final StorageService _storage;
+  final FcmTokenService _fcmTokenService;
 
-  AuthNotifier(this._authRepo, this._storage) : super(const AuthState()) {
+  AuthNotifier(this._authRepo, this._storage, this._fcmTokenService)
+      : super(const AuthState()) {
     _checkExistingSession();
   }
 
@@ -632,6 +636,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
       pendingRole: null,
       idCardImageUrl: idCardImageUrl,
     );
+
+    // Now that a JWT is stored, register this device's FCM token so the user
+    // can receive push notifications. Best-effort and non-blocking — a failure
+    // here must never affect the login flow.
+    unawaited(_fcmTokenService.registerIfAuthenticated());
   }
 
   String _toUpperRole(String role) => role.trim().toUpperCase();
@@ -650,6 +659,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> logout() async {
+    // Best-effort: remove this device's FCM token server-side so the next user
+    // who logs in on this device doesn't inherit stale push targets. Runs
+    // before clearing the session so the JWT is still attached to the request.
+    unawaited(_fcmTokenService.unregisterCurrentToken());
+
     await _storage.clearSession();
     state = const AuthState(status: AuthStateStatus.unauthenticated);
   }
@@ -665,5 +679,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final storage = ref.watch(storageServiceProvider);
-  return AuthNotifier(ref.watch(authRepositoryProvider), storage);
+  return AuthNotifier(
+    ref.watch(authRepositoryProvider),
+    storage,
+    ref.watch(fcmTokenServiceProvider),
+  );
 });

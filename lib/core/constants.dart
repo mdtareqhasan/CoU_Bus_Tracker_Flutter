@@ -55,6 +55,11 @@ class ApiEndpoints {
       '/auth/forgot-password-email/verify';
   static const String appVersion = '/app/version';
   static const String publicConfig = '/config';
+
+  // Notifications (FCM device-token registration). Both share the same path;
+  // unregister passes the token as a `?token=` query parameter.
+  static const String registerFcmToken = '/notifications/fcm-token';
+  static const String unregisterFcmToken = '/notifications/fcm-token';
 }
 
 class StorageKeys {

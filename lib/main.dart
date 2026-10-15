@@ -14,7 +14,9 @@ import 'core/services/notification_service.dart';
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  debugPrint('Background message ID: ${message.messageId}');
+  // Data-only pushes arrive here silently; display them so the user sees an
+  // update even when the app is closed.
+  await NotificationService.handleBackgroundMessage(message);
 }
 
 void main() async {
@@ -27,6 +29,15 @@ void main() async {
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   await NotificationService.initialize();
+
+  try {
+    final t = await FirebaseMessaging.instance.getToken().timeout(
+      const Duration(seconds: 10),
+    );
+    debugPrint('FCM token (startup): $t');
+  } catch (e) {
+    debugPrint('FCM getToken failed: $e');
+  }
 
   // Preserve your existing storage initialization.
   final storageService = await StorageService.getInstance();

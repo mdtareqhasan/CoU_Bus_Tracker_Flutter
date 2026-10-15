@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "1000198506879",
-    "project_id": "cou-bus-tracker-f4c8c",
-    "storage_bucket": "cou-bus-tracker-f4c8c.firebasestorage.app"
+    "project_number": "601520130344",
+    "project_id": "cou-bus-tracker-flutter",
+    "storage_bucket": "cou-bus-tracker-flutter.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1000198506879:android:a46c93aefe2a546458324a",
+        "mobilesdk_app_id": "1:601520130344:android:c9b05b9b7a74707edda81d",
         "android_client_info": {
           "package_name": "com.cse.coubustracker"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCk2CzYk21HVzezh-IHcSM1g2cn_uLDpuM"
+          "current_key": "AIzaSyDMDoZxrI89DxhFheY9d8K68Zqy8A48ZbU"
         }
       ],
       "services": {

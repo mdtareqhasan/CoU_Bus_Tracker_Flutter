@@ -41,46 +41,44 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCV9pHKcd6dInBqYrWsCGSRmkPHnF0bT90',
-    appId: '1:1000198506879:web:ae9b81156fb4e49658324a',
-    messagingSenderId: '1000198506879',
-    projectId: 'cou-bus-tracker-f4c8c',
-    authDomain: 'cou-bus-tracker-f4c8c.firebaseapp.com',
-    storageBucket: 'cou-bus-tracker-f4c8c.firebasestorage.app',
+    apiKey: 'AIzaSyBrmBLslPWWHxBaNs68LeLyVhABmsGcxHQ',
+    appId: '1:601520130344:web:0b6d8d35ecfe394fdda81d',
+    messagingSenderId: '601520130344',
+    projectId: 'cou-bus-tracker-flutter',
+    authDomain: 'cou-bus-tracker-flutter.firebaseapp.com',
+    storageBucket: 'cou-bus-tracker-flutter.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCk2CzYk21HVzezh-IHcSM1g2cn_uLDpuM',
-    appId: '1:1000198506879:android:a46c93aefe2a546458324a',
-    messagingSenderId: '1000198506879',
-    projectId: 'cou-bus-tracker-f4c8c',
-    storageBucket: 'cou-bus-tracker-f4c8c.firebasestorage.app',
+    apiKey: 'AIzaSyDMDoZxrI89DxhFheY9d8K68Zqy8A48ZbU',
+    appId: '1:601520130344:android:c9b05b9b7a74707edda81d',
+    messagingSenderId: '601520130344',
+    projectId: 'cou-bus-tracker-flutter',
+    storageBucket: 'cou-bus-tracker-flutter.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAcvoB5jSgN45rGP7NjUDgIch6bP96Fkhg',
-    appId: '1:1000198506879:ios:077cba92eadff74858324a',
-    messagingSenderId: '1000198506879',
-    projectId: 'cou-bus-tracker-f4c8c',
-    storageBucket: 'cou-bus-tracker-f4c8c.firebasestorage.app',
+    apiKey: 'AIzaSyBzkwhybmRVsJsalaVoEoKUjVcc3aUj3CM',
+    appId: '1:601520130344:ios:53935090bbcedabedda81d',
+    messagingSenderId: '601520130344',
+    projectId: 'cou-bus-tracker-flutter',
+    storageBucket: 'cou-bus-tracker-flutter.firebasestorage.app',
     iosBundleId: 'com.cse.coubustracker',
   );
-
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyAcvoB5jSgN45rGP7NjUDgIch6bP96Fkhg',
-    appId: '1:1000198506879:ios:ca0949c5846d181d58324a',
-    messagingSenderId: '1000198506879',
-    projectId: 'cou-bus-tracker-f4c8c',
-    storageBucket: 'cou-bus-tracker-f4c8c.firebasestorage.app',
+    apiKey: 'AIzaSyBzkwhybmRVsJsalaVoEoKUjVcc3aUj3CM',
+    appId: '1:601520130344:ios:f2b3c4dfe5991401dda81d',
+    messagingSenderId: '601520130344',
+    projectId: 'cou-bus-tracker-flutter',
+    storageBucket: 'cou-bus-tracker-flutter.firebasestorage.app',
     iosBundleId: 'com.cse.coubustracker.couBusTracker',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyCV9pHKcd6dInBqYrWsCGSRmkPHnF0bT90',
-    appId: '1:1000198506879:web:109a9331b033007458324a',
-    messagingSenderId: '1000198506879',
-    projectId: 'cou-bus-tracker-f4c8c',
-    authDomain: 'cou-bus-tracker-f4c8c.firebaseapp.com',
-    storageBucket: 'cou-bus-tracker-f4c8c.firebasestorage.app',
+    apiKey: 'AIzaSyBrmBLslPWWHxBaNs68LeLyVhABmsGcxHQ',
+    appId: '1:601520130344:web:ddec1a575be08674dda81d',
+    messagingSenderId: '601520130344',
+    projectId: 'cou-bus-tracker-flutter',
+    authDomain: 'cou-bus-tracker-flutter.firebaseapp.com',
+    storageBucket: 'cou-bus-tracker-flutter.firebasestorage.app',
   );
 }
