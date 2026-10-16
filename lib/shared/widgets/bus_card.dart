@@ -40,7 +40,7 @@ class BusCard extends StatelessWidget {
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    color: categoryColor.withOpacity(0.1),
+                    color: categoryColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                   ),
                   child: Icon(
@@ -100,7 +100,7 @@ class BusCard extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: categoryColor.withOpacity(0.1),
+                          color: categoryColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(
                             AppTheme.radiusSmall,
                           ),

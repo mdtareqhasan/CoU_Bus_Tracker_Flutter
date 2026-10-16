@@ -132,7 +132,7 @@ class _NoticeScreenState extends ConsumerState<NoticeScreen> {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Colors.orange.withOpacity(0.1),
+                        color: Colors.orange.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
@@ -189,7 +189,7 @@ class _NoticeScreenState extends ConsumerState<NoticeScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: (notice.isExpired ? AppTheme.error : AppTheme.success).withOpacity(0.1),
+                          color: (notice.isExpired ? AppTheme.error : AppTheme.success).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Row(
@@ -279,7 +279,7 @@ class _NoticeScreenState extends ConsumerState<NoticeScreen> {
             Icon(
               Icons.notifications_none_rounded,
               size: 100,
-              color: AppTheme.textHint.withOpacity(0.3),
+              color: AppTheme.textHint.withValues(alpha: 0.3),
             ),
             const SizedBox(height: 24),
             const Text(

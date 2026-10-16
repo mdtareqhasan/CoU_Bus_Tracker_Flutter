@@ -407,9 +407,9 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.25),
+                  color: Colors.black.withValues(alpha: 0.25),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.white.withOpacity(0.15)),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
                 ),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
@@ -451,9 +451,9 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-          color: color.withOpacity(0.2),
+          color: color.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.5), width: 0.5)),
+          border: Border.all(color: color.withValues(alpha: 0.5), width: 0.5)),
       child: Row(children: [
         Container(
                 width: 6,
@@ -483,13 +483,13 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
             width: 190,
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: const Color(0xFF1A1F2E).withOpacity(0.9),
+              color: const Color(0xFF1A1F2E).withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(20),
               border:
-                  Border.all(color: Colors.white.withOpacity(0.1), width: 1.5),
+                  Border.all(color: Colors.white.withValues(alpha: 0.1), width: 1.5),
               boxShadow: [
                 BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
+                    color: Colors.black.withValues(alpha: 0.3),
                     blurRadius: 15,
                     offset: const Offset(0, 5))
               ],
@@ -546,10 +546,10 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
               gradient: AppTheme.primaryGradient,
               shape: BoxShape.circle,
               border:
-                  Border.all(color: Colors.white.withOpacity(0.2), width: 2),
+                  Border.all(color: Colors.white.withValues(alpha: 0.2), width: 2),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryBlue.withOpacity(0.3),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                   blurRadius: 15,
                   offset: const Offset(0, 5),
                 )

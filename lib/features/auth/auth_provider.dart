@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/result.dart';
 import '../../core/storage_service.dart';
 import '../../core/error_handler.dart';
+import '../../core/services/google_signin_service.dart';
 import '../../core/utils/phone_utils.dart';
 import '../../shared/models/auth_response.dart';
 import '../notifications/fcm_token_service.dart';
@@ -265,6 +266,43 @@ class AuthNotifier extends StateNotifier<AuthState> {
               error: message,
             );
           }
+        default:
+          state = state.copyWith(
+            status: AuthStateStatus.error,
+            error: 'Unknown response',
+          );
+      }
+    } catch (e) {
+      state = state.copyWith(
+        status: AuthStateStatus.error,
+        error: e.toString(),
+      );
+    } finally {
+      if (state.status == AuthStateStatus.loading) {
+        state = state.copyWith(status: AuthStateStatus.error);
+      }
+    }
+  }
+
+  /// Google Sign-In. The Google ID token from the client is verified by the
+  /// backend, which returns a JWT for the matching account.
+  Future<void> loginWithGoogle({
+    required String idToken,
+    required String role,
+  }) async {
+    state = state.copyWith(status: AuthStateStatus.loading, error: null);
+
+    try {
+      final result = await _authRepo.googleLogin(idToken: idToken, role: role);
+
+      switch (result) {
+        case Success(:final data):
+          await _handleAuthSuccess(data, role.toLowerCase());
+        case Failure(:final message):
+          state = state.copyWith(
+            status: AuthStateStatus.error,
+            error: message,
+          );
         default:
           state = state.copyWith(
             status: AuthStateStatus.error,
@@ -663,6 +701,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
     // who logs in on this device doesn't inherit stale push targets. Runs
     // before clearing the session so the JWT is still attached to the request.
     unawaited(_fcmTokenService.unregisterCurrentToken());
+
+    // Drop the cached Google account so the next sign-in shows the account
+    // picker instead of silently reusing the previous Google user.
+    await GoogleSignInService.instance.signOut();
 
     await _storage.clearSession();
     state = const AuthState(status: AuthStateStatus.unauthenticated);

@@ -182,6 +182,32 @@ class AuthRepository {
     }
   }
 
+  /// Google Sign-In. Sends the Google ID token to the backend, which verifies
+  /// it and issues a JWT for the matching student/teacher account.
+  Future<Result<AuthResponse>> googleLogin({
+    required String idToken,
+    required String role,
+  }) async {
+    _logRequest(ApiEndpoints.googleLogin);
+    try {
+      final response = await _apiClient.dio.post(
+        ApiEndpoints.googleLogin,
+        data: {'idToken': idToken, 'role': role.toUpperCase()},
+      );
+      _logResponse(response);
+      if (response.statusCode == 200) {
+        return Success(AuthResponse.fromJson(response.data));
+      }
+      return Failure(message: _extractErrorMessage(response));
+    } on DioException catch (e) {
+      _logDioError(e);
+      return Failure(message: _handleDioError(e, isLoginRequest: true));
+    } catch (e) {
+      debugPrint('[AUTH][GOOGLE] unexpected error: $e');
+      return Failure(message: ErrorHandler.defaultError);
+    }
+  }
+
   /// Step 1 of password reset: sends OTP to the phone number.
   Future<Result<String>> forgotPasswordInit({
     required String phone,

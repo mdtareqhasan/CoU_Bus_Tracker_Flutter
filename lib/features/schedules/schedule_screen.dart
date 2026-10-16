@@ -73,7 +73,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
       decoration: BoxDecoration(
         color: Theme.of(context).brightness == Brightness.dark
             ? AppTheme.surfaceDark
-            : AppTheme.accentBlue.withOpacity(0.3),
+            : AppTheme.accentBlue.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
       ),
       padding: const EdgeInsets.symmetric(
@@ -207,7 +207,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                   .read(scheduleListProvider.notifier)
                   .setDayTypeFilter(entry.key),
               selectedColor: color,
-              backgroundColor: color.withOpacity(0.15),
+              backgroundColor: color.withValues(alpha: 0.15),
               side: BorderSide(color: color, width: isSelected ? 2 : 1.5),
               showCheckmark: false,
               elevation: isSelected ? 3 : 1,
@@ -263,9 +263,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                 }
               },
               selectedColor: chipColor,
-              backgroundColor: chipColor.withOpacity(0.15),
+              backgroundColor: chipColor.withValues(alpha: 0.15),
               side: BorderSide(
-                color: isSelected ? chipColor : chipColor.withOpacity(0.4),
+                color: isSelected ? chipColor : chipColor.withValues(alpha: 0.4),
                 width: 1.5,
               ),
               showCheckmark: false,
@@ -347,7 +347,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
               Container(
                 padding: const EdgeInsets.all(AppTheme.space8),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryBlue.withOpacity(0.1),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -456,7 +456,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
           Icon(
             Icons.schedule_rounded,
             size: 80,
-            color: AppTheme.textHint.withOpacity(0.3),
+            color: AppTheme.textHint.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
           const Text(

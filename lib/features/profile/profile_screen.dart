@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../app/theme.dart';
-import '../../core/utils/phone_utils.dart';
 import '../auth/auth_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -97,7 +96,7 @@ class ProfileScreen extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(0.3),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                       blurRadius: 15,
                       offset: const Offset(0, 8),
                     ),
@@ -148,7 +147,7 @@ class ProfileScreen extends ConsumerWidget {
               width: 180,
               height: 180,
               decoration: BoxDecoration(
-                color: AppTheme.primaryBlue.withOpacity(0.05),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
               ),
             )
@@ -167,7 +166,7 @@ class ProfileScreen extends ConsumerWidget {
             borderRadius: BorderRadius.circular(45),
             boxShadow: [
               BoxShadow(
-                color: AppTheme.primaryBlue.withOpacity(0.2),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                 blurRadius: 30,
                 offset: const Offset(0, 15),
               ),
@@ -220,7 +219,7 @@ class ProfileScreen extends ConsumerWidget {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: AppTheme.primaryBlue.withOpacity(0.2),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -244,18 +243,18 @@ class ProfileScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          authState.phone != null && authState.phone!.isNotEmpty
-              ? maskBangladeshiPhone(authState.phone!)
-              : (authState.email ?? ''),
+          authState.email != null && authState.email!.isNotEmpty
+              ? authState.email!
+              : '—',
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           decoration: BoxDecoration(
-            color: AppTheme.primaryBlue.withOpacity(0.1),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.2)),
+            border: Border.all(color: AppTheme.primaryBlue.withValues(alpha: 0.2)),
           ),
           child: Text(
             authState.role == 'student' ? 'শিক্ষার্থী' : 'শিক্ষক',
@@ -287,7 +286,7 @@ class ProfileScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryBlue.withOpacity(0.05),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.05),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -319,7 +318,7 @@ class ProfileScreen extends ConsumerWidget {
                 fit: BoxFit.cover,
                 placeholder: (context, url) => Container(
                   height: 200,
-                  color: AppTheme.primaryBlue.withOpacity(0.05),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.05),
                   child: const Center(
                     child: CircularProgressIndicator(
                       color: AppTheme.primaryBlue,
@@ -328,7 +327,7 @@ class ProfileScreen extends ConsumerWidget {
                 ),
                 errorWidget: (context, url, error) => Container(
                   height: 200,
-                  color: AppTheme.primaryBlue.withOpacity(0.05),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.05),
                   child: const Center(
                     child: Icon(
                       Icons.error_outline,
@@ -407,11 +406,11 @@ class ProfileScreen extends ConsumerWidget {
           const Divider(indent: 48, height: 1),
           _buildInfoRow(
             context,
-            'ফোন নম্বর',
-            authState.phone != null && authState.phone!.isNotEmpty
-                ? maskBangladeshiPhone(authState.phone!)
+            'ইমেইল',
+            authState.email != null && authState.email!.isNotEmpty
+                ? authState.email!
                 : '—',
-            Icons.phone_android_rounded,
+            Icons.email_outlined,
           ),
           const Divider(indent: 48, height: 1),
           _buildInfoRow(
@@ -462,23 +461,31 @@ class ProfileScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppTheme.primaryBlue.withOpacity(0.05),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.05),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, size: 20, color: AppTheme.primaryBlue),
           ),
           const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label, style: Theme.of(context).textTheme.bodySmall),
-              Text(
-                value,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleSmall?.copyWith(fontSize: 14),
-              ),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleSmall
+                      ?.copyWith(fontSize: 14),
+                ),
+              ],
+            ),
           ),
         ],
       ),

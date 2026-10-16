@@ -3,11 +3,17 @@ import 'package:flutter/foundation.dart';
 /// Backend API base URL — debug builds hit the local Docker backend,
 /// release/profile builds hit the production API.
 const String kBaseUrl = kDebugMode
-    ? 'http://192.168.31.62:8081'
+    ? 'http://192.168.1.111:8081'
     : 'https://api.kubijatra.com';
 
 const String kDefaultPlayStoreUrl =
     'https://play.google.com/store/apps/details?id=com.cse.coubustracker';
+
+/// OAuth *web* client ID (client_type 3 in android/app/google-services.json).
+/// Required as `serverClientId` so Android returns an ID token the backend
+/// can verify. Not a secret — it is already embedded in google-services.json.
+const String kGoogleServerClientId =
+    '601520130344-b0s8fni9k71ktjhbcvtqbi74k4itpkps.apps.googleusercontent.com';
 
 class ApiConstants {
   static String get baseUrl => '$kBaseUrl/api';
@@ -42,6 +48,7 @@ class ApiEndpoints {
   static const String studentLoginPhone = '/auth/student/login';
   static const String teacherLoginPhone = '/auth/teacher/login';
   static const String emailLogin = '/auth/email-login';
+  static const String googleLogin = '/auth/google/login';
 
   static const String studentProfile = '/auth/student/me';
   static const String teacherProfile = '/auth/teacher/me';

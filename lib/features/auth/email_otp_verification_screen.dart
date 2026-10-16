@@ -415,7 +415,7 @@ class _EmailOtpVerificationScreenState
       height: 100,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: AppTheme.primaryBlue.withOpacity(0.1),
+        color: AppTheme.primaryBlue.withValues(alpha: 0.1),
         shape: BoxShape.circle,
       ),
       child: Container(
@@ -426,7 +426,7 @@ class _EmailOtpVerificationScreenState
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: AppTheme.primaryBlue.withOpacity(0.3),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.3),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
@@ -468,7 +468,7 @@ class _EmailOtpVerificationScreenState
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                 borderSide: BorderSide(
-                  color: AppTheme.primaryBlue.withOpacity(0.25),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.25),
                 ),
               ),
               focusedBorder: OutlineInputBorder(
@@ -489,9 +489,9 @@ class _EmailOtpVerificationScreenState
     return Container(
       padding: const EdgeInsets.all(AppTheme.space12),
       decoration: BoxDecoration(
-        color: AppTheme.error.withOpacity(0.1),
+        color: AppTheme.error.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        border: Border.all(color: AppTheme.error.withOpacity(0.3)),
+        border: Border.all(color: AppTheme.error.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -523,7 +523,7 @@ class _EmailOtpVerificationScreenState
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),

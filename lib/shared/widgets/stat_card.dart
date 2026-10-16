@@ -33,7 +33,7 @@ class StatCard extends StatelessWidget {
                 color: isDark ? AppTheme.surfaceDark : AppTheme.surfaceLight,
                 borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
                 boxShadow: AppTheme.softShadow,
-                border: Border.all(color: color.withOpacity(0.1), width: 1),
+                border: Border.all(color: color.withValues(alpha: 0.1), width: 1),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,7 +42,7 @@ class StatCard extends StatelessWidget {
                     padding: const EdgeInsets.all(AppTheme.space8),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [color, color.withOpacity(0.7)],
+                        colors: [color, color.withValues(alpha: 0.7)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),

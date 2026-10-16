@@ -12,7 +12,20 @@
           "package_name": "com.cse.coubustracker"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "601520130344-cv51ld99cko4q9rqers3qsbffbr4u8gp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cse.coubustracker",
+            "certificate_hash": "81d10bac71a74566979102d61b933a74e8b161b6"
+          }
+        },
+        {
+          "client_id": "601520130344-b0s8fni9k71ktjhbcvtqbi74k4itpkps.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDMDoZxrI89DxhFheY9d8K68Zqy8A48ZbU"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "601520130344-b0s8fni9k71ktjhbcvtqbi74k4itpkps.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "601520130344-ijeajadk5a103ahob8ucgj9s6ugbo9ec.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.cse.coubustracker.couBusTracker"
+              }
+            }
+          ]
         }
       }
     }

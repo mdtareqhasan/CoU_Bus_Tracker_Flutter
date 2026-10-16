@@ -163,7 +163,7 @@ class _ForgotPasswordEmailScreenState extends ConsumerState<ForgotPasswordEmailS
       width: 80,
       height: 80,
       decoration: BoxDecoration(
-        color: AppTheme.primaryBlue.withOpacity(0.1),
+        color: AppTheme.primaryBlue.withValues(alpha: 0.1),
         shape: BoxShape.circle,
       ),
       child: const Center(
@@ -182,7 +182,7 @@ class _ForgotPasswordEmailScreenState extends ConsumerState<ForgotPasswordEmailS
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.1)),
+        border: Border.all(color: AppTheme.primaryBlue.withValues(alpha: 0.1)),
       ),
       child: Row(
         children: [
@@ -250,11 +250,11 @@ class _ForgotPasswordEmailScreenState extends ConsumerState<ForgotPasswordEmailS
         fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-          borderSide: BorderSide(color: AppTheme.primaryBlue.withOpacity(0.2)),
+          borderSide: BorderSide(color: AppTheme.primaryBlue.withValues(alpha: 0.2)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-          borderSide: BorderSide(color: AppTheme.primaryBlue.withOpacity(0.1)),
+          borderSide: BorderSide(color: AppTheme.primaryBlue.withValues(alpha: 0.1)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
@@ -274,7 +274,7 @@ class _ForgotPasswordEmailScreenState extends ConsumerState<ForgotPasswordEmailS
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
