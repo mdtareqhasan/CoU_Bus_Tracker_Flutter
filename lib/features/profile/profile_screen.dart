@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../app/theme.dart';
 import '../auth/auth_provider.dart';
+import 'language_settings_card.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -29,6 +30,9 @@ class ProfileScreen extends ConsumerWidget {
                   ? _buildLoggedInProfile(context, ref, authState)
                   : _buildLoggedOutPrompt(context),
             ),
+            // Shown logged-in and logged-out alike: language is an app
+            // setting, not an account one.
+            const SliverToBoxAdapter(child: LanguageSettingsCard()),
           ],
         ),
       ),

@@ -242,6 +242,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       if (next.status == AuthStateStatus.authenticated) {
         requestPostAuthNotificationPermissionAfterNavigation(context);
         context.go('/home');
+      } else if (next.status == AuthStateStatus.needsProfileDetails) {
+        // Signed in, but department/roll number/session are still missing.
+        context.go('/auth/academic-details?role=${next.role ?? widget.role}');
       } else if (next.status == AuthStateStatus.needsVerification) {
         final phone = next.phone ?? _phoneController.text.trim();
         if (phone.isEmpty) return;

@@ -37,6 +37,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (next.status == AuthStateStatus.authenticated) {
         requestPostAuthNotificationPermissionAfterNavigation(context);
         context.go('/home');
+      } else if (next.status == AuthStateStatus.needsProfileDetails) {
+        // Signed in, but department/roll number/session are still missing.
+        context.go('/auth/academic-details?role=${next.role ?? widget.role}');
       } else if (next.status == AuthStateStatus.needsRegistration) {
         context.go('/auth/register?role=${widget.role}');
       } else if (next.status == AuthStateStatus.needsVerification) {

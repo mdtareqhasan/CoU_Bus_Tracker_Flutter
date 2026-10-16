@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../app/theme.dart';
+import '../../l10n/l10n.dart';
 import '../../shared/widgets/stat_card.dart';
 import '../../shared/widgets/schedule_card.dart';
 import '../../core/utils/time_utils.dart';
@@ -375,27 +376,33 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       );
     }
 
-    final stats = [
+    // `label` is display-only (localized); navigation keys off `route`, never
+    // off the translated text — see docs/localization.md, rule 1.
+    final stats = <Map<String, Object>>[
       {
-        'label': 'সক্রিয় বাস',
+        'label': context.l10n.homeStatActiveBuses,
+        'route': '/buses',
         'value': state.activeBusCount.toString(),
         'icon': Icons.directions_bus_rounded,
         'color': AppTheme.primaryBlue,
       },
       {
-        'label': 'আজকের ট্রিপ',
+        'label': context.l10n.homeStatTodayTrips,
+        'route': '/schedules',
         'value': state.todayScheduleCount.toString(),
         'icon': Icons.schedule_rounded,
         'color': Colors.deepPurple,
       },
       {
-        'label': 'লাইভ ট্র্যাকিং',
+        'label': context.l10n.homeStatLiveTracking,
+        'route': '/buses',
         'value': state.trackingBusCount.toString(),
         'icon': Icons.location_on_rounded,
         'color': Colors.teal,
       },
       {
-        'label': 'জরুরি নোটিশ',
+        'label': context.l10n.homeStatUrgentNotice,
+        'route': '/notices',
         'value': state.activeNoticeCount.toString(),
         'icon': Icons.notifications_rounded,
         'color': Colors.orange,
@@ -421,16 +428,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             value: stat['value'] as String,
             icon: stat['icon'] as IconData,
             color: stat['color'] as Color,
-            onTap: () {
-              final label = stat['label'];
-              if (label == 'সক্রিয় বাস' || label == 'লাইভ ট্র্যাকিং') {
-                context.go('/buses');
-              } else if (label == 'আজকের ট্রিপ') {
-                context.go('/schedules');
-              } else {
-                context.go('/notices');
-              }
-            },
+            onTap: () => context.go(stat['route'] as String),
           );
         }, childCount: stats.length),
       ),

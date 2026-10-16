@@ -36,6 +36,9 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
       if (next.status == AuthStateStatus.authenticated) {
         requestPostAuthNotificationPermissionAfterNavigation(context);
         context.go('/home');
+      } else if (next.status == AuthStateStatus.needsProfileDetails) {
+        // Signed in, but department/employee ID/designation are still missing.
+        context.go('/auth/academic-details?role=${next.role ?? widget.role}');
       } else if (next.status == AuthStateStatus.needsVerification) {
         final email = next.email ?? _emailController.text.trim();
         if (email.isEmpty) return;

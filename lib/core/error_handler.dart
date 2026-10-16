@@ -1,56 +1,89 @@
+import '../l10n/l10n.dart';
+
+/// Maps backend failures and HTTP codes to user-friendly localized messages.
+///
+/// This class runs without a `BuildContext` (repositories, providers), so it
+/// reads the active locale through `L10n.current` instead of `context.l10n`.
+/// See `docs/localization.md`.
+///
+/// The getters below are also used as identity tokens in flow checks (OTP
+/// expiry, "verify phone/email first"). Because their text changes with the
+/// language, those checks must go through [isOtpExpired] /
+/// [isVerifyPhoneFirst] / [isVerifyEmailFirst], which compare against *every*
+/// supported locale — never `==` or `contains` on the message directly.
 class ErrorHandler {
   static String getMessage(int? statusCode, dynamic error) {
     switch (statusCode) {
       case 400:
-        return 'তথ্য সঠিক নয়। আবার চেষ্টা করুন।';
+        return L10n.current.errorBadRequest;
       case 401:
-        return 'সেশন শেষ হয়েছে। আবার সাইন ইন করুন।';
+        return sessionExpired;
       case 403:
-        return 'অনুমতি নেই।';
+        return L10n.current.errorForbidden;
       case 404:
-        return 'তথ্যটি পাওয়া যায়নি।';
+        return L10n.current.errorNotFound;
       case 409:
-        return 'এই ইমেইল ইতিমধ্যে ব্যবহৃত হয়েছে।';
+        return L10n.current.errorEmailTaken;
       case 502:
       case 503:
       case 504:
         return serverBusyMessage;
       case 500:
-        return 'সার্ভারে সমস্যা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।';
+        return L10n.current.errorServerIssue;
       default:
         if (statusCode != null && statusCode >= 500) {
-          return 'সার্ভারে সমস্যা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।';
+          return L10n.current.errorServerIssue;
         }
-        return 'ইন্টারনেট সংযোগ পরীক্ষা করুন।';
+        return L10n.current.errorNetwork;
     }
   }
 
-  static String get serverBusyMessage =>
-      'সার্ভার চালু হচ্ছে বা সাময়িকভাবে ব্যস্ত। ১–২ মিনিট পরে আবার চেষ্টা করুন।';
+  static String get serverBusyMessage => L10n.current.errorServerBusy;
   static String get timeoutMessage => serverBusyMessage;
-  static String get networkMessage => 'ইন্টারনেট সংযোগ পরীক্ষা করুন।';
-  static String get sessionExpired => 'সেশন শেষ হয়েছে। আবার সাইন ইন করুন।';
-  static String get defaultError => 'কিছু ভুল হয়েছে। আবার চেষ্টা করুন।';
-  static String get coldStartMessage =>
-      'সার্ভার চালু হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...';
+  static String get networkMessage => L10n.current.errorNetwork;
+  static String get sessionExpired => L10n.current.errorSessionExpired;
+  static String get defaultError => L10n.current.errorDefault;
+  static String get coldStartMessage => L10n.current.errorColdStart;
 
-  static String get invalidLogin => 'ইমেইল অথবা পাসওয়ার্ড সঠিক নয়।';
-  static String get invalidOtp => 'ভুল ওটিপি। আবার চেষ্টা করুন।';
-  static String get otpExpired =>
-      'ওটিপির মেয়াদ শেষ হয়ে গেছে। আবার কোড পাঠান।';
-  static String get otpExceeded =>
-      'অনেকবার ভুল চেষ্টা। ওটিপি বাতিল হয়েছে। আবার কোড পাঠান।';
-  static String get resendCooldown => 'আবার কোড পাঠাতে একটু অপেক্ষা করুন।';
-  static String get verifyPhoneFirst =>
-      'অনুগ্রহ করে লগইন করার আগে আপনার ফোন নম্বর যাচাই করুন।';
-  static String get verifyEmailFirst =>
-      'অনুগ্রহ করে লগইন করার আগে আপনার ইমেইল যাচাই করুন।';
-  static String get phoneNotFound =>
-      'এই ফোন নম্বরে কোনো ব্যবহারকারী নেই। প্রথমে রেজিস্ট্রেশন করুন।';
+  static String get invalidLogin => L10n.current.errorInvalidLogin;
+  static String get invalidOtp => L10n.current.errorInvalidOtp;
+  static String get otpExpired => L10n.current.errorOtpExpired;
+  static String get otpExceeded => L10n.current.errorOtpExceeded;
+  static String get resendCooldown => L10n.current.errorResendCooldown;
+  static String get verifyPhoneFirst => L10n.current.errorVerifyPhoneFirst;
+  static String get verifyEmailFirst => L10n.current.errorVerifyEmailFirst;
+  static String get phoneNotFound => L10n.current.errorPhoneNotFound;
   static String get accountDeactivated =>
-      'আপনার অ্যাকাউন্ট নিষ্ক্রিয়। অ্যাডমিনের সাথে যোগাযোগ করুন।';
+      L10n.current.errorAccountDeactivated;
+  static String get phoneAlreadyUsed => L10n.current.errorPhoneAlreadyUsed;
+  static String get accountNotFound => L10n.current.errorAccountNotFound;
 
-  /// Converts backend English messages into friendly Bengali equivalents.
+  /// True when [message] is the "OTP expired" error in **any** supported
+  /// language. Safe after a mid-flight language switch, since the message was
+  /// built in whatever locale was active at the time.
+  static bool isOtpExpired(String message) =>
+      _matchesAnyLocale(message, (l10n) => l10n.errorOtpExpired);
+
+  /// See [isOtpExpired].
+  static bool isVerifyPhoneFirst(String message) =>
+      _matchesAnyLocale(message, (l10n) => l10n.errorVerifyPhoneFirst);
+
+  /// See [isOtpExpired].
+  static bool isVerifyEmailFirst(String message) =>
+      _matchesAnyLocale(message, (l10n) => l10n.errorVerifyEmailFirst);
+
+  static bool _matchesAnyLocale(
+    String message,
+    String Function(AppLocalizations) localized,
+  ) {
+    final target = message.trim().toLowerCase();
+    return AppLocalizations.supportedLocales.any(
+      (locale) =>
+          localized(lookupAppLocalizations(locale)).toLowerCase() == target,
+    );
+  }
+
+  /// Converts backend English messages into friendly localized equivalents.
   /// Falls back to the raw message when no mapping exists.
   static String friendly(String message) {
     final m = message.toLowerCase();
@@ -91,7 +124,7 @@ class ErrorHandler {
       return accountDeactivated;
     }
     if (m.contains('already registered') || m.contains('already exists')) {
-      return 'এই ফোন নম্বর ইতিমধ্যে ব্যবহৃত হয়েছে।';
+      return phoneAlreadyUsed;
     }
     if (m.contains('invalid credentials') ||
         m.contains('wrong password') ||
@@ -99,7 +132,7 @@ class ErrorHandler {
       return invalidLogin;
     }
     if (m.contains('register first') || m.contains('not registered')) {
-      return 'আপনার অ্যাকাউন্ট পাওয়া যায়নি। আগে নিবন্ধন করুন।';
+      return accountNotFound;
     }
     return message;
   }

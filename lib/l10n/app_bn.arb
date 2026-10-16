@@ -1,0 +1,147 @@
+{
+  "@sessionExpiredMessage": {
+    "description": "Snackbar shown when the auth session expires (401/403) and the user is sent back to login.",
+    "placeholders": {}
+  },
+  "sessionExpiredMessage": "আপনার সেশন শেষ হয়ে গেছে। অনুগ্রহ করে আবার লগইন করুন।",
+
+  "@errorBadRequest": {
+    "description": "HTTP 400 — server rejected the submitted data."
+  },
+  "errorBadRequest": "তথ্য সঠিক নয়। আবার চেষ্টা করুন।",
+
+  "@errorSessionExpired": {
+    "description": "HTTP 401 — session is gone, user must sign in again."
+  },
+  "errorSessionExpired": "সেশন শেষ হয়েছে। আবার সাইন ইন করুন।",
+
+  "@errorForbidden": {
+    "description": "HTTP 403 — the account is not allowed to do this."
+  },
+  "errorForbidden": "অনুমতি নেই।",
+
+  "@errorNotFound": {
+    "description": "HTTP 404 — requested record does not exist."
+  },
+  "errorNotFound": "তথ্যটি পাওয়া যায়নি।",
+
+  "@errorEmailTaken": {
+    "description": "HTTP 409 — the email is already registered."
+  },
+  "errorEmailTaken": "এই ইমেইল ইতিমধ্যে ব্যবহৃত হয়েছে।",
+
+  "@errorServerIssue": {
+    "description": "HTTP 500 and any other 5xx — generic server fault."
+  },
+  "errorServerIssue": "সার্ভারে সমস্যা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।",
+
+  "@errorNetwork": {
+    "description": "No status code at all — request never reached the server."
+  },
+  "errorNetwork": "ইন্টারনেট সংযোগ পরীক্ষা করুন।",
+
+  "@errorServerBusy": {
+    "description": "HTTP 502/503/504 and timeouts — server starting or busy; says to retry after 1–2 minutes."
+  },
+  "errorServerBusy": "সার্ভার চালু হচ্ছে বা সাময়িকভাবে ব্যস্ত। ১–২ মিনিট পরে আবার চেষ্টা করুন।",
+
+  "@errorDefault": {
+    "description": "Fallback when nothing else matched."
+  },
+  "errorDefault": "কিছু ভুল হয়েছে। আবার চেষ্টা করুন।",
+
+  "@errorColdStart": {
+    "description": "Shown while the backend is waking up on first request."
+  },
+  "errorColdStart": "সার্ভার চালু হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...",
+
+  "@errorInvalidLogin": {
+    "description": "Wrong email/password combination."
+  },
+  "errorInvalidLogin": "ইমেইল অথবা পাসওয়ার্ড সঠিক নয়।",
+
+  "@errorInvalidOtp": {
+    "description": "The entered OTP code does not match."
+  },
+  "errorInvalidOtp": "ভুল ওটিপি। আবার চেষ্টা করুন।",
+
+  "@errorOtpExpired": {
+    "description": "The OTP is too old; a new one was already sent. Triggers the auto-resend in the OTP screens."
+  },
+  "errorOtpExpired": "ওটিপির মেয়াদ শেষ হয়ে গেছে। আবার কোড পাঠান।",
+
+  "@errorOtpExceeded": {
+    "description": "Too many wrong OTP attempts; the code is now void."
+  },
+  "errorOtpExceeded": "অনেকবার ভুল চেষ্টা। ওটিপি বাতিল হয়েছে। আবার কোড পাঠান।",
+
+  "@errorResendCooldown": {
+    "description": "Resend was requested too soon; wait for the countdown."
+  },
+  "errorResendCooldown": "আবার কোড পাঠাতে একটু অপেক্ষা করুন।",
+
+  "@errorVerifyPhoneFirst": {
+    "description": "Login blocked because the phone number has no verified OTP yet."
+  },
+  "errorVerifyPhoneFirst": "অনুগ্রহ করে লগইন করার আগে আপনার ফোন নম্বর যাচাই করুন।",
+
+  "@errorVerifyEmailFirst": {
+    "description": "Login blocked because the email address is not verified yet."
+  },
+  "errorVerifyEmailFirst": "অনুগ্রহ করে লগইন করার আগে আপনার ইমেইল যাচাই করুন।",
+
+  "@errorPhoneNotFound": {
+    "description": "No account exists for that phone number."
+  },
+  "errorPhoneNotFound": "এই ফোন নম্বরে কোনো ব্যবহারকারী নেই। প্রথমে নিবন্ধন করুন।",
+
+  "@errorAccountDeactivated": {
+    "description": "Account was disabled by an admin."
+  },
+  "errorAccountDeactivated": "আপনার অ্যাকাউন্ট নিষ্ক্রিয়। অ্যাডমিনের সাথে যোগাযোগ করুন।",
+
+  "@errorPhoneAlreadyUsed": {
+    "description": "Registration attempted with a phone number that is taken."
+  },
+  "errorPhoneAlreadyUsed": "এই ফোন নম্বর ইতিমধ্যে ব্যবহৃত হয়েছে।",
+
+  "@errorAccountNotFound": {
+    "description": "Login attempted for an account that was never registered."
+  },
+  "errorAccountNotFound": "আপনার অ্যাকাউন্ট পাওয়া যায়নি। আগে নিবন্ধন করুন।",
+
+  "@homeStatActiveBuses": {
+    "description": "Home stats card — number of buses running right now."
+  },
+  "homeStatActiveBuses": "সক্রিয় বাস",
+
+  "@homeStatTodayTrips": {
+    "description": "Home stats card — trips scheduled for today."
+  },
+  "homeStatTodayTrips": "আজকের ট্রিপ",
+
+  "@homeStatLiveTracking": {
+    "description": "Home stats card — link to live tracking."
+  },
+  "homeStatLiveTracking": "লাইভ ট্র্যাকিং",
+
+  "@homeStatUrgentNotice": {
+    "description": "Home stats card — number of active urgent notices."
+  },
+  "homeStatUrgentNotice": "জরুরি নোটিশ",
+
+  "@profileLanguage": {
+    "description": "Profile — header of the language selection card."
+  },
+  "profileLanguage": "ভাষা",
+
+  "@languageBengali": {
+    "description": "Language option; always written in Bengali script, in every locale."
+  },
+  "languageBengali": "বাংলা",
+
+  "@languageEnglish": {
+    "description": "Language option; always written in English, in every locale."
+  },
+  "languageEnglish": "English"
+}

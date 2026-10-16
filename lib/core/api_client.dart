@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'constants.dart';
 import 'storage_service.dart';
 
@@ -65,6 +66,17 @@ class AuthInterceptor extends Interceptor {
   /// plain wrong-password login 401 does not.
   static void Function()? onSessionExpired;
 
+  /// Fired when an authenticated request is refused with 403
+  /// `code = PROFILE_INCOMPLETE`. The user is still signed in — their profile
+  /// just lacks the once-only academic details the product policy requires —
+  /// so nothing is cleared here; the app routes them to
+  /// `/auth/academic-details?role=...` instead. Receives the stored role
+  /// (`student` / `teacher`).
+  static void Function(String role)? onProfileIncomplete;
+
+  /// Machine-readable marker the backend sends with that 403.
+  static const String profileIncompleteCode = 'PROFILE_INCOMPLETE';
+
   static bool _handlingExpiry = false;
 
   /// Public endpoints that must never carry an auth header.
@@ -107,10 +119,33 @@ class AuthInterceptor extends Interceptor {
     final statusCode = err.response?.statusCode;
     final hadAuthHeader = err.requestOptions.headers['Authorization'] != null;
 
+    // Incomplete profile ≠ expired session. Clearing the session here would
+    // log the user out at the exact moment they need the completion form, so
+    // this branch deliberately touches nothing and only navigates.
+    if (statusCode == 403 && _isProfileIncomplete(err)) {
+      final role = _storage.getRole() ?? 'student';
+      if (kDebugMode) {
+        debugPrint(
+          '[AUTH][INTERCEPTOR] 403 $profileIncompleteCode → '
+          '/auth/academic-details?role=$role (session kept)',
+        );
+      }
+      onProfileIncomplete?.call(role);
+      handler.next(err);
+      return;
+    }
+
     if ((statusCode == 401 || statusCode == 403) && hadAuthHeader) {
       await _handleSessionExpiry();
     }
     handler.next(err);
+  }
+
+  /// `true` when the 403 body carries the backend's `PROFILE_INCOMPLETE`
+  /// marker (anything else on 403 is treated as a dead session).
+  static bool _isProfileIncomplete(DioException err) {
+    final data = err.response?.data;
+    return data is Map && data['code'] == profileIncompleteCode;
   }
 
   Future<void> _handleSessionExpiry() async {

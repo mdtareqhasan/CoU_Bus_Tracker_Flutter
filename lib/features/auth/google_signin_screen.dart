@@ -35,6 +35,9 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
       if (next.status == AuthStateStatus.authenticated) {
         requestPostAuthNotificationPermissionAfterNavigation(context);
         context.go('/home');
+      } else if (next.status == AuthStateStatus.needsProfileDetails) {
+        // Google Sign-In creates the row with department/roll/session NULL.
+        context.go('/auth/academic-details?role=${next.role ?? widget.role}');
       } else if (next.status == AuthStateStatus.error && next.error != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(next.error!), backgroundColor: AppTheme.error),
@@ -213,18 +216,7 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
             crossAxisAlignment: WrapCrossAlignment.center,
             spacing: AppTheme.space8,
             runSpacing: AppTheme.space8,
-            children: [
-              _buildFormatChip('name@cou.ac.bd'),
-              const Text(
-                'অথবা',
-                style: TextStyle(
-                  fontSize: 12.5,
-                  color: AppTheme.textSecondary,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              _buildFormatChip('name@stud.cou.ac.bd'),
-            ],
+            children: [_buildFormatChip('name@cou.ac.bd')],
           ),
           const SizedBox(height: AppTheme.space16),
           Container(
@@ -232,7 +224,9 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
             decoration: BoxDecoration(
               color: AppTheme.warning.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-              border: Border.all(color: AppTheme.warning.withValues(alpha: 0.2)),
+              border: Border.all(
+                color: AppTheme.warning.withValues(alpha: 0.2),
+              ),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,

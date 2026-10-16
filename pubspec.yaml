@@ -80,5 +80,7 @@ flutter_launcher_icons:
 
 flutter:
   uses-material-design: true
+  # Runs `flutter gen-l10n` (configured in l10n.yaml) during run/build.
+  generate: true
   assets:
     - assets/images/

@@ -52,6 +52,14 @@ class ApiEndpoints {
 
   static const String studentProfile = '/auth/student/me';
   static const String teacherProfile = '/auth/teacher/me';
+
+  // Write-once academic details. Google Sign-In creates the Student/Teacher
+  // row with these columns NULL, so the app sends them once afterwards.
+  // Re-submitting an identical payload for an already-complete profile is a
+  // safe no-op; changing a populated value is rejected with 400.
+  static const String studentAcademic = '/auth/student/academic';
+  static const String teacherAcademic = '/auth/teacher/academic';
+
   static const String studentUploadIdCard = '/auth/student/upload-id-card';
   static const String teacherUploadIdCard = '/auth/teacher/upload-id-card';
   static const String forgotPasswordInit = '/auth/forgot-password/init';

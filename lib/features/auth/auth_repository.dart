@@ -37,9 +37,17 @@ class AuthRepository {
       if (response.statusCode == 200 && response.data is Map) {
         return Success(Map<String, dynamic>.from(response.data as Map));
       }
-      return Failure(message: _extractErrorMessage(response));
+      return Failure(
+        message: _extractErrorMessage(response),
+        statusCode: response.statusCode,
+        error: response.data,
+      );
     } on DioException catch (e) {
-      return Failure(message: _handleDioError(e));
+      return Failure(
+        message: _handleDioError(e),
+        statusCode: e.response?.statusCode,
+        error: e.response?.data,
+      );
     } catch (e) {
       return Failure(message: ErrorHandler.defaultError);
     }
@@ -51,10 +59,83 @@ class AuthRepository {
       if (response.statusCode == 200) {
         return const Success(true);
       }
-      return Failure(message: _extractErrorMessage(response));
+      return Failure(
+        message: _extractErrorMessage(response),
+        statusCode: response.statusCode,
+        error: response.data,
+      );
     } on DioException catch (e) {
-      return Failure(message: _handleDioError(e));
+      return Failure(
+        message: _handleDioError(e),
+        statusCode: e.response?.statusCode,
+        error: e.response?.data,
+      );
     } catch (e) {
+      return Failure(message: ErrorHandler.defaultError);
+    }
+  }
+
+  /// Writes the write-once academic details a profile is missing (Google
+  /// Sign-In creates the row with all of them NULL).
+  ///
+  /// * `student` → `department` / `rollNumber` / `session`
+  /// * `teacher` → `department` / `employeeId` / `designation`
+  ///
+  /// Returns the refreshed profile (200 body) on success. On failure the
+  /// `Failure` carries `statusCode` plus the raw error body in `error` so the
+  /// completion screen can show field-level 400 messages (`errors`) inline.
+  Future<Result<Map<String, dynamic>>> updateAcademicDetails({
+    required String role,
+    required String department,
+    String? rollNumber,
+    String? session,
+    String? employeeId,
+    String? designation,
+  }) async {
+    final isTeacher = role.trim().toLowerCase() == 'teacher';
+    final endpoint = isTeacher
+        ? ApiEndpoints.teacherAcademic
+        : ApiEndpoints.studentAcademic;
+
+    // Only field *names* are ever logged — never the values.
+    final fields = <String, dynamic>{'department': department};
+    if (isTeacher) {
+      fields['employeeId'] = employeeId;
+      fields['designation'] = designation;
+    } else {
+      fields['rollNumber'] = rollNumber;
+      fields['session'] = session;
+    }
+
+    debugPrint(
+      '[AUTH][ACADEMIC] role=$role endpoint=$endpoint '
+      'fields=${fields.keys.join(',')}',
+    );
+    _logRequest(endpoint, method: 'PUT');
+    try {
+      final response = await _apiClient.dio.put<dynamic>(
+        endpoint,
+        data: fields,
+        options: Options(contentType: 'application/json'),
+      );
+      _logResponse(response);
+      if (response.statusCode == 200 && response.data is Map) {
+        return Success(Map<String, dynamic>.from(response.data as Map));
+      }
+      return Failure(
+        message: _extractErrorMessage(response),
+        statusCode: response.statusCode,
+        error: response.data,
+      );
+    } on DioException catch (e) {
+      _logDioError(e);
+      return Failure(
+        message: _handleDioError(e),
+        statusCode: e.response?.statusCode,
+        error: e.response?.data,
+      );
+    } catch (e) {
+      debugPrint('[AUTH][ACADEMIC] unexpected error: $e');
       return Failure(message: ErrorHandler.defaultError);
     }
   }
@@ -545,10 +626,10 @@ class AuthRepository {
 
   /// Debug-only logging. Never logs passwords, access tokens, Google tokens,
   /// Cloudinary data, or image bytes.
-  void _logRequest(String endpoint) {
+  void _logRequest(String endpoint, {String method = 'POST'}) {
     if (!kDebugMode) return;
     debugPrint(
-      '[AUTH][REQ] ${_apiClient.dio.options.baseUrl}$endpoint method=${'POST'}',
+      '[AUTH][REQ] ${_apiClient.dio.options.baseUrl}$endpoint method=$method',
     );
   }
 

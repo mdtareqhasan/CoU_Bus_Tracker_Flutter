@@ -169,6 +169,12 @@ class _EmailOtpVerificationScreenState
         // registration/login or the OTP page after a successful verify.
         requestPostAuthNotificationPermissionAfterNavigation(context);
         context.go('/home');
+      } else if (authState.status == AuthStateStatus.needsProfileDetails) {
+        // Verified, but the once-only academic details are still missing.
+        _clearOtp();
+        context.go(
+          '/auth/academic-details?role=${authState.role ?? widget.role}',
+        );
       } else {
         setState(() {
           _isVerifying = false;
@@ -177,9 +183,11 @@ class _EmailOtpVerificationScreenState
         });
 
         // OTP expired → backend auto-triggers a refresh, mirror that in the UI
-        // by immediately resending and resetting the countdown.
+        // by immediately resending and resetting the countdown. The first check
+        // catches a raw (unmapped) backend message, the helper our own
+        // localized text in any language.
         final message = authState.error ?? '';
-        if (message.contains('মেয়াদ') || message == ErrorHandler.otpExpired) {
+        if (message.contains('মেয়াদ') || ErrorHandler.isOtpExpired(message)) {
           _autoResendOnExpiry();
         }
       }

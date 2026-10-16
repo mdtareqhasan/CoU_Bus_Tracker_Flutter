@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math' as math;
@@ -9,6 +10,11 @@ class StorageService {
   late final SharedPreferences _prefs;
 
   StorageService._();
+
+  /// Drops the cached singleton so the next [getInstance] re-reads
+  /// preferences against the current (mocked) store. Test-only.
+  @visibleForTesting
+  static void resetInstanceForTesting() => _instance = null;
 
   static Future<StorageService> getInstance() async {
     if (_instance == null) {
@@ -141,6 +147,11 @@ class StorageService {
   Future<void> setLanguageCode(String code) async {
     await _prefs.setString(StorageKeys.languageCode, code);
   }
+
+  /// The persisted language choice, or `null` when the user has never picked
+  /// one — i.e. first launch, when the device language decides.
+  String? getStoredLanguageCode() =>
+      _prefs.getString(StorageKeys.languageCode);
 
   String getLanguageCode() =>
       _prefs.getString(StorageKeys.languageCode) ?? 'bn';
