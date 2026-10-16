@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../app/theme.dart';
+import '../../l10n/l10n.dart';
 import 'auth_notification_permission.dart';
 import 'auth_provider.dart';
 
@@ -36,6 +37,9 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
       if (next.status == AuthStateStatus.authenticated) {
         requestPostAuthNotificationPermissionAfterNavigation(context);
         context.go('/home');
+      } else if (next.status == AuthStateStatus.needsProfileDetails) {
+        // Signed in, but department/employee ID/designation are still missing.
+        context.go('/auth/academic-details?role=${next.role ?? widget.role}');
       } else if (next.status == AuthStateStatus.needsVerification) {
         final email = next.email ?? _emailController.text.trim();
         if (email.isEmpty) return;
@@ -50,8 +54,8 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
     });
 
     final roleTitle = widget.role == 'student'
-        ? 'শিক্ষার্থী লগইন'
-        : 'শিক্ষক ও কর্মকর্তাবৃন্দ লগইন';
+        ? context.l10n.authStudentLogin
+        : context.l10n.authTeacherOfficerLogin;
 
     return PopScope(
       canPop: false,
@@ -107,8 +111,8 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                             const SizedBox(height: AppTheme.space8),
                             Text(
                               widget.role == 'student'
-                                  ? 'এডুমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন'
-                                  : 'প্রতিষ্ঠানিক ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন',
+                                  ? context.l10n.emailLoginSubtitleEdu
+                                  : context.l10n.emailLoginSubtitleInst,
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: AppTheme.textSecondary,
@@ -118,19 +122,19 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                             _buildTextField(
                                   controller: _emailController,
                                   label: widget.role == 'student'
-                                      ? 'এডুমেইল'
-                                      : 'প্রতিষ্ঠানিক ইমেইল',
+                                      ? context.l10n.emailFieldEdu
+                                      : context.l10n.emailFieldInst,
                                   icon: Icons.email_outlined,
                                   keyboardType: TextInputType.emailAddress,
                                   validator: (v) {
                                     if (v == null || v.isEmpty) {
-                                      return 'ইমেইল দিন';
+                                      return context.l10n.validationEmailRequired;
                                     }
                                     return RegExp(
                                           r'^[^@]+@[^@]+\.[^@]+',
                                         ).hasMatch(v)
                                         ? null
-                                        : 'সঠিক ইমেইল দিন';
+                                        : context.l10n.validationEmailInvalid;
                                   },
                                 )
                                 .animate()
@@ -139,7 +143,7 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                             const SizedBox(height: AppTheme.space32),
                             _buildTextField(
                                   controller: _passwordController,
-                                  label: 'পাসওয়ার্ড',
+                                  label: context.l10n.fieldPassword,
                                   icon: Icons.lock_outline_rounded,
                                   obscureText: _obscurePassword,
                                   suffixIcon: IconButton(
@@ -157,10 +161,10 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                                   ),
                                   validator: (v) {
                                     if (v == null || v.isEmpty) {
-                                      return 'পাসওয়ার্ড দিন';
+                                      return context.l10n.validationPasswordRequired;
                                     }
                                     if (v.length < 8) {
-                                      return 'পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে';
+                                      return context.l10n.validationPasswordLength8;
                                     }
                                     return null;
                                   },
@@ -174,9 +178,9 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                             TextButton(
                               onPressed: () =>
                                   context.go('/auth/forgot-password-email'),
-                              child: const Text(
-                                'পাসওয়ার্ড ভুলে গেছেন?',
-                                style: TextStyle(
+                              child: Text(
+                                context.l10n.authForgotPassword,
+                                style: const TextStyle(
                                   color: AppTheme.primaryBlue,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -189,13 +193,13 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                               ),
                               child: Text.rich(
                                 TextSpan(
-                                  text: 'অ্যাকাউন্ট নেই? ',
+                                  text: context.l10n.authNoAccount,
                                   style: const TextStyle(
                                     color: AppTheme.textSecondary,
                                   ),
                                   children: [
                                     TextSpan(
-                                      text: 'নিবন্ধন করুন',
+                                      text: context.l10n.authRegister,
                                       style: TextStyle(
                                         color: AppTheme.primaryBlue,
                                         fontWeight: FontWeight.bold,
@@ -350,9 +354,9 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                   strokeWidth: 2,
                 ),
               )
-            : const Text(
-                'লগইন করুন',
-                style: TextStyle(
+            : Text(
+                context.l10n.authLogin,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,

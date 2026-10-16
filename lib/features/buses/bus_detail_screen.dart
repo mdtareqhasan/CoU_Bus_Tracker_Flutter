@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../app/theme.dart';
+import '../../l10n/l10n.dart';
 import '../../core/result.dart';
 import '../../core/constants.dart';
 import '../../shared/models/bus_detail.dart';
@@ -113,14 +114,14 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildInfoSection(
-                  title: 'ড্রাইভার তথ্য',
+                  title: context.l10n.driverInfoTitle,
                   icon: Icons.person_pin_rounded,
                   content: _buildDriverInfo(bus),
                 ),
                 const SizedBox(height: AppTheme.space24),
                 if (bus.schedules != null && bus.schedules!.isNotEmpty)
                   _buildInfoSection(
-                    title: 'শিডিউল ও রুট',
+                    title: context.l10n.scheduleRouteTitle,
                     icon: Icons.schedule_rounded,
                     content: _buildSchedules(bus),
                   ),
@@ -483,7 +484,8 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
       child: ElevatedButton(
         onPressed: () {
           final url = bus.trackerUrl!;
-          final name = bus.busNumber ?? bus.busName ?? 'বাস ট্র্যাকিং';
+          final name =
+              bus.busNumber ?? bus.busName ?? context.l10n.busTrackingTitle;
           context.push(
             '/bus/live/${bus.id}',
             extra: {'url': url, 'name': name},
@@ -493,14 +495,14 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
         ),
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.location_on_rounded, color: Colors.white),
-            SizedBox(width: 12),
+            const Icon(Icons.location_on_rounded, color: Colors.white),
+            const SizedBox(width: 12),
             Text(
-              'লাইভ লোকেশন দেখুন',
-              style: TextStyle(
+              context.l10n.busSeeLiveLocation,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -527,11 +529,11 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
             color: AppTheme.error,
           ),
           const SizedBox(height: 16),
-          Text(_error ?? 'ত্রুটি'),
+          Text(_error ?? context.l10n.commonError),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: _loadBusDetail,
-            child: const Text('আবার চেষ্টা করুন'),
+            child: Text(context.l10n.commonRetry),
           ),
         ],
       ),

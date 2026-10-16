@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../l10n/l10n.dart';
 
 part 'bus.g.dart';
 
@@ -39,15 +40,15 @@ class Bus {
   String get categoryLabel {
     switch (category?.toUpperCase()) {
       case 'BLUE':
-        return 'নীল';
+        return L10n.current.busCategoryBlue;
       case 'RED':
-        return 'লাল';
+        return L10n.current.busCategoryRed;
       case 'TEACHER':
-        return 'শিক্ষক';
+        return L10n.current.busCategoryTeacher;
       case 'OFFICER':
-        return 'অফিসার';
+        return L10n.current.busCategoryOfficer;
       case 'STAFF':
-        return 'স্টাফ';
+        return L10n.current.busCategoryStaff;
       default:
         return category ?? '';
     }

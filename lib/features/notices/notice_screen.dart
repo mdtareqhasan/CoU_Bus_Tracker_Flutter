@@ -6,6 +6,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../app/theme.dart';
+import '../../l10n/l10n.dart';
 import 'notices_provider.dart';
 import '../../shared/models/notice.dart';
 
@@ -66,9 +67,9 @@ class _NoticeScreenState extends ConsumerState<NoticeScreen> {
       ),
       flexibleSpace: FlexibleSpaceBar(
         centerTitle: true,
-        title: const Text(
-          'নোটিশ',
-          style: TextStyle(
+        title: Text(
+          context.l10n.noticeTitle,
+          style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: 18,
@@ -201,7 +202,9 @@ class _NoticeScreenState extends ConsumerState<NoticeScreen> {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              notice.isExpired ? 'মেয়াদোত্তীর্ণ' : 'সক্রিয়',
+                              notice.isExpired
+                                  ? context.l10n.noticeExpired
+                                  : context.l10n.noticeActive,
                               style: TextStyle(
                                 fontSize: 11,
                                 color: notice.isExpired ? AppTheme.error : AppTheme.success,
@@ -261,7 +264,7 @@ class _NoticeScreenState extends ConsumerState<NoticeScreen> {
               onPressed: () =>
                   ref.read(noticeListProvider.notifier).loadNotices(),
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('আবার চেষ্টা করুন'),
+              label: Text(context.l10n.commonRetry),
             ),
           ],
         ),
@@ -282,9 +285,9 @@ class _NoticeScreenState extends ConsumerState<NoticeScreen> {
               color: AppTheme.textHint.withValues(alpha: 0.3),
             ),
             const SizedBox(height: 24),
-            const Text(
-              'এখন কোনো সক্রিয় নোটিশ নেই',
-              style: TextStyle(
+            Text(
+              context.l10n.noticeEmpty,
+              style: const TextStyle(
                 fontSize: 18,
                 color: AppTheme.textSecondary,
                 fontWeight: FontWeight.bold,

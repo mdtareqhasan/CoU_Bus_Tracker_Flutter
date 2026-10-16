@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../app/theme.dart';
 import '../../core/result.dart';
+import '../../l10n/l10n.dart';
 import '../auth/auth_provider.dart';
 
 class ForgotPasswordOtpScreen extends ConsumerStatefulWidget {
@@ -72,7 +73,7 @@ class _ForgotPasswordOtpScreenState
                         _buildHeaderIllustration(),
                         const SizedBox(height: AppTheme.space24),
                         Text(
-                          'OTP যাচাই করুন',
+                          context.l10n.authVerifyOtp,
                           textAlign: TextAlign.center,
                           style: Theme.of(context)
                               .textTheme
@@ -87,7 +88,7 @@ class _ForgotPasswordOtpScreenState
                             .slideY(begin: 0.2, end: 0),
                         const SizedBox(height: AppTheme.space8),
                         Text(
-                          '${widget.phone} নম্বরে OTP পাঠানো হয়েছে',
+                          context.l10n.otpSentToPhone(widget.phone),
                           textAlign: TextAlign.center,
                           style: const TextStyle(color: AppTheme.textSecondary),
                         ).animate().fadeIn(delay: 200.ms),
@@ -96,7 +97,7 @@ class _ForgotPasswordOtpScreenState
                         const SizedBox(height: AppTheme.space24),
                         _buildTextField(
                           controller: _passwordController,
-                          label: 'নতুন পাসওয়ার্ড',
+                          label: context.l10n.fieldNewPassword,
                           icon: Icons.lock_outline_rounded,
                           obscureText: _obscurePassword,
                           suffixIcon: IconButton(
@@ -113,10 +114,10 @@ class _ForgotPasswordOtpScreenState
                           ),
                           validator: (v) {
                             if (v == null || v.isEmpty) {
-                              return 'পাসওয়ার্ড দিন';
+                              return context.l10n.validationPasswordRequired;
                             }
                             if (v.length < 6) {
-                              return 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে';
+                              return context.l10n.validationPasswordLength6;
                             }
                             return null;
                           },
@@ -127,7 +128,7 @@ class _ForgotPasswordOtpScreenState
                         const SizedBox(height: AppTheme.space12),
                         _buildTextField(
                           controller: _confirmPasswordController,
-                          label: 'পাসওয়ার্ড আবার দিন',
+                          label: context.l10n.fieldPasswordConfirm,
                           icon: Icons.lock_outline_rounded,
                           obscureText: _obscureConfirmPassword,
                           suffixIcon: IconButton(
@@ -145,10 +146,10 @@ class _ForgotPasswordOtpScreenState
                           ),
                           validator: (v) {
                             if (v == null || v.isEmpty) {
-                              return 'পাসওয়ার্ড আবার দিন';
+                              return context.l10n.fieldPasswordConfirm;
                             }
                             if (v != _passwordController.text) {
-                              return 'পাসওয়ার্ড মিলছে না';
+                              return context.l10n.validationPasswordMismatch;
                             }
                             return null;
                           },
@@ -183,9 +184,9 @@ class _ForgotPasswordOtpScreenState
         ),
         onPressed: () => context.go('/auth/role'),
       ),
-      title: const Text(
-        'পাসওয়ার্ড রিসেট',
-        style: TextStyle(
+      title: Text(
+        context.l10n.passwordResetTitle,
+        style: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
           fontSize: 18,
@@ -233,7 +234,7 @@ class _ForgotPasswordOtpScreenState
       ],
       decoration: InputDecoration(
         counterText: '',
-        hintText: '৬ ডিজিট OTP',
+        hintText: context.l10n.otpDigitHint,
         hintStyle: TextStyle(
           color: AppTheme.textHint,
           fontSize: 16,
@@ -332,9 +333,9 @@ class _ForgotPasswordOtpScreenState
                   strokeWidth: 2,
                 ),
               )
-            : const Text(
-                'পাসওয়ার্ড রিসেট করুন',
-                style: TextStyle(
+            : Text(
+                context.l10n.resetPasswordButton,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -349,8 +350,8 @@ class _ForgotPasswordOtpScreenState
 
     if (_otpController.text.length != 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('৬ ডিজিট OTP দিন'),
+        SnackBar(
+          content: Text(context.l10n.otpDigitRequired),
           backgroundColor: AppTheme.error,
         ),
       );
@@ -359,8 +360,8 @@ class _ForgotPasswordOtpScreenState
 
     if (_passwordController.text.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে'),
+        SnackBar(
+          content: Text(context.l10n.validationPasswordLength6),
           backgroundColor: AppTheme.error,
         ),
       );
@@ -369,8 +370,8 @@ class _ForgotPasswordOtpScreenState
 
     if (_passwordController.text != _confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('পাসওয়ার্ড মিলছে না'),
+        SnackBar(
+          content: Text(context.l10n.validationPasswordMismatch),
           backgroundColor: AppTheme.error,
         ),
       );

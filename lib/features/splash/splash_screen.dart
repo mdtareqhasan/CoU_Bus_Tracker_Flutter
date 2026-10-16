@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -74,7 +75,16 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     await Future.delayed(const Duration(seconds: 3));
     if (!mounted) return;
 
-    final authState = ref.read(authProvider);
+    var authState = ref.read(authProvider);
+    if (authState.status == AuthStateStatus.initial) {
+      // Session restore is still in flight. Wait for it instead of walking
+      // into the app shell optimistically, otherwise a profile that is still
+      // missing department/roll/session (or department/employee
+      // ID/designation) would slip past the gate.
+      final restored = await _waitForSessionRestore();
+      if (!mounted || restored == null) return;
+      authState = restored;
+    }
 
     if (authState.status == AuthStateStatus.initial) {
       final storage = ref.read(storageServiceProvider);
@@ -88,6 +98,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
     if (authState.status == AuthStateStatus.authenticated) {
       context.go('/home');
+    } else if (authState.status == AuthStateStatus.needsProfileDetails) {
+      final role = authState.role ?? 'student';
+      context.go('/auth/academic-details?role=$role');
     } else if (authState.status == AuthStateStatus.needsVerification) {
       final phone = authState.phone ?? '';
       final role = authState.pendingRole ?? authState.role ?? 'STUDENT';
@@ -99,6 +112,34 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       context.go('/auth/otp?phone=$phone&role=$role');
     } else {
       context.go('/auth/role');
+    }
+  }
+
+  /// Waits (bounded) for `_checkExistingSession` to leave
+  /// `AuthStateStatus.initial`. Returns `null` on timeout or if this screen
+  /// was disposed while waiting.
+  Future<AuthState?> _waitForSessionRestore({
+    Duration timeout = const Duration(seconds: 20),
+  }) async {
+    if (!mounted) return null;
+
+    final completer = Completer<AuthState?>();
+    final subscription = ref.listenManual<AuthState>(
+      authProvider,
+      (_, next) {
+        if (next.status == AuthStateStatus.initial) return;
+        if (!completer.isCompleted) completer.complete(next);
+      },
+      fireImmediately: true,
+    );
+
+    try {
+      return await completer.future.timeout(timeout);
+    } on TimeoutException {
+      if (!mounted) return null;
+      return ref.read(authProvider);
+    } finally {
+      subscription.close();
     }
   }
 

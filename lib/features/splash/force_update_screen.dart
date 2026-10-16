@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../app/theme.dart';
+import '../../l10n/l10n.dart';
 
 class ForceUpdateScreen extends StatelessWidget {
   final String message;
@@ -57,7 +58,9 @@ class ForceUpdateScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 32),
                   Text(
-                    forceUpdate ? 'আপডেট প্রয়োজন' : 'নতুন ভার্সন পাওয়া গেছে',
+                    forceUpdate
+                        ? context.l10n.forceUpdateTitle
+                        : context.l10n.newVersionTitle,
                     style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
@@ -69,7 +72,7 @@ class ForceUpdateScreen extends StatelessWidget {
                   Text(
                     message.isNotEmpty
                         ? message
-                        : 'অ্যাপের নতুন ভার্সন পাওয়া গেছে। আপডেট করুন।',
+                        : context.l10n.newVersionBody,
                     style: const TextStyle(
                       fontSize: 16,
                       color: Colors.white70,
@@ -84,9 +87,9 @@ class ForceUpdateScreen extends StatelessWidget {
                     child: ElevatedButton.icon(
                       onPressed: _launchStore,
                       icon: const Icon(Icons.download_rounded),
-                      label: const Text(
-                        'আপডেট করুন',
-                        style: TextStyle(
+                      label: Text(
+                        context.l10n.updateNow,
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
@@ -104,9 +107,12 @@ class ForceUpdateScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     TextButton(
                       onPressed: onSkip,
-                      child: const Text(
-                        'পরে করুন',
-                        style: TextStyle(color: Colors.white60, fontSize: 14),
+                      child: Text(
+                        context.l10n.updateLater,
+                        style: const TextStyle(
+                          color: Colors.white60,
+                          fontSize: 14,
+                        ),
                       ),
                     ),
                   ],

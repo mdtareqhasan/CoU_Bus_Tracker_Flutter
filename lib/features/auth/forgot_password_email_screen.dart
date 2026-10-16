@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../app/theme.dart';
 import '../../core/result.dart';
+import '../../l10n/l10n.dart';
 import '../auth/auth_provider.dart';
 
 class ForgotPasswordEmailScreen extends ConsumerStatefulWidget {
@@ -61,7 +62,7 @@ class _ForgotPasswordEmailScreenState extends ConsumerState<ForgotPasswordEmailS
                           _buildHeaderIllustration(),
                           const SizedBox(height: AppTheme.space24),
                           Text(
-                            'পাসওয়ার্ড রিসেট',
+                            context.l10n.passwordResetTitle,
                             textAlign: TextAlign.center,
                             style: Theme.of(context)
                                 .textTheme
@@ -75,27 +76,29 @@ class _ForgotPasswordEmailScreenState extends ConsumerState<ForgotPasswordEmailS
                               .fadeIn(delay: 100.ms)
                               .slideY(begin: 0.2, end: 0),
                           const SizedBox(height: AppTheme.space8),
-                          const Text(
-                            'আপনার ইমেইল দিন, আমরা OTP পাঠাবো',
+                          Text(
+                            context.l10n.forgotEmailSubtitle,
                             textAlign: TextAlign.center,
-                            style: TextStyle(color: AppTheme.textSecondary),
+                            style: const TextStyle(
+                              color: AppTheme.textSecondary,
+                            ),
                           ).animate().fadeIn(delay: 200.ms),
                           const SizedBox(height: AppTheme.space32),
                           _buildRoleSelector(),
                           const SizedBox(height: AppTheme.space24),
                           _buildTextField(
                             controller: _emailController,
-                            label: 'ইমেইল',
+                            label: context.l10n.fieldEmail,
                             icon: Icons.email_outlined,
                             keyboardType: TextInputType.emailAddress,
                             inputFormatters: [
                                                                                         ],
                             validator: (v) {
                               if (v == null || v.isEmpty) {
-                                return 'ইমেইল দিন';
+                                return context.l10n.validationEmailRequired;
                               }
                               if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(v)) {
-                                return 'সঠিক ইমেইল দিন';
+                                return context.l10n.validationEmailInvalid;
                               }
                               return null;
                             },
@@ -110,7 +113,7 @@ class _ForgotPasswordEmailScreenState extends ConsumerState<ForgotPasswordEmailS
                             onPressed: () => context.go('/auth/role'),
                             child: Text.rich(
                               TextSpan(
-                                text: 'লগইনে ফিরে যান',
+                                text: context.l10n.authLoginBack,
                                 style: TextStyle(
                                   color: AppTheme.primaryBlue,
                                   fontWeight: FontWeight.bold,
@@ -144,9 +147,9 @@ class _ForgotPasswordEmailScreenState extends ConsumerState<ForgotPasswordEmailS
         ),
         onPressed: () => context.go('/auth/role'),
       ),
-      title: const Text(
-        'পাসওয়ার্ড রিসেট',
-        style: TextStyle(
+      title: Text(
+        context.l10n.passwordResetTitle,
+        style: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
           fontSize: 18,
@@ -187,10 +190,10 @@ class _ForgotPasswordEmailScreenState extends ConsumerState<ForgotPasswordEmailS
       child: Row(
         children: [
           Expanded(
-            child: _buildRoleOption('student', 'শিক্ষার্থী'),
+            child: _buildRoleOption('student', context.l10n.roleStudent),
           ),
           Expanded(
-            child: _buildRoleOption('teacher', 'শিক্ষক'),
+            child: _buildRoleOption('teacher', context.l10n.roleTeacher),
           ),
         ],
       ),
@@ -289,9 +292,9 @@ class _ForgotPasswordEmailScreenState extends ConsumerState<ForgotPasswordEmailS
             borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
           ),
         ),
-        child: const Text(
-          'OTP পাঠান',
-          style: TextStyle(
+        child: Text(
+          context.l10n.authSendOtp,
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
             color: Colors.white,

@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/result.dart';
+import '../../l10n/l10n.dart';
 import '../../core/storage_service.dart';
 import '../../core/error_handler.dart';
 import '../../core/services/google_signin_service.dart';
@@ -19,6 +21,39 @@ enum AuthStateStatus {
   error,
   needsRegistration,
   needsVerification,
+  /// Signed in, but the write-once academic details required by product
+  /// policy are still missing. The user must be sent to
+  /// `/auth/academic-details` and may not enter the app shell.
+  needsProfileDetails,
+}
+
+/// Product gate shared by the login, session-restore and save-success paths.
+///
+/// A student may not use the app unless `department` + `rollNumber` +
+/// `session` are set; a teacher needs `department` + `employeeId` +
+/// `designation`. Blank/null counts as missing. [role] is case-insensitive
+/// and anything that is not `teacher` is treated as a student.
+bool isAcademicProfileComplete({
+  required String? role,
+  String? department,
+  String? rollNumber,
+  String? session,
+  String? employeeId,
+  String? designation,
+}) {
+  bool has(String? value) => value != null && value.trim().isNotEmpty;
+
+  if (role != null && role.trim().toLowerCase() == 'teacher') {
+    return has(department) && has(employeeId) && has(designation);
+  }
+  return has(department) && has(rollNumber) && has(session);
+}
+
+/// Reads a text field from a backend response body, treating blank as null.
+String? _profileText(Object? value) {
+  if (value is! String) return null;
+  final trimmed = value.trim();
+  return trimmed.isEmpty ? null : trimmed;
 }
 
 /// Uppercase role (STUDENT / TEACHER) pending OTP verification.
@@ -35,6 +70,14 @@ class AuthState {
   final String? pendingRole;
   final String? idCardImageUrl;
 
+  // Write-once academic details from the last fetched/saved profile. They are
+  // what the completion screen prefills (read-only) and what the gate checks.
+  final String? department;
+  final String? rollNumber;
+  final String? session;
+  final String? employeeId;
+  final String? designation;
+
   const AuthState({
     this.status = AuthStateStatus.initial,
     this.role,
@@ -47,6 +90,11 @@ class AuthState {
     this.error,
     this.pendingRole,
     this.idCardImageUrl,
+    this.department,
+    this.rollNumber,
+    this.session,
+    this.employeeId,
+    this.designation,
   });
 
   AuthState copyWith({
@@ -61,6 +109,11 @@ class AuthState {
     String? error,
     String? pendingRole,
     String? idCardImageUrl,
+    String? department,
+    String? rollNumber,
+    String? session,
+    String? employeeId,
+    String? designation,
   }) {
     return AuthState(
       status: status ?? this.status,
@@ -74,11 +127,27 @@ class AuthState {
       error: error,
       pendingRole: pendingRole ?? this.pendingRole,
       idCardImageUrl: idCardImageUrl ?? this.idCardImageUrl,
+      department: department ?? this.department,
+      rollNumber: rollNumber ?? this.rollNumber,
+      session: session ?? this.session,
+      employeeId: employeeId ?? this.employeeId,
+      designation: designation ?? this.designation,
     );
   }
 
   bool get isLoggedIn =>
       status == AuthStateStatus.authenticated && displayName != null;
+
+  /// `true` when every academic detail product policy requires is populated.
+  /// Only meaningful once a profile has actually been fetched or saved.
+  bool get isProfileComplete => isAcademicProfileComplete(
+        role: role,
+        department: department,
+        rollNumber: rollNumber,
+        session: session,
+        employeeId: employeeId,
+        designation: designation,
+      );
 }
 
 class AuthNotifier extends StateNotifier<AuthState> {
@@ -125,11 +194,21 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final role = _storage.getRole() ?? 'student';
     final result = await _authRepo.validateToken(role);
 
-    if (result case Failure(:final statusCode)) {
+    if (result case Failure(
+      :final statusCode,
+      :final message,
+      :final error,
+    )) {
+      // PROFILE_INCOMPLETE is NOT a dead session — the user is still signed
+      // in and only needs the completion form. `/me` is exempt server-side
+      // so this should never fire, but never wipe the session over it.
+      final isProfileIncomplete =
+          statusCode == 403 && _isProfileIncompleteBody(error);
       final isAuthError =
-          statusCode == 401 ||
-          statusCode == 403 ||
-          (result as Failure).message.toLowerCase().contains('সেশন শেষ');
+          !isProfileIncomplete &&
+          (statusCode == 401 ||
+              statusCode == 403 ||
+              ErrorHandler.isSessionExpired(message));
 
       if (isAuthError) {
         // Token invalid / user deleted → full cleanup.
@@ -141,20 +220,51 @@ class AuthNotifier extends StateNotifier<AuthState> {
       // Network / server error → keep authenticated with cached data.
     }
 
-    // Token accepted (or backend unreachable) → mark authenticated.
-    // Fetch profile to get idCardImageUrl
+    // Token accepted (or backend unreachable) → restore the session. Fetch
+    // the profile for idCardImageUrl plus the once-only academic details the
+    // product gate checks.
     String? idCardImageUrl;
+    String? department;
+    String? rollNumber;
+    String? session;
+    String? employeeId;
+    String? designation;
+    var profileLoaded = false;
     try {
       final profileResult = await _authRepo.getProfile(role);
-      if (profileResult case Success(:final data)) {
-        idCardImageUrl = data['idCardImageUrl'] as String?;
+      if (profileResult case Success(data: final profile)) {
+        profileLoaded = true;
+        idCardImageUrl = _profileText(profile['idCardImageUrl']);
+        department = _profileText(profile['department']);
+        rollNumber = _profileText(profile['rollNumber']);
+        session = _profileText(profile['session']);
+        employeeId =
+            _profileText(profile['teacherId']) ??
+            _profileText(profile['employeeId']);
+        designation = _profileText(profile['designation']);
       }
     } catch (_) {
       // Ignore profile fetch errors
     }
 
+    // Fail open when the profile could not be read: we must not push a
+    // *complete* profile through the form. An incomplete one is still caught
+    // by the backend's 403 → AuthInterceptor.onProfileIncomplete.
+    final profileComplete =
+        !profileLoaded ||
+        isAcademicProfileComplete(
+          role: role,
+          department: department,
+          rollNumber: rollNumber,
+          session: session,
+          employeeId: employeeId,
+          designation: designation,
+        );
+
     state = state.copyWith(
-      status: AuthStateStatus.authenticated,
+      status: profileComplete
+          ? AuthStateStatus.authenticated
+          : AuthStateStatus.needsProfileDetails,
       role: _storage.getRole(),
       displayName: _storage.getDisplayName(),
       email: _storage.getUserEmail(),
@@ -163,6 +273,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
       isVerified: _storage.isVerified(),
       isEduMail: _storage.isEduMail(),
       idCardImageUrl: idCardImageUrl,
+      department: department,
+      rollNumber: rollNumber,
+      session: session,
+      employeeId: employeeId,
+      designation: designation,
     );
   }
 
@@ -213,7 +328,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         default:
           state = state.copyWith(
             status: AuthStateStatus.error,
-            error: 'Unknown response',
+            error: L10n.current.errorUnknownResponse,
           );
       }
     } catch (e) {
@@ -269,7 +384,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         default:
           state = state.copyWith(
             status: AuthStateStatus.error,
-            error: 'Unknown response',
+            error: L10n.current.errorUnknownResponse,
           );
       }
     } catch (e) {
@@ -306,7 +421,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         default:
           state = state.copyWith(
             status: AuthStateStatus.error,
-            error: 'Unknown response',
+            error: L10n.current.errorUnknownResponse,
           );
       }
     } catch (e) {
@@ -344,7 +459,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
             state = state.copyWith(
               status: AuthStateStatus.error,
               error:
-                  'ভেরিফিকেশন সফল হলেও টোকেন পাওয়া যায়নি। আবার চেষ্টা করুন।',
+                  L10n.current.errorVerifyOtpNoToken,
             );
             return;
           }
@@ -354,7 +469,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         default:
           state = state.copyWith(
             status: AuthStateStatus.error,
-            error: 'Unknown response',
+            error: L10n.current.errorUnknownResponse,
           );
       }
     } catch (e) {
@@ -468,7 +583,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
             state = state.copyWith(
               status: AuthStateStatus.error,
               error:
-                  'ভেরিফিকেশন সফল হলেও টোকেন পাওয়া যায়নি। আবার চেষ্টা করুন।',
+                  L10n.current.errorVerifyOtpNoToken,
             );
             return;
           }
@@ -478,7 +593,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         default:
           state = state.copyWith(
             status: AuthStateStatus.error,
-            error: 'Unknown response',
+            error: L10n.current.errorUnknownResponse,
           );
       }
     } catch (e) {
@@ -651,20 +766,54 @@ class AuthNotifier extends StateNotifier<AuthState> {
       isEduMail: data.isEduMail ?? false,
     );
 
-    // Fetch profile to get idCardImageUrl
+    // Fetch the profile: idCardImageUrl plus the once-only academic details
+    // product policy requires before the app may be used.
+    final profileRole = data.role?.toLowerCase() ?? role;
     String? idCardImageUrl;
+    String? department;
+    String? rollNumber;
+    String? session;
+    String? employeeId;
+    String? designation;
+    var profileLoaded = false;
     try {
-      final profileResult = await _authRepo.getProfile(data.role?.toLowerCase() ?? role);
-      if (profileResult case Success(:final data)) {
-        idCardImageUrl = data['idCardImageUrl'] as String?;
+      final profileResult = await _authRepo.getProfile(profileRole);
+      if (profileResult case Success(data: final profile)) {
+        profileLoaded = true;
+        idCardImageUrl = _profileText(profile['idCardImageUrl']);
+        department = _profileText(profile['department']);
+        rollNumber = _profileText(profile['rollNumber']);
+        session = _profileText(profile['session']);
+        employeeId =
+            _profileText(profile['teacherId']) ??
+            _profileText(profile['employeeId']);
+        designation = _profileText(profile['designation']);
       }
     } catch (_) {
-      // Ignore profile fetch errors - idCardImageUrl will be null
+      // Ignore profile fetch errors — idCardImageUrl / academic details stay
+      // null and the gate below simply does not apply.
     }
 
+    // Data-driven gate (Google *and* email/phone logins alike): an
+    // incomplete profile must go to /auth/academic-details, never /home.
+    // Fail open when the profile could not be read — the backend's 403 +
+    // AuthInterceptor.onProfileIncomplete catch that case a moment later.
+    final profileComplete =
+        !profileLoaded ||
+        isAcademicProfileComplete(
+          role: profileRole,
+          department: department,
+          rollNumber: rollNumber,
+          session: session,
+          employeeId: employeeId,
+          designation: designation,
+        );
+
     state = state.copyWith(
-      status: AuthStateStatus.authenticated,
-      role: data.role?.toLowerCase() ?? role,
+      status: profileComplete
+          ? AuthStateStatus.authenticated
+          : AuthStateStatus.needsProfileDetails,
+      role: profileRole,
       displayName: data.name ?? 'User',
       email: data.email ?? '',
       phone: phone,
@@ -673,25 +822,93 @@ class AuthNotifier extends StateNotifier<AuthState> {
       isEduMail: data.isEduMail ?? false,
       pendingRole: null,
       idCardImageUrl: idCardImageUrl,
+      department: department,
+      rollNumber: rollNumber,
+      session: session,
+      employeeId: employeeId,
+      designation: designation,
+    );
+
+    debugPrint(
+      '[AUTH][PROFILE] role=$profileRole loaded=$profileLoaded '
+      'complete=$profileComplete → ${state.status.name}',
     );
 
     // Now that a JWT is stored, register this device's FCM token so the user
     // can receive push notifications. Best-effort and non-blocking — a failure
-    // here must never affect the login flow.
+    // here must never affect the login flow. While the profile is incomplete
+    // the backend answers 403 PROFILE_INCOMPLETE, which the interceptor turns
+    // into a navigation to the completion screen instead of a logout.
     unawaited(_fcmTokenService.registerIfAuthenticated());
   }
+
+  /// Saves the write-once academic details. On success the refreshed profile
+  /// is stored on the state and the status moves to `authenticated`, so the
+  /// completion screen can go straight to `/home`.
+  Future<Result<Map<String, dynamic>>> updateAcademicDetails({
+    required String department,
+    String? rollNumber,
+    String? session,
+    String? employeeId,
+    String? designation,
+  }) async {
+    final role = (state.role ?? 'student').trim().toLowerCase();
+    debugPrint('[AUTH][ACADEMIC] saving role=$role');
+
+    final result = await _authRepo.updateAcademicDetails(
+      role: role,
+      department: department,
+      rollNumber: rollNumber,
+      session: session,
+      employeeId: employeeId,
+      designation: designation,
+    );
+
+    if (result case Success(data: final profile)) {
+      state = state.copyWith(
+        status: AuthStateStatus.authenticated,
+        department: _profileText(profile['department']) ?? department,
+        rollNumber: _profileText(profile['rollNumber']) ?? rollNumber,
+        session: _profileText(profile['session']) ?? session,
+        employeeId:
+            _profileText(profile['teacherId']) ??
+            _profileText(profile['employeeId']) ??
+            employeeId,
+        designation: _profileText(profile['designation']) ?? designation,
+        idCardImageUrl:
+            _profileText(profile['idCardImageUrl']) ?? state.idCardImageUrl,
+        error: null,
+      );
+      debugPrint('[AUTH][ACADEMIC] saved → authenticated');
+
+      // The 403 that blocked push registration at login is lifted now.
+      unawaited(_fcmTokenService.registerIfAuthenticated());
+    } else if (result case Failure(:final message)) {
+      debugPrint('[AUTH][ACADEMIC] save failed: $message');
+      // Stay in `needsProfileDetails`; the screen renders the message inline.
+      state = state.copyWith(error: message);
+    }
+
+    return result;
+  }
+
+  /// Detects the backend's `PROFILE_INCOMPLETE` marker in a 403 body.
+  static bool _isProfileIncompleteBody(Object? body) =>
+      body is Map && body['code'] == 'PROFILE_INCOMPLETE';
 
   String _toUpperRole(String role) => role.trim().toUpperCase();
   String _toLowerRole(String role) => role.trim().toLowerCase();
 
   bool _isVerifyPhoneMessage(String message) {
+    // Matched text is locale-dependent (built by ErrorHandler.friendly), so
+    // compare through the any-locale helpers, not with `==`.
     final m = message.toLowerCase();
     return m.contains('verify your phone') ||
         m.contains('phone is not verified') ||
         m.contains('phone number not verified') ||
         m.contains('not verified') ||
-        m == ErrorHandler.verifyEmailFirst.toLowerCase() ||
-        m == ErrorHandler.verifyPhoneFirst.toLowerCase() ||
+        ErrorHandler.isVerifyEmailFirst(message) ||
+        ErrorHandler.isVerifyPhoneFirst(message) ||
         m.contains('ফোন যাচাই') ||
         m.contains('ইমেইল যাচাই');
   }

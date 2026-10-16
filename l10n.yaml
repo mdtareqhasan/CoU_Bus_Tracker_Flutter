@@ -1,0 +1,19 @@
+# Localization configuration for `flutter gen-l10n`.
+#
+# Bengali (bn) is the template locale because it is the app's source copy:
+# every key must exist in app_bn.arb. English lives in app_en.arb; anything
+# missing there is reported in untranslated_messages.json (see `flutter gen-l10n`
+# output) and falls back to the Bengali text at runtime.
+arb-dir: lib/l10n
+output-dir: lib/l10n/generated
+template-arb-file: app_bn.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+untranslated-messages-file: lib/l10n/untranslated_messages.json
+# AppLocalizations.of(context) returns a non-null value; no null checks needed.
+nullable-getter: false
+# ICU quoting: a literal ' is written '' , and { } # are escaped inside
+# quotes. Without this, quotes pass through verbatim.
+use-escaping: true
+# Run `dart format` on the generated files.
+format: true

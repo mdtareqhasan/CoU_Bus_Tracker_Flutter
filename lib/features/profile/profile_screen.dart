@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../app/theme.dart';
+import '../../l10n/l10n.dart';
 import '../auth/auth_provider.dart';
+import 'language_settings_card.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -26,9 +28,24 @@ class ProfileScreen extends ConsumerWidget {
             _buildSliverAppBar(context),
             SliverToBoxAdapter(
               child: authState.isLoggedIn
-                  ? _buildLoggedInProfile(context, ref, authState)
+                  ? _buildLoggedInProfile(context, authState)
                   : _buildLoggedOutPrompt(context),
             ),
+            // Shown logged-in and logged-out alike: language is an app
+            // setting, not an account one.
+            const SliverToBoxAdapter(child: LanguageSettingsCard()),
+            if (authState.isLoggedIn)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppTheme.space24,
+                    AppTheme.space32,
+                    AppTheme.space24,
+                    AppTheme.space48,
+                  ),
+                  child: _buildLogoutButton(context, ref),
+                ),
+              ),
           ],
         ),
       ),
@@ -47,9 +64,9 @@ class ProfileScreen extends ConsumerWidget {
         ),
         onPressed: () => context.go('/home'),
       ),
-      title: const Text(
-        'প্রোফাইল',
-        style: TextStyle(
+      title: Text(
+        context.l10n.profileTitle,
+        style: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
           fontSize: 18,
@@ -72,7 +89,7 @@ class ProfileScreen extends ConsumerWidget {
           _buildPromptIllustration(),
           const SizedBox(height: AppTheme.space48),
           Text(
-            'আপনার প্রোফাইল',
+            context.l10n.profileYourProfile,
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.w800,
               letterSpacing: -0.5,
@@ -80,7 +97,7 @@ class ProfileScreen extends ConsumerWidget {
           ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2, end: 0),
           const SizedBox(height: AppTheme.space12),
           Text(
-            'বাসের তথ্য ও সঠিক শিডিউল ট্র্যাক করতে আপনার অ্যাকাউন্টে লগইন করুন',
+            context.l10n.profileLoginPrompt,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: AppTheme.textSecondary,
@@ -113,14 +130,14 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.login_rounded, color: Colors.white),
-                      SizedBox(width: 12),
+                      const Icon(Icons.login_rounded, color: Colors.white),
+                      const SizedBox(width: 12),
                       Text(
-                        'লগইন / নিবন্ধন করুন',
-                        style: TextStyle(
+                        context.l10n.profileLoginRegister,
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -182,11 +199,7 @@ class ProfileScreen extends ConsumerWidget {
     ).animate().fadeIn(duration: 600.ms).scale(begin: const Offset(0.8, 0.8));
   }
 
-  Widget _buildLoggedInProfile(
-    BuildContext context,
-    WidgetRef ref,
-    AuthState authState,
-  ) {
+  Widget _buildLoggedInProfile(BuildContext context, AuthState authState) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.all(AppTheme.space24),
@@ -200,9 +213,6 @@ class ProfileScreen extends ConsumerWidget {
             _buildIdCardSection(context, authState),
           const SizedBox(height: AppTheme.space24),
           _buildInfoCard(context, authState),
-          const SizedBox(height: AppTheme.space32),
-          _buildLogoutButton(context, ref),
-          const SizedBox(height: AppTheme.space48),
         ],
       ),
     );
@@ -238,7 +248,7 @@ class ProfileScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         Text(
-          authState.displayName ?? 'ব্যবহারকারী',
+          authState.displayName ?? context.l10n.commonUserName,
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 4),
@@ -257,7 +267,9 @@ class ProfileScreen extends ConsumerWidget {
             border: Border.all(color: AppTheme.primaryBlue.withValues(alpha: 0.2)),
           ),
           child: Text(
-            authState.role == 'student' ? 'শিক্ষার্থী' : 'শিক্ষক',
+            authState.role == 'student'
+                ? context.l10n.roleStudent
+                : context.l10n.roleTeacher,
             style: const TextStyle(
               color: AppTheme.primaryBlue,
               fontWeight: FontWeight.bold,
@@ -296,9 +308,9 @@ class ProfileScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'আইডি কার্ড',
-                style: TextStyle(
+              Text(
+                context.l10n.profileIdCard,
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                   color: AppTheme.textPrimary,
@@ -340,9 +352,9 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'ছবি দেখতে ট্যাপ করুন',
-            style: TextStyle(
+          Text(
+            context.l10n.profileTapToViewPhoto,
+            style: const TextStyle(
               color: AppTheme.textHint,
               fontSize: 12,
             ),
@@ -399,14 +411,14 @@ class ProfileScreen extends ConsumerWidget {
         children: [
           _buildInfoRow(
             context,
-            'নাম',
+            context.l10n.profileName,
             authState.displayName ?? '—',
             Icons.person_outline_rounded,
           ),
           const Divider(indent: 48, height: 1),
           _buildInfoRow(
             context,
-            'ইমেইল',
+            context.l10n.profileEmail,
             authState.email != null && authState.email!.isNotEmpty
                 ? authState.email!
                 : '—',
@@ -415,8 +427,10 @@ class ProfileScreen extends ConsumerWidget {
           const Divider(indent: 48, height: 1),
           _buildInfoRow(
             context,
-            'ভূমিকা',
-            authState.role == 'student' ? 'শিক্ষার্থী' : 'শিক্ষক',
+            context.l10n.profileRole,
+            authState.role == 'student'
+                ? context.l10n.roleStudent
+                : context.l10n.roleTeacher,
             Icons.badge_outlined,
           ),
         ],
@@ -433,9 +447,12 @@ class ProfileScreen extends ConsumerWidget {
           if (context.mounted) context.go('/auth/role');
         },
         icon: const Icon(Icons.logout_rounded, color: AppTheme.error),
-        label: const Text(
-          'লগ আউট',
-          style: TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold),
+        label: Text(
+          context.l10n.profileLogout,
+          style: const TextStyle(
+            color: AppTheme.error,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16),

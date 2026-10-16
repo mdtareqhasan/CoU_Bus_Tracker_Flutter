@@ -1,34 +1,44 @@
+import '../../l10n/l10n.dart';
+
 class TimeUtils {
-  static String formatTimeBengali(String? timeStr) {
-    if (timeStr == null || timeStr.isEmpty) return 'নির্ধারিত নয়';
+  /// Formats an `HH:mm` time for the active locale:
+  /// Bengali → `সকাল ৮:৩০`, English → `8:30 AM`.
+  ///
+  /// Context-free (used by models), so it reads the locale from [L10n] —
+  /// see docs/localization.md.
+  static String formatTime(String? timeStr) {
+    if (timeStr == null || timeStr.isEmpty) {
+      return L10n.current.timeNotScheduled;
+    }
 
     try {
       // Handle HH:mm format
       final parts = timeStr.split(':');
       if (parts.length < 2) return timeStr;
 
-      int hour = int.parse(parts[0]);
-      int minute = int.parse(parts[1]);
+      final hour = int.parse(parts[0]);
+      final minute = int.parse(parts[1]);
+      final displayMinute = minute.toString().padLeft(2, '0');
 
-      String period = '';
-      if (hour >= 5 && hour < 12) {
-        period = 'সকাল';
-      } else if (hour >= 12 && hour < 15) {
-        period = 'দুপুর';
-      } else if (hour >= 15 && hour < 18) {
-        period = 'বিকাল';
-      } else {
-        period = 'রাত';
+      if (L10n.locale.languageCode == 'bn') {
+        final period = switch (hour) {
+          >= 5 && < 12 => L10n.current.timeMorning,
+          >= 12 && < 15 => L10n.current.timeAfternoon,
+          >= 15 && < 18 => L10n.current.timeEvening,
+          _ => L10n.current.timeNight,
+        };
+
+        final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+
+        return '$period '
+            '${_toBengaliDigits(displayHour.toString())}:'
+            '${_toBengaliDigits(displayMinute)}';
       }
 
-      int displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-      String displayMinute = minute.toString().padLeft(2, '0');
-
-      // Convert digits to Bengali
-      String bengaliHour = _toBengaliDigits(displayHour.toString());
-      String bengaliMinute = _toBengaliDigits(displayMinute);
-
-      return '$period $bengaliHour:$bengaliMinute';
+      // English: 12-hour clock with AM/PM.
+      final displayHour = hour % 12 == 0 ? 12 : hour % 12;
+      final period = hour < 12 ? 'AM' : 'PM';
+      return '$displayHour:$displayMinute $period';
     } catch (e) {
       return timeStr;
     }

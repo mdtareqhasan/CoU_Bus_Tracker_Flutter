@@ -6,6 +6,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../app/theme.dart';
+import '../../l10n/l10n.dart';
 import 'buses_provider.dart';
 import '../auth/auth_provider.dart';
 import '../../shared/widgets/bus_card.dart';
@@ -101,11 +102,14 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
                 onChanged: (v) =>
                     ref.read(busListProvider.notifier).setSearchQuery(v),
                 style: const TextStyle(color: AppTheme.textPrimary),
-                decoration: const InputDecoration(
-                  hintText: 'বাস খুঁজুন...',
-                  hintStyle: TextStyle(color: AppTheme.textHint),
+                decoration: InputDecoration(
+                  hintText: context.l10n.busSearchHint,
+                  hintStyle: const TextStyle(color: AppTheme.textHint),
                   border: InputBorder.none,
-                  icon: Icon(Icons.search_rounded, color: AppTheme.primaryBlue),
+                  icon: const Icon(
+                    Icons.search_rounded,
+                    color: AppTheme.primaryBlue,
+                  ),
                 ),
               ),
             ),
@@ -117,16 +121,16 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
 
   Widget _buildCategoryChips(BusListState state) {
     final allCategories = {
-      null: 'সব',
-      'BLUE': 'নীল',
-      'RED': 'লাল',
-      'TEACHER': 'শিক্ষক',
-      'OFFICER': 'অফিসার',
-      'STAFF': 'স্টাফ',
+      null: context.l10n.filterAll,
+      'BLUE': context.l10n.busCategoryBlue,
+      'RED': context.l10n.busCategoryRed,
+      'TEACHER': context.l10n.busCategoryTeacher,
+      'OFFICER': context.l10n.busCategoryOfficer,
+      'STAFF': context.l10n.busCategoryStaff,
     };
 
     final allowed = allowedCategoriesForRole(state.userRole);
-    final categories = <String?, String>{null: 'সব'};
+    final categories = <String?, String>{null: context.l10n.filterAll};
     for (final entry in allCategories.entries) {
       if (entry.key == null || allowed.contains(entry.key)) {
         categories[entry.key] = entry.value;
@@ -215,7 +219,7 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
             );
             final route = busSchedules.isNotEmpty
                 ? busSchedules.first.routeDisplay
-                : bus.route ?? 'রুট তথ্য নেই';
+                : bus.route ?? context.l10n.busRouteMissing;
 
             return AnimationConfiguration.staggeredList(
               position: index,
@@ -278,7 +282,7 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
             ElevatedButton.icon(
               onPressed: () => ref.read(busListProvider.notifier).loadBuses(),
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('আবার চেষ্টা করুন'),
+              label: Text(context.l10n.commonRetry),
               style: ElevatedButton.styleFrom(minimumSize: const Size(200, 50)),
             ),
           ],
@@ -299,7 +303,7 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'কোনো বাস পাওয়া যায়নি',
+            context.l10n.busListEmpty,
             style: TextStyle(
               fontSize: 16,
               color: AppTheme.textSecondary,

@@ -1,3 +1,5 @@
+import '../../l10n/l10n.dart';
+
 class AuthResponse {
   final String? accessToken;
   final String? tokenType;
@@ -56,5 +58,5 @@ class AuthResponse {
     'isEduMail': isEduMail,
   };
 
-  String get userDisplayName => name ?? 'ব্যবহারকারী';
+  String get userDisplayName => name ?? L10n.current.commonUserName;
 }

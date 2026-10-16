@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../l10n/l10n.dart';
 
 part 'student.g.dart';
 
@@ -35,8 +36,8 @@ class Student {
   Map<String, dynamic> toJson() => _$StudentToJson(this);
 
   String get verificationStatus {
-    if (isVerified == true) return 'যাচাইকৃত';
-    if (isActive == false) return 'নিষ্ক্রিয়';
-    return 'অপেক্ষমাণ';
+    if (isVerified == true) return L10n.current.statusVerified;
+    if (isActive == false) return L10n.current.statusInactive;
+    return L10n.current.statusPending;
   }
 }

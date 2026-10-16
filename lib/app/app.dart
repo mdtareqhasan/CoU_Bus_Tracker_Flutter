@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'locale_provider.dart';
 import 'router.dart';
 import 'theme.dart';
 import '../core/api_client.dart';
@@ -9,6 +9,7 @@ import '../core/update_service.dart';
 import '../features/auth/auth_provider.dart';
 import '../features/notifications/fcm_token_service.dart';
 import '../features/providers.dart';
+import '../l10n/l10n.dart';
 import '../shared/widgets/update_dialog.dart';
 
 class CoUBusTrackerApp extends ConsumerStatefulWidget {
@@ -25,6 +26,7 @@ class _CoUBusTrackerAppState extends ConsumerState<CoUBusTrackerApp> {
   void initState() {
     super.initState();
     AuthInterceptor.onSessionExpired = _handleSessionExpired;
+    AuthInterceptor.onProfileIncomplete = _handleProfileIncomplete;
 
     // Upload the FCM token whenever one becomes available (fresh token or a
     // background refresh). The service no-ops when logged out.
@@ -42,6 +44,7 @@ class _CoUBusTrackerAppState extends ConsumerState<CoUBusTrackerApp> {
   @override
   void dispose() {
     AuthInterceptor.onSessionExpired = null;
+    AuthInterceptor.onProfileIncomplete = null;
     NotificationService.onTokenAvailable = null;
     super.dispose();
   }
@@ -80,16 +83,9 @@ class _CoUBusTrackerAppState extends ConsumerState<CoUBusTrackerApp> {
     ref.read(authProvider.notifier).forceLogout();
 
     final messenger = rootScaffoldMessengerKey.currentState;
-    final context = messenger?.context;
-    final isEnglish =
-        context != null && Localizations.localeOf(context).languageCode == 'en';
     messenger?.showSnackBar(
       SnackBar(
-        content: Text(
-          isEnglish
-              ? 'Your session has expired. Please log in again.'
-              : 'আপনার সেশন শেষ হয়ে গেছে। অনুগ্রহ করে আবার লগইন করুন।',
-        ),
+        content: Text(L10n.current.sessionExpiredMessage),
         backgroundColor: AppTheme.error,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 4),
@@ -97,6 +93,16 @@ class _CoUBusTrackerAppState extends ConsumerState<CoUBusTrackerApp> {
     );
 
     appRouter.go('/auth/role');
+  }
+
+  /// Runs when an authenticated request gets 403 `PROFILE_INCOMPLETE`: the
+  /// session is still valid, the profile just lacks department / roll number
+  /// / session (students) or department / employee ID / designation (teachers).
+  /// Nothing is cleared — send the user to the completion form.
+  void _handleProfileIncomplete(String role) {
+    // A burst of 403s must not keep re-navigating and wipe what they typed.
+    if (appRouter.state.uri.path == '/auth/academic-details') return;
+    appRouter.go('/auth/academic-details?role=$role');
   }
 
   @override
@@ -109,13 +115,11 @@ class _CoUBusTrackerAppState extends ConsumerState<CoUBusTrackerApp> {
       themeMode: ThemeMode.light,
       routerConfig: appRouter,
       scaffoldMessengerKey: rootScaffoldMessengerKey,
-      locale: const Locale('bn', 'BD'),
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [Locale('bn', 'BD'), Locale('en', 'US')],
+      // User-selected language; switching this at runtime re-renders the app
+      // in the new language without a restart (see lib/app/locale_provider.dart).
+      locale: ref.watch(localeProvider),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
     );
   }
 }

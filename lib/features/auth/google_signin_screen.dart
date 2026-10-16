@@ -7,6 +7,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../../app/theme.dart';
 import '../../core/error_handler.dart';
 import '../../core/services/google_signin_service.dart';
+import '../../l10n/l10n.dart';
 import 'auth_notification_permission.dart';
 import 'auth_provider.dart';
 
@@ -35,6 +36,9 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
       if (next.status == AuthStateStatus.authenticated) {
         requestPostAuthNotificationPermissionAfterNavigation(context);
         context.go('/home');
+      } else if (next.status == AuthStateStatus.needsProfileDetails) {
+        // Google Sign-In creates the row with department/roll/session NULL.
+        context.go('/auth/academic-details?role=${next.role ?? widget.role}');
       } else if (next.status == AuthStateStatus.error && next.error != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(next.error!), backgroundColor: AppTheme.error),
@@ -43,8 +47,8 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
     });
 
     final roleTitle = widget.role == 'student'
-        ? 'শিক্ষার্থী লগইন'
-        : 'শিক্ষক ও কর্মকর্তাবৃন্দ লগইন';
+        ? context.l10n.authStudentLogin
+        : context.l10n.authTeacherOfficerLogin;
 
     return PopScope(
       canPop: false,
@@ -93,10 +97,12 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
                               .fadeIn(delay: 200.ms)
                               .slideY(begin: 0.2, end: 0),
                           const SizedBox(height: AppTheme.space8),
-                          const Text(
-                            'বিশ্ববিদ্যালয়ের ইমেইল অ্যাকাউন্ট দিয়ে প্রবেশ করুন',
+                          Text(
+                            context.l10n.googleSignInSubtitle,
                             textAlign: TextAlign.center,
-                            style: TextStyle(color: AppTheme.textSecondary),
+                            style: const TextStyle(
+                              color: AppTheme.textSecondary,
+                            ),
                           ).animate().fadeIn(delay: 300.ms),
                           const SizedBox(height: AppTheme.space32),
                           _buildInfoCard()
@@ -190,9 +196,9 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'আপনার বিশ্ববিদ্যালয়ের প্রাতিষ্ঠানিক ইমেইল ব্যবহার করে প্রবেশ করুন।',
-            style: TextStyle(
+          Text(
+            context.l10n.googleInstitutionalPrompt,
+            style: const TextStyle(
               fontSize: 13,
               height: 1.5,
               color: AppTheme.textPrimary,
@@ -200,9 +206,9 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
             ),
           ),
           const SizedBox(height: AppTheme.space16),
-          const Text(
-            'প্রয়োজনীয় ইমেইল ফরমেট:',
-            style: TextStyle(
+          Text(
+            context.l10n.googleEmailFormatLabel,
+            style: const TextStyle(
               fontSize: 12.5,
               color: AppTheme.textSecondary,
               fontWeight: FontWeight.bold,
@@ -213,18 +219,12 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
             crossAxisAlignment: WrapCrossAlignment.center,
             spacing: AppTheme.space8,
             runSpacing: AppTheme.space8,
-            children: [
-              _buildFormatChip('name@cou.ac.bd'),
-              const Text(
-                'অথবা',
-                style: TextStyle(
-                  fontSize: 12.5,
-                  color: AppTheme.textSecondary,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              _buildFormatChip('name@stud.cou.ac.bd'),
-            ],
+            children: widget.role == 'student'
+                ? [
+                    _buildFormatChip('example@stud.cou.ac.bd'),
+                    _buildFormatChip('example@cou.ac.bd'),
+                  ]
+                : [_buildFormatChip('example@cou.ac.bd')],
           ),
           const SizedBox(height: AppTheme.space16),
           Container(
@@ -232,7 +232,9 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
             decoration: BoxDecoration(
               color: AppTheme.warning.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-              border: Border.all(color: AppTheme.warning.withValues(alpha: 0.2)),
+              border: Border.all(
+                color: AppTheme.warning.withValues(alpha: 0.2),
+              ),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,7 +247,7 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
                 const SizedBox(width: AppTheme.space8),
                 Expanded(
                   child: Text(
-                    'আপনার প্রাতিষ্ঠানিক ইমেইল না থাকলে অনুগ্রহ করে বিশ্ববিদ্যালয়ের আইসিটি সেলের সঙ্গে যোগাযোগ করুন।',
+                    context.l10n.googleIctHelp,
                     style: TextStyle(
                       fontSize: 12,
                       height: 1.5,
@@ -321,9 +323,9 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
                   strokeWidth: 2,
                 ),
               )
-            : const Text(
-                'গুগল অ্যাকাউন্ট দিয়ে প্রবেশ করুন',
-                style: TextStyle(
+            : Text(
+                context.l10n.googleSignInButton,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -358,10 +360,10 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
   String _googleErrorMessage(GoogleSignInException e) {
     switch (e.code) {
       case GoogleSignInExceptionCode.canceled:
-        return 'প্রবেশ বাতিল করা হয়েছে।';
+        return context.l10n.googleSignInCancelled;
       case GoogleSignInExceptionCode.clientConfigurationError:
       case GoogleSignInExceptionCode.providerConfigurationError:
-        return 'গুগল সাইন-ইন কনফিগারেশনে সমস্যা হয়েছে। যোগাযোগ করুন।';
+        return context.l10n.googleSignInConfigError;
       case GoogleSignInExceptionCode.uiUnavailable:
       case GoogleSignInExceptionCode.interrupted:
       case GoogleSignInExceptionCode.userMismatch:

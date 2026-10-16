@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../l10n/l10n.dart';
 import 'shell_screen.dart';
 import '../features/splash/splash_screen.dart';
 import '../features/home/home_screen.dart';
@@ -12,6 +13,7 @@ import '../features/auth/role_screen.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/register_screen.dart';
 import '../features/auth/email_registration_screen.dart';
+import '../features/auth/academic_details_screen.dart';
 import '../features/auth/email_login_screen.dart';
 import '../features/auth/google_signin_screen.dart';
 import '../features/auth/email_otp_verification_screen.dart';
@@ -86,7 +88,7 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final extra = state.extra as Map<String, String>?;
         final url = extra?['url'] ?? '';
-        final name = extra?['name'] ?? 'বাস ট্র্যাকিং';
+        final name = extra?['name'] ?? context.l10n.busTrackingTitle;
         return LiveTrackingScreen(url: url, busName: name);
       },
     ),
@@ -135,6 +137,16 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final role = state.uri.queryParameters['role'] ?? 'student';
         return EmailRegistrationScreen(role: role);
+      },
+    ),
+    // Forced completion form: a signed-in user whose profile is still missing
+    // the write-once academic details lands here before the app shell.
+    GoRoute(
+      path: '/auth/academic-details',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final role = state.uri.queryParameters['role'] ?? 'student';
+        return AcademicDetailsScreen(role: role);
       },
     ),
     GoRoute(
