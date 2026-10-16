@@ -3,11 +3,17 @@ import 'package:flutter/foundation.dart';
 /// Backend API base URL — debug builds hit the local Docker backend,
 /// release/profile builds hit the production API.
 const String kBaseUrl = kDebugMode
-    ? 'http://localhost:8081'
+    ? 'http://192.168.1.111:8081'
     : 'https://api.kubijatra.com';
 
 const String kDefaultPlayStoreUrl =
     'https://play.google.com/store/apps/details?id=com.cse.coubustracker';
+
+/// OAuth *web* client ID (client_type 3 in android/app/google-services.json).
+/// Required as `serverClientId` so Android returns an ID token the backend
+/// can verify. Not a secret — it is already embedded in google-services.json.
+const String kGoogleServerClientId =
+    '601520130344-b0s8fni9k71ktjhbcvtqbi74k4itpkps.apps.googleusercontent.com';
 
 class ApiConstants {
   static String get baseUrl => '$kBaseUrl/api';
@@ -29,6 +35,7 @@ class ApiEndpoints {
   static const String initPhoneRegistration = '/auth/phone-verification/init';
   static const String verifyPhoneOtp = '/auth/phone-verification/verify';
   static const String resendPhoneOtp = '/auth/phone-verification/resend';
+
   /// Legacy send endpoint — kept for reference. Prefer /resend for in-flow
   /// resends, and /init for new registrations.
   static const String sendPhoneOtp = '/auth/phone-verification/send';
@@ -40,6 +47,8 @@ class ApiEndpoints {
 
   static const String studentLoginPhone = '/auth/student/login';
   static const String teacherLoginPhone = '/auth/teacher/login';
+  static const String emailLogin = '/auth/email-login';
+  static const String googleLogin = '/auth/google/login';
 
   static const String studentProfile = '/auth/student/me';
   static const String teacherProfile = '/auth/teacher/me';
@@ -47,8 +56,17 @@ class ApiEndpoints {
   static const String teacherUploadIdCard = '/auth/teacher/upload-id-card';
   static const String forgotPasswordInit = '/auth/forgot-password/init';
   static const String forgotPasswordVerify = '/auth/forgot-password/verify';
+  static const String forgotPasswordEmailInit =
+      '/auth/forgot-password-email/init';
+  static const String forgotPasswordEmailVerify =
+      '/auth/forgot-password-email/verify';
   static const String appVersion = '/app/version';
   static const String publicConfig = '/config';
+
+  // Notifications (FCM device-token registration). Both share the same path;
+  // unregister passes the token as a `?token=` query parameter.
+  static const String registerFcmToken = '/notifications/fcm-token';
+  static const String unregisterFcmToken = '/notifications/fcm-token';
 }
 
 class StorageKeys {

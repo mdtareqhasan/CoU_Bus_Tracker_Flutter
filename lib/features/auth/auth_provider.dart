@@ -1,10 +1,13 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/result.dart';
 import '../../core/storage_service.dart';
 import '../../core/error_handler.dart';
+import '../../core/services/google_signin_service.dart';
 import '../../core/utils/phone_utils.dart';
 import '../../shared/models/auth_response.dart';
+import '../notifications/fcm_token_service.dart';
 import 'auth_repository.dart';
 import '../providers.dart';
 
@@ -81,8 +84,10 @@ class AuthState {
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRepository _authRepo;
   final StorageService _storage;
+  final FcmTokenService _fcmTokenService;
 
-  AuthNotifier(this._authRepo, this._storage) : super(const AuthState()) {
+  AuthNotifier(this._authRepo, this._storage, this._fcmTokenService)
+      : super(const AuthState()) {
     _checkExistingSession();
   }
 
@@ -205,6 +210,99 @@ class AuthNotifier extends StateNotifier<AuthState> {
               error: message,
             );
           }
+        default:
+          state = state.copyWith(
+            status: AuthStateStatus.error,
+            error: 'Unknown response',
+          );
+      }
+    } catch (e) {
+      state = state.copyWith(
+        status: AuthStateStatus.error,
+        error: e.toString(),
+      );
+    } finally {
+      if (state.status == AuthStateStatus.loading) {
+        state = state.copyWith(status: AuthStateStatus.error);
+      }
+    }
+  }
+
+  /// Email + password login. No OTP is involved. If the account exists but
+  /// its email is not verified yet, the state is set to `needsVerification`.
+  Future<void> loginWithEmail({
+    required String email,
+    required String password,
+    required String role,
+  }) async {
+    state = state.copyWith(status: AuthStateStatus.loading, error: null);
+
+    try {
+      final result = await _authRepo.emailLogin(
+        role: _toEmailRole(role),
+        email: email,
+        password: password,
+      );
+
+      switch (result) {
+        case Success(:final data):
+          await _handleAuthSuccess(data, role.toLowerCase());
+        case Failure(:final message):
+          if (_isVerifyPhoneMessage(message)) {
+            await _storage.setPendingVerificationEmail(
+              email,
+              _toEmailRole(role),
+            );
+            state = state.copyWith(
+              status: AuthStateStatus.needsVerification,
+              email: email,
+              role: role.toLowerCase(),
+              pendingRole: _toEmailRole(role),
+              error: ErrorHandler.verifyEmailFirst,
+            );
+          } else {
+            state = state.copyWith(
+              status: AuthStateStatus.error,
+              error: message,
+            );
+          }
+        default:
+          state = state.copyWith(
+            status: AuthStateStatus.error,
+            error: 'Unknown response',
+          );
+      }
+    } catch (e) {
+      state = state.copyWith(
+        status: AuthStateStatus.error,
+        error: e.toString(),
+      );
+    } finally {
+      if (state.status == AuthStateStatus.loading) {
+        state = state.copyWith(status: AuthStateStatus.error);
+      }
+    }
+  }
+
+  /// Google Sign-In. The Google ID token from the client is verified by the
+  /// backend, which returns a JWT for the matching account.
+  Future<void> loginWithGoogle({
+    required String idToken,
+    required String role,
+  }) async {
+    state = state.copyWith(status: AuthStateStatus.loading, error: null);
+
+    try {
+      final result = await _authRepo.googleLogin(idToken: idToken, role: role);
+
+      switch (result) {
+        case Success(:final data):
+          await _handleAuthSuccess(data, role.toLowerCase());
+        case Failure(:final message):
+          state = state.copyWith(
+            status: AuthStateStatus.error,
+            error: message,
+          );
         default:
           state = state.copyWith(
             status: AuthStateStatus.error,
@@ -411,6 +509,32 @@ class AuthNotifier extends StateNotifier<AuthState> {
     return upper == 'TEACHER' ? 'EMPLOYEE' : upper;
   }
 
+  /// Email password reset: sends OTP through /auth/forgot-password-email/init.
+  Future<Result<String>> forgotPasswordEmailInit({
+    required String email,
+    required String role,
+  }) async {
+    return _authRepo.forgotPasswordEmailInit(
+      email: email,
+      role: _toEmailRole(role),
+    );
+  }
+
+  /// Email password reset: verifies OTP and sets new password.
+  Future<Result<String>> forgotPasswordEmailVerify({
+    required String email,
+    required String role,
+    required String otp,
+    required String newPassword,
+  }) async {
+    return _authRepo.forgotPasswordEmailVerify(
+      email: email,
+      role: _toEmailRole(role),
+      otp: otp,
+      newPassword: newPassword,
+    );
+  }
+
   /// Sends OTP for password reset.
   Future<Result<String>> forgotPasswordInit({
     required String phone,
@@ -550,6 +674,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
       pendingRole: null,
       idCardImageUrl: idCardImageUrl,
     );
+
+    // Now that a JWT is stored, register this device's FCM token so the user
+    // can receive push notifications. Best-effort and non-blocking — a failure
+    // here must never affect the login flow.
+    unawaited(_fcmTokenService.registerIfAuthenticated());
   }
 
   String _toUpperRole(String role) => role.trim().toUpperCase();
@@ -568,6 +697,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> logout() async {
+    // Best-effort: remove this device's FCM token server-side so the next user
+    // who logs in on this device doesn't inherit stale push targets. Runs
+    // before clearing the session so the JWT is still attached to the request.
+    unawaited(_fcmTokenService.unregisterCurrentToken());
+
+    // Drop the cached Google account so the next sign-in shows the account
+    // picker instead of silently reusing the previous Google user.
+    await GoogleSignInService.instance.signOut();
+
     await _storage.clearSession();
     state = const AuthState(status: AuthStateStatus.unauthenticated);
   }
@@ -583,5 +721,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final storage = ref.watch(storageServiceProvider);
-  return AuthNotifier(ref.watch(authRepositoryProvider), storage);
+  return AuthNotifier(
+    ref.watch(authRepositoryProvider),
+    storage,
+    ref.watch(fcmTokenServiceProvider),
+  );
 });

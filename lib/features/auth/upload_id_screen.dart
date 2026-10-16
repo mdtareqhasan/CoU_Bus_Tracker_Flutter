@@ -77,7 +77,7 @@ class _UploadIdScreenState extends ConsumerState<UploadIdScreen> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
                   border: Border.all(
-                    color: AppTheme.primaryBlue.withOpacity(0.3),
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                     width: 2,
                   ),
                   boxShadow: AppTheme.softShadow,
@@ -95,7 +95,7 @@ class _UploadIdScreenState extends ConsumerState<UploadIdScreen> {
                           Icon(
                             Icons.add_a_photo_rounded,
                             size: 64,
-                            color: AppTheme.primaryBlue.withOpacity(0.5),
+                            color: AppTheme.primaryBlue.withValues(alpha: 0.5),
                           ),
                           const SizedBox(height: 16),
                           const Text(

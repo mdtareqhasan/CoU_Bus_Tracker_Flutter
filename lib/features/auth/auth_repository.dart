@@ -153,6 +153,61 @@ class AuthRepository {
     return _loginPhone(ApiEndpoints.teacherLoginPhone, phone, password);
   }
 
+  /// Email + password login for a student or teacher/employee.
+  Future<Result<AuthResponse>> emailLogin({
+    required String role,
+    required String email,
+    required String password,
+  }) async {
+    _logRequest(ApiEndpoints.emailLogin);
+    try {
+      final response = await _apiClient.dio.post(
+        ApiEndpoints.emailLogin,
+        data: {
+          'role': role.toUpperCase(),
+          'email': email.trim().toLowerCase(),
+          'password': password,
+        },
+      );
+      if (response.statusCode == 200) {
+        return Success(AuthResponse.fromJson(response.data));
+      }
+      return Failure(message: _extractErrorMessage(response));
+    } on DioException catch (e) {
+      _logDioError(e);
+      return Failure(message: _handleDioError(e, isLoginRequest: true));
+    } catch (e) {
+      debugPrint('[AUTH][EMAIL-LOGIN] unexpected error: $e');
+      return Failure(message: ErrorHandler.defaultError);
+    }
+  }
+
+  /// Google Sign-In. Sends the Google ID token to the backend, which verifies
+  /// it and issues a JWT for the matching student/teacher account.
+  Future<Result<AuthResponse>> googleLogin({
+    required String idToken,
+    required String role,
+  }) async {
+    _logRequest(ApiEndpoints.googleLogin);
+    try {
+      final response = await _apiClient.dio.post(
+        ApiEndpoints.googleLogin,
+        data: {'idToken': idToken, 'role': role.toUpperCase()},
+      );
+      _logResponse(response);
+      if (response.statusCode == 200) {
+        return Success(AuthResponse.fromJson(response.data));
+      }
+      return Failure(message: _extractErrorMessage(response));
+    } on DioException catch (e) {
+      _logDioError(e);
+      return Failure(message: _handleDioError(e, isLoginRequest: true));
+    } catch (e) {
+      debugPrint('[AUTH][GOOGLE] unexpected error: $e');
+      return Failure(message: ErrorHandler.defaultError);
+    }
+  }
+
   /// Step 1 of password reset: sends OTP to the phone number.
   Future<Result<String>> forgotPasswordInit({
     required String phone,
@@ -352,6 +407,67 @@ class AuthRepository {
       return Failure(message: _handleDioError(e));
     } catch (e) {
       debugPrint('[AUTH][RESEND-EMAIL] unexpected error: $e');
+      return Failure(message: ErrorHandler.defaultError);
+    }
+  }
+
+  /// Step 1 of email password reset: sends OTP to the email.
+  Future<Result<String>> forgotPasswordEmailInit({
+    required String email,
+    required String role,
+  }) async {
+    _logRequest(ApiEndpoints.forgotPasswordEmailInit);
+    try {
+      final response = await _apiClient.dio.post(
+        ApiEndpoints.forgotPasswordEmailInit,
+        data: {'email': email.trim().toLowerCase(), 'role': role.toUpperCase()},
+      );
+      if (response.statusCode == 200) {
+        final msg = (response.data is Map && response.data['message'] is String)
+            ? response.data['message'] as String
+            : 'OTP sent successfully';
+        return Success(msg);
+      }
+      return Failure(message: _extractErrorMessage(response));
+    } on DioException catch (e) {
+      _logDioError(e);
+      return Failure(message: _handleDioError(e));
+    } catch (e) {
+      debugPrint('[AUTH][FORGOT-EMAIL] unexpected error: $e');
+      return Failure(message: ErrorHandler.defaultError);
+    }
+  }
+
+  /// Step 2 of email password reset: verifies OTP and sets new password.
+  Future<Result<String>> forgotPasswordEmailVerify({
+    required String email,
+    required String role,
+    required String otp,
+    required String newPassword,
+  }) async {
+    _logRequest(ApiEndpoints.forgotPasswordEmailVerify);
+    try {
+      final response = await _apiClient.dio.post(
+        ApiEndpoints.forgotPasswordEmailVerify,
+        data: {
+          'email': email.trim().toLowerCase(),
+          'role': role.toUpperCase(),
+          'otp': otp,
+          'newPassword': newPassword,
+        },
+      );
+      if (response.statusCode == 200) {
+        final msg = (response.data is Map && response.data['message'] is String)
+            ? response.data['message'] as String
+            : 'Password reset successful';
+        return Success(msg);
+      }
+      return Failure(message: _extractErrorMessage(response));
+    } on DioException catch (e) {
+      _logDioError(e);
+      return Failure(message: _handleDioError(e));
+    } catch (e) {
+      debugPrint('[AUTH][FORGOT-EMAIL-VERIFY] unexpected error: $e');
       return Failure(message: ErrorHandler.defaultError);
     }
   }

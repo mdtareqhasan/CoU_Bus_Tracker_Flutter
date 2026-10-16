@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'router.dart';
 import 'theme.dart';
 import '../core/api_client.dart';
+import '../core/services/notification_service.dart';
 import '../core/update_service.dart';
 import '../features/auth/auth_provider.dart';
+import '../features/notifications/fcm_token_service.dart';
 import '../features/providers.dart';
 import '../shared/widgets/update_dialog.dart';
 
@@ -23,13 +25,33 @@ class _CoUBusTrackerAppState extends ConsumerState<CoUBusTrackerApp> {
   void initState() {
     super.initState();
     AuthInterceptor.onSessionExpired = _handleSessionExpired;
-    WidgetsBinding.instance.addPostFrameCallback((_) => _checkForUpdate());
+
+    // Upload the FCM token whenever one becomes available (fresh token or a
+    // background refresh). The service no-ops when logged out.
+    NotificationService.onTokenAvailable =
+        (token) => ref.read(fcmTokenServiceProvider).registerToken(token);
+
+    // If we restored an existing session on launch, register the token now —
+    // the login path won't run in that case.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _registerFcmTokenIfAuthenticated();
+      _checkForUpdate();
+    });
   }
 
   @override
   void dispose() {
     AuthInterceptor.onSessionExpired = null;
+    NotificationService.onTokenAvailable = null;
     super.dispose();
+  }
+
+  /// Registers this device's FCM token on app start when a session already
+  /// exists. Best-effort; the service itself no-ops when logged out.
+  Future<void> _registerFcmTokenIfAuthenticated() async {
+    final authState = ref.read(authProvider);
+    if (!authState.isLoggedIn) return;
+    await ref.read(fcmTokenServiceProvider).registerIfAuthenticated();
   }
 
   Future<void> _checkForUpdate() async {

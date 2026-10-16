@@ -101,7 +101,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Future<void> _showExitDialog() async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     final shouldExit = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -125,7 +125,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('না', style: TextStyle(color: AppTheme.textSecondary)),
+            child: const Text(
+              'না',
+              style: TextStyle(color: AppTheme.textSecondary),
+            ),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(ctx).pop(true),
@@ -231,7 +234,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         Text(
                           'আসসালামু আলাইকুম,',
                           style: GoogleFonts.inter(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
@@ -270,7 +273,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       icon: Container(
         padding: const EdgeInsets.all(AppTheme.space8),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.15),
+          color: Colors.white.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
         ),
         child: const Icon(Icons.menu_rounded, color: Colors.white, size: 24),
@@ -306,7 +309,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         vertical: AppTheme.space12,
       ),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.12),
+        color: Colors.white.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
       ),
       child: Row(
@@ -420,12 +423,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             color: stat['color'] as Color,
             onTap: () {
               final label = stat['label'];
-              if (label == 'সক্রিয় বাস' || label == 'লাইভ ট্র্যাকিং')
+              if (label == 'সক্রিয় বাস' || label == 'লাইভ ট্র্যাকিং') {
                 context.go('/buses');
-              else if (label == 'আজকের ট্রিপ')
+              } else if (label == 'আজকের ট্রিপ') {
                 context.go('/schedules');
-              else
+              } else {
                 context.go('/notices');
+              }
             },
           );
         }, childCount: stats.length),
@@ -514,7 +518,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryBlue.withOpacity(0.1),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -603,11 +607,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: Center(
           child: Column(
             children: [
-              Icon(Icons.schedule_rounded,
-                  size: 48, color: AppTheme.textHint.withOpacity(0.3)),
+              Icon(
+                Icons.schedule_rounded,
+                size: 48,
+                color: AppTheme.textHint.withValues(alpha: 0.3),
+              ),
               const SizedBox(height: 16),
-              const Text('আজকে আর কোনো শিডিউল নেই',
-                  style: TextStyle(color: AppTheme.textSecondary)),
+              const Text(
+                'আজকে আর কোনো শিডিউল নেই',
+                style: TextStyle(color: AppTheme.textSecondary),
+              ),
             ],
           ),
         ),
@@ -616,16 +625,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildConnectionStrip(DashboardState state) {
-    if (!state.hasError)
+    if (!state.hasError) {
       return const SliverToBoxAdapter(child: SizedBox(height: 12));
+    }
     return SliverToBoxAdapter(
       child: Container(
         margin: const EdgeInsets.all(AppTheme.space24),
         padding: const EdgeInsets.all(AppTheme.space16),
         decoration: BoxDecoration(
-          color: AppTheme.error.withOpacity(0.1),
+          color: AppTheme.error.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-          border: Border.all(color: AppTheme.error.withOpacity(0.2)),
+          border: Border.all(color: AppTheme.error.withValues(alpha: 0.2)),
         ),
         child: Row(
           children: [

@@ -39,7 +39,7 @@ class ScheduleCard extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryBlue.withOpacity(0.1),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(
                           AppTheme.radiusSmall,
                         ),
@@ -66,7 +66,7 @@ class ScheduleCard extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: directionColor.withOpacity(0.1),
+                        color: directionColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(
                           AppTheme.radiusSmall,
                         ),
@@ -152,7 +152,7 @@ class ScheduleCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: CustomPaint(
               painter: _DashedLinePainter(
-                color: AppTheme.textHint.withOpacity(0.3),
+                color: AppTheme.textHint.withValues(alpha: 0.3),
               ),
             ),
           ),

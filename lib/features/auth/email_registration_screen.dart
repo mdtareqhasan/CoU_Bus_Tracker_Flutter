@@ -65,7 +65,10 @@ class _EmailRegistrationScreenState
           password: _passwordController.text,
           department: _departmentController.text.trim(),
           rollNumber: isStudent ? _rollNumberController.text.trim() : null,
-          session: isStudent ? _sessionController.text.trim() : null,
+          session: isStudent
+              ? sessionValueByLabel[_sessionController.text.trim()] ??
+                    _sessionController.text.trim()
+              : null,
           employeeId: isStudent ? null : _employeeIdController.text.trim(),
           designation: isStudent ? null : _designationController.text.trim(),
         );
@@ -167,8 +170,9 @@ class _EmailRegistrationScreenState
                                 icon: Icons.email_outlined,
                                 keyboardType: TextInputType.emailAddress,
                                 validator: (v) {
-                                  if (v == null || v.isEmpty)
+                                  if (v == null || v.isEmpty) {
                                     return 'ইমেইল দিন';
+                                  }
                                   return RegExp(
                                         r'^[^@]+@[^@]+\.[^@]+',
                                       ).hasMatch(v)
@@ -213,8 +217,8 @@ class _EmailRegistrationScreenState
                                       AppTheme.radiusMedium,
                                     ),
                                     borderSide: BorderSide(
-                                      color: AppTheme.primaryBlue.withOpacity(
-                                        0.2,
+                                      color: AppTheme.primaryBlue.withValues(
+                                        alpha: 0.2,
                                       ),
                                     ),
                                   ),
@@ -223,8 +227,8 @@ class _EmailRegistrationScreenState
                                       AppTheme.radiusMedium,
                                     ),
                                     borderSide: BorderSide(
-                                      color: AppTheme.primaryBlue.withOpacity(
-                                        0.1,
+                                      color: AppTheme.primaryBlue.withValues(
+                                        alpha: 0.1,
                                       ),
                                     ),
                                   ),
@@ -243,7 +247,7 @@ class _EmailRegistrationScreenState
                                       ? 'বিভাগ নির্বাচন করুন'
                                       : 'বিভাগ/অফিস নির্বাচন করুন',
                                 ),
-                                value: _selectedDepartment,
+                                initialValue: _selectedDepartment,
                                 items:
                                     (isStudent
                                             ? departmentOptions
@@ -298,42 +302,69 @@ class _EmailRegistrationScreenState
                                 .slideX(begin: 0.1, end: 0),
                             const SizedBox(height: AppTheme.space12),
                             DropdownButtonFormField<String>(
-                              decoration: InputDecoration(
-                                labelText: 'সেশন',
-                                prefixIcon: Icon(Icons.class_outlined, color: AppTheme.primaryBlue, size: 20),
-                                isDense: true,
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                                  borderSide: BorderSide(color: AppTheme.primaryBlue.withOpacity(0.2)),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                                  borderSide: BorderSide(color: AppTheme.primaryBlue.withOpacity(0.1)),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                                  borderSide: const BorderSide(color: AppTheme.primaryBlue, width: 2),
-                                ),
-                              ),
-                              hint: const Text('সেশন নির্বাচন করুন'),
-                              value: _selectedSession,
-                              items: sessionOptions
-                                  .map((session) => DropdownMenuItem<String>(
-                                        value: session,
-                                        child: Text(session),
-                                      ))
-                                  .toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedSession = value;
-                                  _sessionController.text = value ?? '';
-                                });
-                              },
-                              validator: (v) => v == null ? 'সেশন দিন' : null,
-                            )
+                                  decoration: InputDecoration(
+                                    labelText: 'সেশন',
+                                    prefixIcon: Icon(
+                                      Icons.class_outlined,
+                                      color: AppTheme.primaryBlue,
+                                      size: 20,
+                                    ),
+                                    isDense: true,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 10,
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                        AppTheme.radiusMedium,
+                                      ),
+                                      borderSide: BorderSide(
+                                        color: AppTheme.primaryBlue.withValues(
+                                          alpha: 0.2,
+                                        ),
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                        AppTheme.radiusMedium,
+                                      ),
+                                      borderSide: BorderSide(
+                                        color: AppTheme.primaryBlue.withValues(
+                                          alpha: 0.1,
+                                        ),
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                        AppTheme.radiusMedium,
+                                      ),
+                                      borderSide: const BorderSide(
+                                        color: AppTheme.primaryBlue,
+                                        width: 2,
+                                      ),
+                                    ),
+                                  ),
+                                  hint: const Text('সেশন নির্বাচন করুন'),
+                                  initialValue: _selectedSession,
+                                  items: sessionOptions
+                                      .map(
+                                        (session) => DropdownMenuItem<String>(
+                                          value: session,
+                                          child: Text(session),
+                                        ),
+                                      )
+                                      .toList(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _selectedSession = value;
+                                      _sessionController.text = value ?? '';
+                                    });
+                                  },
+                                  validator: (v) =>
+                                      v == null ? 'সেশন দিন' : null,
+                                )
                                 .animate()
                                 .fadeIn(delay: 700.ms)
                                 .slideX(begin: 0.1, end: 0),
@@ -378,10 +409,12 @@ class _EmailRegistrationScreenState
                                   ),
                                 ),
                                 validator: (v) {
-                                  if (v == null || v.isEmpty)
+                                  if (v == null || v.isEmpty) {
                                     return 'পাসওয়ার্ড দিন';
-                                  if (v.length < 8)
+                                  }
+                                  if (v.length < 8) {
                                     return 'পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে';
+                                  }
                                   return null;
                                 },
                               )
@@ -408,10 +441,12 @@ class _EmailRegistrationScreenState
                                   ),
                                 ),
                                 validator: (v) {
-                                  if (v == null || v.isEmpty)
+                                  if (v == null || v.isEmpty) {
                                     return 'পাসওয়ার্ড আবার দিন';
-                                  if (v != _passwordController.text)
+                                  }
+                                  if (v != _passwordController.text) {
                                     return 'পাসওয়ার্ড মিলছে না';
+                                  }
                                   return null;
                                 },
                               )
@@ -423,7 +458,7 @@ class _EmailRegistrationScreenState
                           const SizedBox(height: AppTheme.space16),
                           TextButton(
                             onPressed: () =>
-                                context.go('/auth/login?role=${widget.role}'),
+                                context.go('/auth/email-login?role=${widget.role}'),
                             child: Text.rich(
                               TextSpan(
                                 text: 'ইতিমধ্যে অ্যাকাউন্ট আছে? ',
@@ -487,7 +522,7 @@ class _EmailRegistrationScreenState
       width: 80,
       height: 80,
       decoration: BoxDecoration(
-        color: AppTheme.primaryBlue.withOpacity(0.1),
+        color: AppTheme.primaryBlue.withValues(alpha: 0.1),
         shape: BoxShape.circle,
       ),
       child: Center(
@@ -534,11 +569,11 @@ class _EmailRegistrationScreenState
         fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-          borderSide: BorderSide(color: AppTheme.primaryBlue.withOpacity(0.2)),
+          borderSide: BorderSide(color: AppTheme.primaryBlue.withValues(alpha: 0.2)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-          borderSide: BorderSide(color: AppTheme.primaryBlue.withOpacity(0.1)),
+          borderSide: BorderSide(color: AppTheme.primaryBlue.withValues(alpha: 0.1)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
@@ -558,7 +593,7 @@ class _EmailRegistrationScreenState
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),

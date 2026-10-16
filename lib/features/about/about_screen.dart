@@ -88,7 +88,7 @@ class AboutScreen extends StatelessWidget {
             shape: BoxShape.circle,
             boxShadow: AppTheme.softShadow,
             border: Border.all(
-              color: AppTheme.primaryBlue.withOpacity(0.1),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.1),
               width: 4,
             ),
           ),
@@ -172,7 +172,7 @@ class AboutScreen extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(AppTheme.radiusExtraLarge),
               border: Border.all(
-                color: AppTheme.primaryBlue.withOpacity(0.1),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                 width: 4,
               ),
             ),

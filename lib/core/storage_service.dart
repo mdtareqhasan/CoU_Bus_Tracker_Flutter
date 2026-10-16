@@ -1,5 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:math' as math;
 import 'constants.dart';
 
 class StorageService {
@@ -185,6 +186,33 @@ class StorageService {
   String? getSkippedVersion() {
     return _prefs.getString(StorageKeys.skippedVersion);
   }
+
+  // --- FCM device id ---
+
+  /// Stable, app-generated identifier for this install. Sent with FCM token
+  /// registration so a rotated token for the same device overwrites its row
+  /// on the backend instead of inserting a duplicate. Persisted in prefs so it
+  /// survives restarts; a fresh value is minted after reinstall.
+  static const String _fcmDeviceIdKey = 'fcm_device_id';
+
+  Future<String> getOrCreateFcmDeviceId() async {
+    final existing = _prefs.getString(_fcmDeviceIdKey);
+    if (existing != null && existing.isNotEmpty) return existing;
+
+    final newId = 'dev-${DateTime.now().microsecondsSinceEpoch}-'
+        '${_randomHex(8)}';
+    await _prefs.setString(_fcmDeviceIdKey, newId);
+    return newId;
+  }
+
+  static String _randomHex(int length) {
+    final rng = _secureRandom();
+    const chars = '0123456789abcdef';
+    return List.generate(length, (_) => chars[rng.nextInt(chars.length)]).join();
+  }
+
+  static math.Random? _rng;
+  static math.Random _secureRandom() => _rng ??= math.Random.secure();
 
   Future<void> setSkippedVersion(String version) async {
     await _prefs.setString(StorageKeys.skippedVersion, version);

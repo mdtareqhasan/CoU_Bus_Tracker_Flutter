@@ -10,6 +10,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import '../../app/theme.dart';
 import '../../core/utils/phone_utils.dart';
 import '../../core/services/id_card_validation_service.dart';
+import 'auth_notification_permission.dart';
 import 'department_options.dart';
 import 'session_options.dart';
 import 'auth_provider.dart';
@@ -239,6 +240,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
     ref.listen<AuthState>(authProvider, (prev, next) {
       if (next.status == AuthStateStatus.authenticated) {
+        requestPostAuthNotificationPermissionAfterNavigation(context);
         context.go('/home');
       } else if (next.status == AuthStateStatus.needsVerification) {
         final phone = next.phone ?? _phoneController.text.trim();
@@ -332,10 +334,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                   LengthLimitingTextInputFormatter(11),
                                 ],
                                 validator: (v) {
-                                  if (v == null || v.isEmpty)
+                                  if (v == null || v.isEmpty) {
                                     return 'ফোন নম্বর দিন';
-                                  if (!isValidBangladeshiPhone(v))
+                                  }
+                                  if (!isValidBangladeshiPhone(v)) {
                                     return 'সঠিক ফোন নম্বর দিন (01XXXXXXXXX)';
+                                  }
                                   return null;
                                 },
                               )
@@ -471,8 +475,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           _buildRegisterButton(authState),
                           const SizedBox(height: AppTheme.space16),
                           TextButton(
-                            onPressed: () =>
-                                context.go('/auth/login?role=${widget.role}'),
+                            onPressed: () => context.go(
+                              '/auth/email-login?role=${widget.role}',
+                            ),
                             child: Text.rich(
                               TextSpan(
                                 text: 'ইতিমধ্যে অ্যাকাউন্ট আছে? ',
@@ -511,9 +516,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     return Container(
       padding: const EdgeInsets.all(AppTheme.space12),
       decoration: BoxDecoration(
-        color: AppTheme.primaryBlue.withOpacity(0.06),
+        color: AppTheme.primaryBlue.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.15)),
+        border: Border.all(color: AppTheme.primaryBlue.withValues(alpha: 0.15)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -597,7 +602,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
               border: Border.all(
                 color: _idCardImage == null
-                    ? AppTheme.primaryBlue.withOpacity(0.3)
+                    ? AppTheme.primaryBlue.withValues(alpha: 0.3)
                     : AppTheme.successGreen,
                 width: 2,
               ),
@@ -636,7 +641,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       Icon(
                         Icons.add_a_photo_rounded,
                         size: 48,
-                        color: AppTheme.primaryBlue.withOpacity(0.5),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.5),
                       ),
                       const SizedBox(height: 12),
                       const Text(
@@ -689,7 +694,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           Container(
             padding: const EdgeInsets.all(AppTheme.space12),
             decoration: BoxDecoration(
-              color: AppTheme.primaryBlue.withOpacity(0.06),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
             ),
             child: const Row(
@@ -721,13 +726,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             padding: const EdgeInsets.all(AppTheme.space12),
             decoration: BoxDecoration(
               color: _isIdCardValid == true
-                  ? AppTheme.successGreen.withOpacity(0.06)
-                  : AppTheme.error.withOpacity(0.06),
+                  ? AppTheme.successGreen.withValues(alpha: 0.06)
+                  : AppTheme.error.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
               border: Border.all(
                 color: _isIdCardValid == true
-                    ? AppTheme.successGreen.withOpacity(0.2)
-                    : AppTheme.error.withOpacity(0.2),
+                    ? AppTheme.successGreen.withValues(alpha: 0.2)
+                    : AppTheme.error.withValues(alpha: 0.2),
               ),
             ),
             child: Row(
@@ -794,7 +799,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       width: 80,
       height: 80,
       decoration: BoxDecoration(
-        color: AppTheme.primaryBlue.withOpacity(0.1),
+        color: AppTheme.primaryBlue.withValues(alpha: 0.1),
         shape: BoxShape.circle,
       ),
       child: Center(
@@ -843,11 +848,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-          borderSide: BorderSide(color: AppTheme.primaryBlue.withOpacity(0.2)),
+          borderSide: BorderSide(color: AppTheme.primaryBlue.withValues(alpha: 0.2)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-          borderSide: BorderSide(color: AppTheme.primaryBlue.withOpacity(0.1)),
+          borderSide: BorderSide(color: AppTheme.primaryBlue.withValues(alpha: 0.1)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
@@ -880,11 +885,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-          borderSide: BorderSide(color: AppTheme.primaryBlue.withOpacity(0.2)),
+          borderSide: BorderSide(color: AppTheme.primaryBlue.withValues(alpha: 0.2)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-          borderSide: BorderSide(color: AppTheme.primaryBlue.withOpacity(0.1)),
+          borderSide: BorderSide(color: AppTheme.primaryBlue.withValues(alpha: 0.1)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
@@ -931,18 +936,25 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     return DropdownButtonFormField<String>(
       decoration: InputDecoration(
         labelText: 'সেশন',
-        prefixIcon: Icon(Icons.class_outlined, color: AppTheme.primaryBlue, size: 20),
+        prefixIcon: Icon(
+          Icons.class_outlined,
+          color: AppTheme.primaryBlue,
+          size: 20,
+        ),
         isDense: true,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 10,
+        ),
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-          borderSide: BorderSide(color: AppTheme.primaryBlue.withOpacity(0.2)),
+          borderSide: BorderSide(color: AppTheme.primaryBlue.withValues(alpha: 0.2)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-          borderSide: BorderSide(color: AppTheme.primaryBlue.withOpacity(0.1)),
+          borderSide: BorderSide(color: AppTheme.primaryBlue.withValues(alpha: 0.1)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
@@ -950,12 +962,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         ),
       ),
       hint: const Text('সেশন নির্বাচন করুন'),
-      value: _selectedSession,
+      initialValue: _selectedSession,
       items: sessionOptions
-          .map((session) => DropdownMenuItem<String>(
-                value: session,
-                child: Text(session),
-              ))
+          .map(
+            (session) =>
+                DropdownMenuItem<String>(value: session, child: Text(session)),
+          )
           .toList(),
       onChanged: (value) {
         setState(() {
@@ -978,7 +990,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -1072,7 +1084,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             rollNumber: role == 'student'
                 ? _rollNumberController.text.trim()
                 : null,
-            session: role == 'student' ? _sessionController.text.trim() : null,
+            session: role == 'student'
+                ? sessionValueByLabel[_sessionController.text.trim()] ??
+                      _sessionController.text.trim()
+                : null,
             teacherId: role == 'teacher'
                 ? _teacherIdController.text.trim()
                 : null,

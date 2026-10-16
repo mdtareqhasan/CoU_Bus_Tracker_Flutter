@@ -12,8 +12,12 @@ int compareVersions(String current, String target) {
       .map((e) => int.tryParse(e) ?? 0)
       .toList();
 
-  while (currentParts.length < 3) currentParts.add(0);
-  while (targetParts.length < 3) targetParts.add(0);
+  while (currentParts.length < 3) {
+    currentParts.add(0);
+  }
+  while (targetParts.length < 3) {
+    targetParts.add(0);
+  }
 
   for (var i = 0; i < 3; i++) {
     if (currentParts[i] < targetParts[i]) return -1;

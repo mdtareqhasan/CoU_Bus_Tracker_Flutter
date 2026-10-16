@@ -12,11 +12,15 @@ import '../features/auth/role_screen.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/register_screen.dart';
 import '../features/auth/email_registration_screen.dart';
+import '../features/auth/email_login_screen.dart';
+import '../features/auth/google_signin_screen.dart';
 import '../features/auth/email_otp_verification_screen.dart';
 import '../features/auth/phone_otp_verification_screen.dart';
 import '../features/auth/upload_id_screen.dart';
 import '../features/auth/forgot_password_screen.dart';
+import '../features/auth/forgot_password_email_screen.dart';
 import '../features/auth/forgot_password_otp_screen.dart';
+import '../features/auth/forgot_password_email_otp_screen.dart';
 import '../features/profile/profile_screen.dart';
 import '../features/about/about_screen.dart';
 
@@ -107,6 +111,24 @@ final appRouter = GoRouter(
         return RegisterScreen(role: role);
       },
     ),
+    // Primary entry point from the role screen. The email/SMS sign-in and
+    // sign-up routes below are kept for now and remain reachable directly.
+    GoRoute(
+      path: '/auth/google-signin',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final role = state.uri.queryParameters['role'] ?? 'student';
+        return GoogleSigninScreen(role: role);
+      },
+    ),
+    GoRoute(
+      path: '/auth/email-login',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final role = state.uri.queryParameters['role'] ?? 'student';
+        return EmailLoginScreen(role: role);
+      },
+    ),
     GoRoute(
       path: '/auth/email-register',
       parentNavigatorKey: _rootNavigatorKey,
@@ -137,6 +159,20 @@ final appRouter = GoRouter(
       path: '/auth/upload-id',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const UploadIdScreen(),
+    ),
+    GoRoute(
+      path: '/auth/forgot-password-email',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ForgotPasswordEmailScreen(),
+    ),
+    GoRoute(
+      path: '/auth/forgot-password-email-otp',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final email = state.uri.queryParameters['email'] ?? '';
+        final role = state.uri.queryParameters['role'] ?? 'STUDENT';
+        return ForgotPasswordEmailOtpScreen(email: email, role: role);
+      },
     ),
     GoRoute(
       path: '/auth/forgot-password',

@@ -73,7 +73,8 @@ class RoleScreen extends StatelessWidget {
                             icon: Icons.school_rounded,
                             label: 'শিক্ষার্থী',
                             subtitle: 'ছাত্র হিসেবে লগইন বা নিবন্ধন করুন',
-                            onTap: () => context.go('/auth/login?role=student'),
+                            onTap: () =>
+                                context.go('/auth/google-signin?role=student'),
                             delay: 400.ms,
                           ),
                           const SizedBox(height: AppTheme.space16),
@@ -82,7 +83,8 @@ class RoleScreen extends StatelessWidget {
                             icon: Icons.psychology_rounded,
                             label: 'শিক্ষক',
                             subtitle: 'শিক্ষক হিসেবে লগইন বা নিবন্ধন করুন',
-                            onTap: () => context.go('/auth/login?role=teacher'),
+                            onTap: () =>
+                                context.go('/auth/google-signin?role=teacher'),
                             delay: 500.ms,
                           ),
                           const SizedBox(height: 32),
@@ -104,7 +106,7 @@ class RoleScreen extends StatelessWidget {
       width: 140,
       height: 140,
       decoration: BoxDecoration(
-        color: AppTheme.primaryBlue.withOpacity(0.1),
+        color: AppTheme.primaryBlue.withValues(alpha: 0.1),
         shape: BoxShape.circle,
       ),
       child: Center(
@@ -116,7 +118,7 @@ class RoleScreen extends StatelessWidget {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: AppTheme.primaryBlue.withOpacity(0.3),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -159,7 +161,7 @@ class RoleScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(AppTheme.space12),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryBlue.withOpacity(0.1),
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                   ),
                   child: Icon(icon, color: AppTheme.primaryBlue, size: 28),

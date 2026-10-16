@@ -90,7 +90,7 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
                 borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -295,7 +295,7 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
           Icon(
             Icons.directions_bus_rounded,
             size: 80,
-            color: AppTheme.textHint.withOpacity(0.3),
+            color: AppTheme.textHint.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
           Text(

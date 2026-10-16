@@ -7,7 +7,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../app/theme.dart';
 import '../../core/result.dart';
 import '../../core/constants.dart';
-import '../../core/storage_service.dart';
 import '../../shared/models/bus_detail.dart';
 import '../../shared/models/schedule.dart';
 import '../providers.dart';
@@ -168,7 +167,7 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
                   width: 150,
                   height: 150,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.08),
+                    color: Colors.white.withValues(alpha: 0.08),
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -205,7 +204,7 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -231,9 +230,12 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: Colors.red.withOpacity(0.2),
+        color: Colors.red.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: Colors.red.withOpacity(0.5), width: 0.5),
+        border: Border.all(
+          color: Colors.red.withValues(alpha: 0.5),
+          width: 0.5,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -274,12 +276,15 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withValues(alpha: 0.2),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
           ],
-          border: Border.all(color: Colors.white.withOpacity(0.5), width: 4),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.5),
+            width: 4,
+          ),
         ),
         child: ClipOval(
           child: Image.asset('assets/images/buslogo.jpeg', fit: BoxFit.cover),
@@ -370,7 +375,7 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryBlue.withOpacity(0.05),
+                          color: AppTheme.primaryBlue.withValues(alpha: 0.05),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
@@ -395,7 +400,7 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryBlue.withOpacity(0.1),
+                            color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
@@ -452,9 +457,9 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Text(
         s.directionLabel,

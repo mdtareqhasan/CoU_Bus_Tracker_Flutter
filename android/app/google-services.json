@@ -1,1 +1,54 @@
-{"installed":{"client_id":"111634412431-t3hjk2g1fsfoguagsmaqmdc7ouflaivt.apps.googleusercontent.com","project_id":"medicare-hms-489718","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs"}}
+{
+  "project_info": {
+    "project_number": "601520130344",
+    "project_id": "cou-bus-tracker-flutter",
+    "storage_bucket": "cou-bus-tracker-flutter.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:601520130344:android:c9b05b9b7a74707edda81d",
+        "android_client_info": {
+          "package_name": "com.cse.coubustracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "601520130344-cv51ld99cko4q9rqers3qsbffbr4u8gp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cse.coubustracker",
+            "certificate_hash": "81d10bac71a74566979102d61b933a74e8b161b6"
+          }
+        },
+        {
+          "client_id": "601520130344-b0s8fni9k71ktjhbcvtqbi74k4itpkps.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMDoZxrI89DxhFheY9d8K68Zqy8A48ZbU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "601520130344-b0s8fni9k71ktjhbcvtqbi74k4itpkps.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "601520130344-ijeajadk5a103ahob8ucgj9s6ugbo9ec.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.cse.coubustracker.couBusTracker"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

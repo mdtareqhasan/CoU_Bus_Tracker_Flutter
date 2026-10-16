@@ -57,8 +57,11 @@ class AppTheme {
   static LinearGradient glassGradient(Brightness brightness) {
     return LinearGradient(
       colors: brightness == Brightness.light
-          ? [Colors.white.withOpacity(0.8), Colors.white.withOpacity(0.4)]
-          : [surfaceDark.withOpacity(0.8), surfaceDark.withOpacity(0.4)],
+          ? [
+              Colors.white.withValues(alpha: 0.8),
+              Colors.white.withValues(alpha: 0.4),
+            ]
+          : [surfaceDark.withValues(alpha: 0.8), surfaceDark.withValues(alpha: 0.4)],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     );
@@ -67,7 +70,7 @@ class AppTheme {
   // Shadow - Soft
   static List<BoxShadow> softShadow = [
     BoxShadow(
-      color: Colors.black.withOpacity(0.06),
+      color: Colors.black.withValues(alpha: 0.06),
       blurRadius: 10,
       offset: const Offset(0, 4),
     ),
@@ -200,15 +203,15 @@ class AppTheme {
             ),
             bodyLarge: GoogleFonts.inter(
               fontSize: 15,
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withValues(alpha: 0.9),
             ),
             bodyMedium: GoogleFonts.inter(
               fontSize: 13,
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withValues(alpha: 0.7),
             ),
             bodySmall: GoogleFonts.inter(
               fontSize: 11,
-              color: Colors.white.withOpacity(0.5),
+              color: Colors.white.withValues(alpha: 0.5),
             ),
           ),
       cardTheme: CardThemeData(
