@@ -10,6 +10,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import '../../app/theme.dart';
 import '../../core/utils/phone_utils.dart';
 import '../../core/services/id_card_validation_service.dart';
+import '../../l10n/l10n.dart';
 import 'auth_notification_permission.dart';
 import 'department_options.dart';
 import 'session_options.dart';
@@ -81,7 +82,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final mime = lookupMimeType(file.path);
 
     if (mime == null || !_allowedImageMimes.contains(mime)) {
-      _showError('শুধুমাত্র JPG, JPEG বা PNG ছবি নির্বাচন করুন।');
+      _showError(L10n.current.invalidImageType);
       return;
     }
 
@@ -114,11 +115,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
       String message;
       if (result.documentType == 'teacher_id_card') {
-        message = '✅ শিক্ষক আইডি কার্ড সনাক্ত হয়েছে';
+        message = context.l10n.idCardDetectedTeacher;
       } else if (result.documentType == 'id_card') {
-        message = '✅ আইডি কার্ড সনাক্ত হয়েছে';
+        message = context.l10n.idCardDetected;
       } else {
-        message = '✅ ছবি আপলোড হয়েছে';
+        message = context.l10n.photoUploaded;
       }
 
       setState(() {
@@ -156,7 +157,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             result.extractedDepartment != null ||
             result.extractedDesignation != null ||
             result.extractedEmployeeId != null) {
-          _showSuccess('তথ্য স্বয়ংক্রিয়ভাবে পূরণ হয়েছে। পরীক্ষা করে নিন।');
+          _showSuccess(context.l10n.autoFilledInfo);
         }
       }
     } catch (e) {
@@ -164,7 +165,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       setState(() {
         _isValidatingIdCard = false;
         _isIdCardValid = null;
-        _idCardValidationMessage = 'ছবি যাচাইয়ে সমস্যা হয়েছে।';
+        _idCardValidationMessage = context.l10n.photoValidationFailed;
       });
     }
   }
@@ -259,8 +260,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     });
 
     final roleTitle = widget.role == 'student'
-        ? 'শিক্ষার্থী নিবন্ধন'
-        : 'শিক্ষক নিবন্ধন';
+        ? context.l10n.authStudentRegister
+        : context.l10n.authTeacherRegister;
 
     return PopScope(
       canPop: false,
@@ -308,20 +309,24 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               .fadeIn(delay: 100.ms)
                               .slideY(begin: 0.2, end: 0),
                           const SizedBox(height: AppTheme.space8),
-                          const Text(
-                            'আইডি কার্ড অথবা ভর্তির ফর্ম আপলোড করুন',
+                          Text(
+                            context.l10n.registerSubtitle,
                             textAlign: TextAlign.center,
-                            style: TextStyle(color: AppTheme.textSecondary),
+                            style: const TextStyle(
+                              color: AppTheme.textSecondary,
+                            ),
                           ).animate().fadeIn(delay: 200.ms),
                           const SizedBox(height: AppTheme.space24),
                           _buildDocumentPicker(),
                           const SizedBox(height: AppTheme.space32),
                           _buildTextField(
                                 controller: _nameController,
-                                label: 'পুরো নাম',
+                                label: context.l10n.fieldFullName,
                                 icon: Icons.person_outline_rounded,
                                 validator: (v) =>
-                                    v == null || v.isEmpty ? 'নাম দিন' : null,
+                                    v == null || v.isEmpty
+                                        ? context.l10n.validationNameRequired
+                                        : null,
                               )
                               .animate()
                               .fadeIn(delay: 300.ms)
@@ -329,7 +334,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           const SizedBox(height: AppTheme.space12),
                           _buildTextField(
                                 controller: _phoneController,
-                                label: 'ফোন নম্বর',
+                                label: context.l10n.fieldPhoneNumber,
                                 icon: Icons.phone_android_rounded,
                                 keyboardType: TextInputType.phone,
                                 inputFormatters: [
@@ -338,10 +343,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 ],
                                 validator: (v) {
                                   if (v == null || v.isEmpty) {
-                                    return 'ফোন নম্বর দিন';
+                                    return context.l10n.validationPhoneRequired;
                                   }
                                   if (!isValidBangladeshiPhone(v)) {
-                                    return 'সঠিক ফোন নম্বর দিন (01XXXXXXXXX)';
+                                    return context.l10n.validationPhoneInvalid;
                                   }
                                   return null;
                                 },
@@ -350,10 +355,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               .fadeIn(delay: 500.ms)
                               .slideX(begin: 0.1, end: 0),
                           const SizedBox(height: AppTheme.space8),
-                          const Text(
-                            'নিবন্ধনের পর এই নম্বরে OTP পাঠানো হবে',
+                          Text(
+                            context.l10n.otpWillBeSentToPhone,
                             textAlign: TextAlign.center,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: AppTheme.textHint,
                               fontSize: 12,
                             ),
@@ -362,11 +367,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             const SizedBox(height: AppTheme.space12),
                             _buildTextField(
                                   controller: _rollNumberController,
-                                  label: 'রোল নম্বর',
+                                  label: context.l10n.fieldRollNumber,
                                   icon: Icons.badge_outlined,
-                                  hint: 'যেমন: 12208055',
+                                  hint: context.l10n.hintExampleRoll,
                                   validator: (v) => v == null || v.isEmpty
-                                      ? 'রোল নম্বর দিন'
+                                      ? context.l10n.validationRollRequired
                                       : null,
                                 )
                                 .animate()
@@ -387,10 +392,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             const SizedBox(height: AppTheme.space12),
                             _buildTextField(
                                   controller: _teacherIdController,
-                                  label: 'শিক্ষক আইডি',
+                                  label: context.l10n.fieldTeacherId,
                                   icon: Icons.badge_outlined,
                                   validator: (v) => v == null || v.isEmpty
-                                      ? 'আইডি দিন'
+                                      ? context.l10n.validationIdRequired
                                       : null,
                                 )
                                 .animate()
@@ -404,7 +409,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             const SizedBox(height: AppTheme.space12),
                             _buildTextField(
                                   controller: _designationController,
-                                  label: 'পদবী',
+                                  label: context.l10n.fieldDesignation,
                                   icon: Icons.work_outline_rounded,
                                 )
                                 .animate()
@@ -414,7 +419,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           const SizedBox(height: AppTheme.space32),
                           _buildTextField(
                                 controller: _passwordController,
-                                label: 'পাসওয়ার্ড',
+                                label: context.l10n.fieldPassword,
                                 icon: Icons.lock_outline_rounded,
                                 obscureText: _obscurePassword,
                                 suffixIcon: IconButton(
@@ -431,10 +436,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 ),
                                 validator: (v) {
                                   if (v == null || v.isEmpty) {
-                                    return 'পাসওয়ার্ড দিন';
+                                    return context
+                                        .l10n
+                                        .validationPasswordRequired;
                                   }
                                   if (v.length < 8) {
-                                    return 'পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে';
+                                    return context
+                                        .l10n
+                                        .validationPasswordLength8;
                                   }
                                   return null;
                                 },
@@ -445,7 +454,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           const SizedBox(height: AppTheme.space12),
                           _buildTextField(
                                 controller: _confirmPasswordController,
-                                label: 'পাসওয়ার্ড আবার দিন',
+                                label: context.l10n.fieldPasswordConfirm,
                                 icon: Icons.lock_outline_rounded,
                                 obscureText: _obscureConfirmPassword,
                                 suffixIcon: IconButton(
@@ -463,10 +472,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 ),
                                 validator: (v) {
                                   if (v == null || v.isEmpty) {
-                                    return 'পাসওয়ার্ড আবার দিন';
+                                    return context.l10n.fieldPasswordConfirm;
                                   }
                                   if (v != _passwordController.text) {
-                                    return 'পাসওয়ার্ড মিলছে না';
+                                    return context
+                                        .l10n
+                                        .validationPasswordMismatch;
                                   }
                                   return null;
                                 },
@@ -483,13 +494,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             ),
                             child: Text.rich(
                               TextSpan(
-                                text: 'ইতিমধ্যে অ্যাকাউন্ট আছে? ',
+                                text: context.l10n.authHaveAccount,
                                 style: const TextStyle(
                                   color: AppTheme.textSecondary,
                                 ),
                                 children: [
                                   TextSpan(
-                                    text: 'লগইন করুন',
+                                    text: context.l10n.authLogin,
                                     style: TextStyle(
                                       color: AppTheme.primaryBlue,
                                       fontWeight: FontWeight.bold,
@@ -547,8 +558,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               children: [
                 Text(
                   isStudent
-                      ? 'আইডি কার্ড বা ভর্তির ফর্ম — যেকোনো একটি দিন!'
-                      : 'শিক্ষক আইডি কার্ড আপলোড করুন',
+                      ? context.l10n.uploadDocStudent
+                      : context.l10n.uploadDocTeacher,
                   style: TextStyle(
                     fontSize: 12.5,
                     color: AppTheme.primaryBlue,
@@ -558,12 +569,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 const SizedBox(height: 3),
                 Text(
                   isStudent
-                      ? '• আইডি কার্ড আছে → আইডি কার্ডের ছবি আপলোড করুন\n'
-                            '• আইডি কার্ড নেই → ভর্তির ফর্ম / ভর্তি ভাউচারের ছবি আপলোড করুন\n'
-                            '• উভয়ই কুমিল্লা বিশ্ববিদ্যালয়ের হতে হবে'
-                      : '• শিক্ষক পরিচয়পত্রের ছবি আপলোড করুন\n'
-                            '• কুমিল্লা বিশ্ববিদ্যালয়ের শিক্ষক আইডি কার্ড হতে হবে\n'
-                            '• ডিপার্টমেন্ট ও পদবি স্বয়ংক্রিয়ভাবে পূরণ হবে',
+                      ? context.l10n.uploadGuidelinesStudent
+                      : context.l10n.uploadGuidelinesTeacher,
                   style: const TextStyle(
                     fontSize: 11.5,
                     color: AppTheme.textSecondary,
@@ -586,8 +593,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       children: [
         Text(
           isStudent
-              ? 'পরিচয়পত্র / ভর্তির ফর্মের ছবি (MANDATORY)'
-              : 'শিক্ষক পরিচয়পত্রের ছবি (MANDATORY)',
+              ? context.l10n.docPhotoLabelStudent
+              : context.l10n.docPhotoLabelTeacher,
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 14,
@@ -647,15 +654,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         color: AppTheme.primaryBlue.withValues(alpha: 0.5),
                       ),
                       const SizedBox(height: 12),
-                      const Text(
-                        'ছবি সিলেক্ট করুন',
-                        style: TextStyle(color: AppTheme.textSecondary),
+                      Text(
+                        context.l10n.selectPhoto,
+                        style: const TextStyle(
+                          color: AppTheme.textSecondary,
+                        ),
                       ),
                       if (_idCardImage == null)
                         Text(
                           isStudent
-                              ? '(JPG/PNG — আইডি কার্ড অথবা ভর্তির ফর্ম)'
-                              : '(JPG/PNG — শিক্ষক আইডি কার্ড)',
+                              ? context.l10n.photoFormatStudent
+                              : context.l10n.photoFormatTeacher,
                           style: const TextStyle(
                             color: AppTheme.textHint,
                             fontSize: 11,
@@ -672,8 +681,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 padding: const EdgeInsets.only(top: 4),
                                 child: Text(
                                   mb >= 1
-                                      ? 'ছবির সাইজ: ${mb.toStringAsFixed(2)} MB'
-                                      : 'ছবির সাইজ: ${kb.toStringAsFixed(0)} KB',
+                                      ? context.l10n.photoSizeMb(
+                                          mb.toStringAsFixed(2),
+                                        )
+                                      : context.l10n.photoSizeKb(
+                                          kb.toStringAsFixed(0),
+                                        ),
                                   style: const TextStyle(
                                     color: AppTheme.successGreen,
                                     fontSize: 12,
@@ -700,9 +713,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               color: AppTheme.primaryBlue.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                SizedBox(
+                const SizedBox(
                   width: 16,
                   height: 16,
                   child: CircularProgressIndicator(
@@ -710,10 +723,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     color: AppTheme.primaryBlue,
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Text(
-                  'ছবি যাচাই করা হচ্ছে...',
-                  style: TextStyle(
+                  context.l10n.photoValidatingIndicator,
+                  style: const TextStyle(
                     color: AppTheme.primaryBlue,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -869,7 +882,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   Widget _buildDepartmentDropdown() {
     return DropdownButtonFormField<String>(
       decoration: InputDecoration(
-        labelText: (widget.role == 'student') ? 'বিভাগ' : 'বিভাগ/অফিস',
+        labelText: (widget.role == 'student')
+            ? context.l10n.fieldDepartment
+            : context.l10n.fieldDepartmentOffice,
         labelStyle: const TextStyle(
           color: AppTheme.textSecondary,
           fontSize: 14,
@@ -901,8 +916,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       ),
       hint: Text(
         (widget.role == 'student')
-            ? 'বিভাগ নির্বাচন করুন'
-            : 'বিভাগ/অফিস নির্বাচন করুন',
+            ? context.l10n.selectDepartment
+            : context.l10n.selectDepartmentOffice,
       ),
       initialValue: _selectedDepartment,
       items:
@@ -931,14 +946,15 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           _departmentController.text = value ?? '';
         });
       },
-      validator: (v) => v == null ? 'বিভাগ দিন' : null,
+      validator: (v) =>
+          v == null ? context.l10n.validationDepartmentRequired : null,
     );
   }
 
   Widget _buildSessionDropdown() {
     return DropdownButtonFormField<String>(
       decoration: InputDecoration(
-        labelText: 'সেশন',
+        labelText: context.l10n.fieldSession,
         prefixIcon: Icon(
           Icons.class_outlined,
           color: AppTheme.primaryBlue,
@@ -964,7 +980,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           borderSide: const BorderSide(color: AppTheme.primaryBlue, width: 2),
         ),
       ),
-      hint: const Text('সেশন নির্বাচন করুন'),
+      hint: Text(context.l10n.selectSession),
       initialValue: _selectedSession,
       items: sessionOptions
           .map(
@@ -978,7 +994,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           _sessionController.text = value ?? '';
         });
       },
-      validator: (v) => v == null ? 'সেশন দিন' : null,
+      validator: (v) =>
+          v == null ? context.l10n.validationSessionRequired : null,
     );
   }
 
@@ -1017,9 +1034,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   strokeWidth: 2,
                 ),
               )
-            : const Text(
-                'নিবন্ধন করুন',
-                style: TextStyle(
+            : Text(
+                context.l10n.authRegister,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -1035,14 +1052,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('নথি প্রয়োজন'),
-          content: const Text(
-            'নিবন্ধন সম্পন্ন করতে আপনার বিশ্ববিদ্যালয় আইডি কার্ড অথবা ভর্তির ফর্মের ছবি আপলোড করা বাধ্যতামূলক।',
-          ),
+          title: Text(context.l10n.registerDocTitle),
+          content: Text(context.l10n.registerDocRequiredMsg),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('ঠিক আছে'),
+              child: Text(context.l10n.commonOk),
             ),
           ],
         ),
@@ -1052,8 +1067,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
     if (_isValidatingIdCard) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('ছবি যাচাই হচ্ছে... অপেক্ষা করুন।'),
+        SnackBar(
+          content: Text(context.l10n.photoValidatingDialog),
           backgroundColor: AppTheme.primaryBlue,
         ),
       );
@@ -1064,7 +1079,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     if (_isIdCardValid != true) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(_idCardValidationMessage ?? 'সঠিক আইডি কার্ড দিন।'),
+          content: Text(
+            _idCardValidationMessage ?? context.l10n.validIdCardPrompt,
+          ),
           backgroundColor: AppTheme.error,
         ),
       );

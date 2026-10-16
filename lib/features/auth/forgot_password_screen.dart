@@ -6,6 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../app/theme.dart';
 import '../../core/result.dart';
 import '../../core/utils/phone_utils.dart';
+import '../../l10n/l10n.dart';
 import '../auth/auth_provider.dart';
 
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
@@ -62,7 +63,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                           _buildHeaderIllustration(),
                           const SizedBox(height: AppTheme.space24),
                           Text(
-                            'পাসওয়ার্ড রিসেট',
+                            context.l10n.passwordResetTitle,
                             textAlign: TextAlign.center,
                             style: Theme.of(context)
                                 .textTheme
@@ -76,17 +77,19 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                               .fadeIn(delay: 100.ms)
                               .slideY(begin: 0.2, end: 0),
                           const SizedBox(height: AppTheme.space8),
-                          const Text(
-                            'আপনার ফোন নম্বর দিন, আমরা OTP পাঠাবো',
+                          Text(
+                            context.l10n.forgotPhoneSubtitle,
                             textAlign: TextAlign.center,
-                            style: TextStyle(color: AppTheme.textSecondary),
+                            style: const TextStyle(
+                              color: AppTheme.textSecondary,
+                            ),
                           ).animate().fadeIn(delay: 200.ms),
                           const SizedBox(height: AppTheme.space32),
                           _buildRoleSelector(),
                           const SizedBox(height: AppTheme.space24),
                           _buildTextField(
                             controller: _phoneController,
-                            label: 'ফোন নম্বর',
+                            label: context.l10n.fieldPhoneNumber,
                             icon: Icons.phone_android_rounded,
                             keyboardType: TextInputType.phone,
                             inputFormatters: [
@@ -95,10 +98,10 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                             ],
                             validator: (v) {
                               if (v == null || v.isEmpty) {
-                                return 'ফোন নম্বর দিন';
+                                return context.l10n.validationPhoneRequired;
                               }
                               if (!isValidBangladeshiPhone(v)) {
-                                return 'সঠিক ফোন নম্বর দিন (01XXXXXXXXX)';
+                                return context.l10n.validationPhoneInvalid;
                               }
                               return null;
                             },
@@ -113,7 +116,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                             onPressed: () => context.go('/auth/role'),
                             child: Text.rich(
                               TextSpan(
-                                text: 'লগইনে ফিরে যান',
+                                text: context.l10n.authLoginBack,
                                 style: TextStyle(
                                   color: AppTheme.primaryBlue,
                                   fontWeight: FontWeight.bold,
@@ -147,9 +150,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         ),
         onPressed: () => context.go('/auth/role'),
       ),
-      title: const Text(
-        'পাসওয়ার্ড রিসেট',
-        style: TextStyle(
+      title: Text(
+        context.l10n.passwordResetTitle,
+        style: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
           fontSize: 18,
@@ -190,10 +193,10 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       child: Row(
         children: [
           Expanded(
-            child: _buildRoleOption('student', 'শিক্ষার্থী'),
+            child: _buildRoleOption('student', context.l10n.roleStudent),
           ),
           Expanded(
-            child: _buildRoleOption('teacher', 'শিক্ষক'),
+            child: _buildRoleOption('teacher', context.l10n.roleTeacher),
           ),
         ],
       ),
@@ -292,9 +295,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
             borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
           ),
         ),
-        child: const Text(
-          'OTP পাঠান',
-          style: TextStyle(
+        child: Text(
+          context.l10n.authSendOtp,
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
             color: Colors.white,

@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cou_bus_tracker/app/locale_provider.dart';
 import 'package:cou_bus_tracker/core/error_handler.dart';
 import 'package:cou_bus_tracker/core/storage_service.dart';
+import 'package:cou_bus_tracker/core/utils/time_utils.dart';
 import 'package:cou_bus_tracker/features/providers.dart';
 import 'package:cou_bus_tracker/l10n/l10n.dart';
 
@@ -65,6 +66,35 @@ void main() {
         findsOneWidget,
       );
       await tester.pumpWidget(const SizedBox());
+    });
+  });
+
+  group('TimeUtils localization', () {
+    tearDown(() => L10n.activate(const Locale('bn')));
+
+    test('formats HH:mm for the active locale', () {
+      L10n.activate(const Locale('bn'));
+      expect(TimeUtils.formatTime('08:30'), 'সকাল ৮:৩০');
+      expect(TimeUtils.formatTime('13:05'), 'দুপুর ১:০৫');
+      expect(TimeUtils.formatTime('00:15'), 'রাত ১২:১৫');
+
+      L10n.activate(const Locale('en'));
+      expect(TimeUtils.formatTime('08:30'), '8:30 AM');
+      expect(TimeUtils.formatTime('18:05'), '6:05 PM');
+      expect(TimeUtils.formatTime('12:00'), '12:00 PM');
+    });
+
+    test('a missing time is localized', () {
+      L10n.activate(const Locale('bn'));
+      expect(TimeUtils.formatTime(null), 'নির্ধারিত নয়');
+      expect(TimeUtils.formatTime(''), 'নির্ধারিত নয়');
+
+      L10n.activate(const Locale('en'));
+      expect(TimeUtils.formatTime(null), 'Not scheduled');
+    });
+
+    test('unparseable input passes through untouched', () {
+      expect(TimeUtils.formatTime('half past'), 'half past');
     });
   });
 

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/result.dart';
+import '../../l10n/l10n.dart';
 import '../../core/storage_service.dart';
 import '../../core/error_handler.dart';
 import '../../core/services/google_signin_service.dart';
@@ -207,7 +208,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
           !isProfileIncomplete &&
           (statusCode == 401 ||
               statusCode == 403 ||
-              message.toLowerCase().contains('সেশন শেষ'));
+              ErrorHandler.isSessionExpired(message));
 
       if (isAuthError) {
         // Token invalid / user deleted → full cleanup.
@@ -327,7 +328,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         default:
           state = state.copyWith(
             status: AuthStateStatus.error,
-            error: 'Unknown response',
+            error: L10n.current.errorUnknownResponse,
           );
       }
     } catch (e) {
@@ -383,7 +384,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         default:
           state = state.copyWith(
             status: AuthStateStatus.error,
-            error: 'Unknown response',
+            error: L10n.current.errorUnknownResponse,
           );
       }
     } catch (e) {
@@ -420,7 +421,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         default:
           state = state.copyWith(
             status: AuthStateStatus.error,
-            error: 'Unknown response',
+            error: L10n.current.errorUnknownResponse,
           );
       }
     } catch (e) {
@@ -458,7 +459,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
             state = state.copyWith(
               status: AuthStateStatus.error,
               error:
-                  'ভেরিফিকেশন সফল হলেও টোকেন পাওয়া যায়নি। আবার চেষ্টা করুন।',
+                  L10n.current.errorVerifyOtpNoToken,
             );
             return;
           }
@@ -468,7 +469,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         default:
           state = state.copyWith(
             status: AuthStateStatus.error,
-            error: 'Unknown response',
+            error: L10n.current.errorUnknownResponse,
           );
       }
     } catch (e) {
@@ -582,7 +583,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
             state = state.copyWith(
               status: AuthStateStatus.error,
               error:
-                  'ভেরিফিকেশন সফল হলেও টোকেন পাওয়া যায়নি। আবার চেষ্টা করুন।',
+                  L10n.current.errorVerifyOtpNoToken,
             );
             return;
           }
@@ -592,7 +593,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         default:
           state = state.copyWith(
             status: AuthStateStatus.error,
-            error: 'Unknown response',
+            error: L10n.current.errorUnknownResponse,
           );
       }
     } catch (e) {

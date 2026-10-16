@@ -8,6 +8,7 @@ import '../../core/constants.dart';
 import '../../core/result.dart';
 import '../../core/error_handler.dart';
 import '../../core/utils/phone_utils.dart';
+import '../../l10n/l10n.dart';
 import '../../shared/models/auth_response.dart';
 
 class AuthRepository {
@@ -154,7 +155,7 @@ class AuthRepository {
         data: {'phone': normalized, 'role': role.toUpperCase()},
       );
       if (response.statusCode == 200) {
-        return const Success('OTP পাঠানো হয়েছে');
+        return Success(L10n.current.otpSent);
       }
       return Failure(message: _extractErrorMessage(response));
     } on DioException catch (e) {
@@ -206,7 +207,7 @@ class AuthRepository {
         data: {'phone': normalized, 'role': role.toUpperCase()},
       );
       if (response.statusCode == 200) {
-        return const Success('OTP পুনরায় পাঠানো হয়েছে');
+        return Success(L10n.current.otpResent);
       }
       return Failure(message: _extractErrorMessage(response));
     } on DioException catch (e) {

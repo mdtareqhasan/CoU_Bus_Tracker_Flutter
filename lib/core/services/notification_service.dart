@@ -1,6 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import '../../l10n/l10n.dart';
 
 class NotificationService {
   NotificationService._();
@@ -121,20 +122,16 @@ class NotificationService {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('বাস আপডেট পেতে নোটিফিকেশন চালু করুন'),
-        content: const Text(
-          'আপনার বাসের সময়সূচি, রুট বা জরুরি কোনো পরিবর্তন হলে আমরা '
-          'নোটিফিকেশনের মাধ্যমে আপনাকে জানাতে চাই। এতে গুরুত্বপূর্ণ আপডেট '
-          'মিস হওয়ার সম্ভাবনা কমবে।',
-        ),
+        title: Text(context.l10n.notifPermissionTitle),
+        content: Text(context.l10n.notifPermissionBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('পরে করব'),
+            child: Text(context.l10n.notifLater),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('অনুমতি দিন'),
+            child: Text(context.l10n.notifAllow),
           ),
         ],
       ),

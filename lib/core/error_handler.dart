@@ -7,10 +7,11 @@ import '../l10n/l10n.dart';
 /// See `docs/localization.md`.
 ///
 /// The getters below are also used as identity tokens in flow checks (OTP
-/// expiry, "verify phone/email first"). Because their text changes with the
-/// language, those checks must go through [isOtpExpired] /
-/// [isVerifyPhoneFirst] / [isVerifyEmailFirst], which compare against *every*
-/// supported locale — never `==` or `contains` on the message directly.
+/// expiry, "verify phone/email first", dead session). Because their text
+/// changes with the language, those checks must go through [isOtpExpired] /
+/// [isVerifyPhoneFirst] / [isVerifyEmailFirst] / [isSessionExpired], which
+/// compare against *every* supported locale — never `==` or `contains` on
+/// the message directly.
 class ErrorHandler {
   static String getMessage(int? statusCode, dynamic error) {
     switch (statusCode) {
@@ -71,6 +72,22 @@ class ErrorHandler {
   /// See [isOtpExpired].
   static bool isVerifyEmailFirst(String message) =>
       _matchesAnyLocale(message, (l10n) => l10n.errorVerifyEmailFirst);
+
+  /// True when [message] means "your session is over" in **any** supported
+  /// language, including the backend's raw Bengali wording. Complements the
+  /// `==`-style [isOtpExpired] family with substring checks, because raw
+  /// backend text varies in phrasing.
+  static bool isSessionExpired(String message) {
+    if (_matchesAnyLocale(message, (l10n) => l10n.errorSessionExpired) ||
+        _matchesAnyLocale(message, (l10n) => l10n.sessionExpiredMessage)) {
+      return true;
+    }
+    final m = message.toLowerCase();
+    return m.contains('সেশন শেষ') ||
+        m.contains('session expired') ||
+        m.contains('session has expired') ||
+        m.contains('session is expired');
+  }
 
   static bool _matchesAnyLocale(
     String message,

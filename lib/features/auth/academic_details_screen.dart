@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/theme.dart';
 import '../../core/result.dart';
+import '../../l10n/l10n.dart';
 import 'auth_notification_permission.dart';
 import 'auth_provider.dart';
 import 'department_options.dart';
@@ -143,9 +144,9 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
     final server = _fieldErrors['department'];
     if (server != null) return server;
     final value = _departmentController.text.trim();
-    if (value.isEmpty) return 'বিভাগ দিন';
+    if (value.isEmpty) return context.l10n.validationDepartmentRequired;
     if (value.length < 2 || value.length > 100) {
-      return 'বিভাগ ২ থেকে ১০০ অক্ষরের হতে হবে';
+      return context.l10n.validationDepartmentLength;
     }
     return null;
   }
@@ -154,8 +155,10 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
     final server = _fieldErrors['rollNumber'];
     if (server != null) return server;
     final value = _rollNumberController.text.trim();
-    if (value.isEmpty) return 'রোল নম্বর দিন';
-    if (!_idPattern.hasMatch(value)) return 'রোল নম্বর ২-৫০ অক্ষরের হতে হবে';
+    if (value.isEmpty) return context.l10n.validationRollRequired;
+    if (!_idPattern.hasMatch(value)) {
+      return context.l10n.validationRollLength;
+    }
     return null;
   }
 
@@ -163,9 +166,9 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
     final server = _fieldErrors['session'];
     if (server != null) return server;
     final value = _sessionValue();
-    if (value.isEmpty) return 'সেশন দিন';
+    if (value.isEmpty) return context.l10n.validationSessionRequired;
     if (!_sessionPattern.hasMatch(value)) {
-      return 'সেশন সঠিকভাবে দিন (যেমন: 16, 2020, 2021-22, অথবা 2020-2024)';
+      return context.l10n.validationSessionFormat;
     }
     return null;
   }
@@ -174,9 +177,9 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
     final server = _fieldErrors['employeeId'];
     if (server != null) return server;
     final value = _employeeIdController.text.trim();
-    if (value.isEmpty) return 'কর্মচারী আইডি দিন';
+    if (value.isEmpty) return context.l10n.validationEmployeeIdRequired;
     if (!_idPattern.hasMatch(value)) {
-      return 'কর্মচারী আইডি ২-৫০ অক্ষরের হতে হবে';
+      return context.l10n.validationEmployeeIdLength;
     }
     return null;
   }
@@ -185,8 +188,8 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
     final server = _fieldErrors['designation'];
     if (server != null) return server;
     final value = _designationController.text.trim();
-    if (value.isEmpty) return 'পদবী দিন';
-    if (value.length > 100) return 'পদবী ১০০ অক্ষরের হতে হবে';
+    if (value.isEmpty) return context.l10n.validationDesignationRequired;
+    if (value.length > 100) return context.l10n.validationDesignationLength;
     return null;
   }
 
@@ -286,30 +289,30 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
         ),
-        title: const Text(
-          'লগ আউট করবেন?',
-          style: TextStyle(
+        title: Text(
+          context.l10n.academicLogoutTitle,
+          style: const TextStyle(
             color: AppTheme.textPrimary,
             fontWeight: FontWeight.bold,
           ),
         ),
-        content: const Text(
-          'তথ্য ছাড়া অ্যাকাউন্ট ব্যবহার করা যাবে না। পরে আবার লগইন করে পূরণ করতে পারবেন।',
-          style: TextStyle(color: AppTheme.textSecondary, height: 1.5),
+        content: Text(
+          context.l10n.academicLogoutBody,
+          style: const TextStyle(color: AppTheme.textSecondary, height: 1.5),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text(
-              'বাতিল',
-              style: TextStyle(color: AppTheme.textSecondary),
+            child: Text(
+              context.l10n.commonCancel,
+              style: const TextStyle(color: AppTheme.textSecondary),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text(
-              'লগ আউট',
-              style: TextStyle(
+            child: Text(
+              context.l10n.profileLogout,
+              style: const TextStyle(
                 color: AppTheme.error,
                 fontWeight: FontWeight.bold,
               ),
@@ -335,8 +338,8 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final roleTitle = isStudent
-        ? 'শিক্ষার্থীর তথ্য সম্পূর্ণ করুন'
-        : 'শিক্ষক ও কর্মকর্তাদের তথ্য সম্পূর্ণ করুন';
+        ? context.l10n.academicStudentTitle
+        : context.l10n.academicStaffTitle;
 
     return PopScope(
       // The app shell is off-limits until the profile is complete, so the
@@ -384,7 +387,7 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
                               .slideY(begin: 0.2, end: 0),
                           const SizedBox(height: AppTheme.space8),
                           Text(
-                            'অ্যাকাউন্ট ব্যবহার করতে নিচের তথ্যগুলো দিন।',
+                            context.l10n.academicSubtitle,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               color: AppTheme.textSecondary,
@@ -468,15 +471,19 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
         border: Border.all(color: AppTheme.warning.withValues(alpha: 0.2)),
       ),
-      child: const Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline_rounded, size: 18, color: AppTheme.warning),
-          SizedBox(width: AppTheme.space8),
+          const Icon(
+            Icons.info_outline_rounded,
+            size: 18,
+            color: AppTheme.warning,
+          ),
+          const SizedBox(width: AppTheme.space8),
           Expanded(
             child: Text(
-              'এই তথ্য একবার দেওয়ার পর পরিবর্তন করা যাবে না। সঠিকভাবে দিন।',
-              style: TextStyle(
+              context.l10n.academicOnceOnlyNote,
+              style: const TextStyle(
                 fontSize: 12,
                 height: 1.5,
                 color: AppTheme.textSecondary,
@@ -493,7 +500,9 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
     if (_departmentLocked) {
       return _buildLockedField(
         controller: _departmentController,
-        label: isStudent ? 'বিভাগ' : 'বিভাগ/অফিস',
+        label: isStudent
+            ? context.l10n.fieldDepartment
+            : context.l10n.fieldDepartmentOffice,
         icon: Icons.business_outlined,
         validator: _validateDepartment,
       );
@@ -510,10 +519,16 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
 
     return DropdownButtonFormField<String>(
       decoration: _inputDecoration(
-        labelText: isStudent ? 'বিভাগ' : 'বিভাগ/অফিস',
+        labelText: isStudent
+            ? context.l10n.fieldDepartment
+            : context.l10n.fieldDepartmentOffice,
         icon: Icons.business_outlined,
       ),
-      hint: Text(isStudent ? 'বিভাগ নির্বাচন করুন' : 'বিভাগ/অফিস নির্বাচন করুন'),
+      hint: Text(
+        isStudent
+            ? context.l10n.selectDepartment
+            : context.l10n.selectDepartmentOffice,
+      ),
       initialValue: _selectedDepartment,
       items: items
           .map(
@@ -547,7 +562,7 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
     if (_rollNumberLocked) {
       return _buildLockedField(
         controller: _rollNumberController,
-        label: 'রোল নম্বর',
+        label: context.l10n.fieldRollNumber,
         icon: Icons.badge_outlined,
         validator: _validateRollNumber,
       );
@@ -557,9 +572,9 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
       style: _fieldStyle,
       keyboardType: TextInputType.text,
       decoration: _inputDecoration(
-        labelText: 'রোল নম্বর',
+        labelText: context.l10n.fieldRollNumber,
         icon: Icons.badge_outlined,
-        hintText: 'যেমন: 12208055',
+        hintText: context.l10n.hintExampleRoll,
       ),
       validator: _validateRollNumber,
       onChanged: (_) => _clearServerErrors(),
@@ -570,7 +585,7 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
     if (_sessionLocked) {
       return _buildLockedField(
         controller: _sessionController,
-        label: 'সেশন',
+        label: context.l10n.fieldSession,
         icon: Icons.class_outlined,
         validator: _validateSession,
       );
@@ -586,10 +601,10 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
 
     return DropdownButtonFormField<String>(
       decoration: _inputDecoration(
-        labelText: 'সেশন',
+        labelText: context.l10n.fieldSession,
         icon: Icons.class_outlined,
       ),
-      hint: const Text('সেশন নির্বাচন করুন'),
+      hint: Text(context.l10n.selectSession),
       initialValue: _selectedSession,
       items: items
           .map(
@@ -614,7 +629,7 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
     if (_employeeIdLocked) {
       return _buildLockedField(
         controller: _employeeIdController,
-        label: 'কর্মচারী আইডি',
+        label: context.l10n.fieldEmployeeId,
         icon: Icons.badge_outlined,
         validator: _validateEmployeeId,
       );
@@ -625,9 +640,9 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
       keyboardType: TextInputType.text,
       textCapitalization: TextCapitalization.characters,
       decoration: _inputDecoration(
-        labelText: 'কর্মচারী আইডি',
+        labelText: context.l10n.fieldEmployeeId,
         icon: Icons.badge_outlined,
-        hintText: 'যেমন: 1234',
+        hintText: context.l10n.hintExampleEmployeeId,
       ),
       validator: _validateEmployeeId,
       onChanged: (_) => _clearServerErrors(),
@@ -638,7 +653,7 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
     if (_designationLocked) {
       return _buildLockedField(
         controller: _designationController,
-        label: 'পদবী',
+        label: context.l10n.fieldDesignation,
         icon: Icons.work_outline_rounded,
         validator: _validateDesignation,
       );
@@ -648,9 +663,9 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
       style: _fieldStyle,
       keyboardType: TextInputType.text,
       decoration: _inputDecoration(
-        labelText: 'পদবী',
+        labelText: context.l10n.fieldDesignation,
         icon: Icons.work_outline_rounded,
-        hintText: 'যেমন: সহযোগী অধ্যাপক',
+        hintText: context.l10n.hintExampleDesignation,
       ),
       validator: _validateDesignation,
       onChanged: (_) => _clearServerErrors(),
@@ -677,7 +692,7 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
           size: 18,
           color: AppTheme.textHint,
         ),
-        helperText: 'একবার দেওয়ার পর পরিবর্তন করা যাবে না',
+        helperText: context.l10n.academicHelperOnce,
       ),
       validator: validator,
     );
@@ -749,9 +764,9 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
                   strokeWidth: 2.5,
                 ),
               )
-            : const Text(
-                'সংরক্ষণ করুন',
-                style: TextStyle(
+            : Text(
+                context.l10n.academicSave,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -774,9 +789,9 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
                 strokeWidth: 2,
               ),
             )
-          : const Text(
-              'লগ আউট',
-              style: TextStyle(
+          : Text(
+              context.l10n.profileLogout,
+              style: const TextStyle(
                 color: AppTheme.textHint,
                 fontSize: 13,
                 fontWeight: FontWeight.w500,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../l10n/l10n.dart';
 import 'shell_screen.dart';
 import '../features/splash/splash_screen.dart';
 import '../features/home/home_screen.dart';
@@ -87,7 +88,7 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final extra = state.extra as Map<String, String>?;
         final url = extra?['url'] ?? '';
-        final name = extra?['name'] ?? 'বাস ট্র্যাকিং';
+        final name = extra?['name'] ?? context.l10n.busTrackingTitle;
         return LiveTrackingScreen(url: url, busName: name);
       },
     ),

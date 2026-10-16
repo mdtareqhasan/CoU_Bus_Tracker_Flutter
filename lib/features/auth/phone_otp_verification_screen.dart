@@ -8,6 +8,7 @@ import '../../app/theme.dart';
 import '../../core/error_handler.dart';
 import '../../core/result.dart';
 import '../../core/utils/phone_utils.dart';
+import '../../l10n/l10n.dart';
 import 'auth_notification_permission.dart';
 import 'auth_provider.dart';
 
@@ -143,7 +144,7 @@ class _PhoneOtpVerificationScreenState
 
   Future<void> _verify() async {
     if (!_isComplete) {
-      setState(() => _error = '৬ সংখ্যার কোডটি সম্পূর্ণ লিখুন।');
+      setState(() => _error = context.l10n.otpIncomplete);
       return;
     }
     if (_isVerifying) return;
@@ -175,8 +176,7 @@ class _PhoneOtpVerificationScreenState
       } else {
         setState(() {
           _isVerifying = false;
-          _error =
-              authState.error ?? 'ভেরিফিকেশন ব্যর্থ হয়েছে। আবার চেষ্টা করুন।';
+          _error = authState.error ?? context.l10n.verificationFailedFallback;
         });
 
         // OTP expired → backend auto-triggers a refresh, mirror that in the UI
@@ -192,7 +192,7 @@ class _PhoneOtpVerificationScreenState
       if (!mounted) return;
       setState(() {
         _isVerifying = false;
-        _error = 'ভেরিফিকেশন ব্যর্থ হয়েছে। আবার চেষ্টা করুন।';
+        _error = context.l10n.verificationFailedFallback;
       });
     } finally {
       if (mounted) {
@@ -229,8 +229,8 @@ class _PhoneOtpVerificationScreenState
       case Success():
         _startCountdown();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('OTP মেয়াদোত্তীর্ণ হয়েছে। নতুন OTP পাঠানো হয়েছে।'),
+          SnackBar(
+            content: Text(context.l10n.otpExpiredResent),
             backgroundColor: AppTheme.success,
           ),
         );
@@ -257,7 +257,7 @@ class _PhoneOtpVerificationScreenState
       if (!mounted) return;
       setState(() {
         _isResending = false;
-        _error = 'কোড পাঠানো যায়নি। আবার চেষ্টা করুন।';
+        _error = context.l10n.codeSendFailed;
       });
       return;
     } finally {
@@ -277,7 +277,7 @@ class _PhoneOtpVerificationScreenState
       case Failure(:final message):
         setState(() => _error = message);
       default:
-        setState(() => _error = 'কোড পাঠানো যায়নি। আবার চেষ্টা করুন।');
+        setState(() => _error = context.l10n.codeSendFailed);
     }
   }
 
@@ -337,7 +337,7 @@ class _PhoneOtpVerificationScreenState
                         _buildHeaderIllustration(),
                         const SizedBox(height: AppTheme.space32),
                         Text(
-                          'ফোন নম্বর যাচাইকরণ',
+                          context.l10n.authPhoneVerificationTitle,
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.headlineSmall
                               ?.copyWith(
@@ -346,11 +346,10 @@ class _PhoneOtpVerificationScreenState
                               ),
                         ).animate().fadeIn(delay: 200.ms),
                         const SizedBox(height: AppTheme.space12),
-                        const Text(
-                          'আমরা আপনার ফোনে ৬ সংখ্যার একটি verification code '
-                          'পাঠিয়েছি।',
+                        Text(
+                          context.l10n.phoneVerifySubtitle,
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: AppTheme.textSecondary,
                             height: 1.5,
                           ),
@@ -400,9 +399,9 @@ class _PhoneOtpVerificationScreenState
         ),
         onPressed: _isVerifying ? null : _goBackToEntryScreen,
       ),
-      title: const Text(
-        'ফোন নম্বর যাচাইকরণ',
-        style: TextStyle(
+      title: Text(
+        context.l10n.authPhoneVerificationTitle,
+        style: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
           fontSize: 18,
@@ -552,9 +551,9 @@ class _PhoneOtpVerificationScreenState
                   strokeWidth: 2,
                 ),
               )
-            : const Text(
-                'যাচাই করুন',
-                style: TextStyle(
+            : Text(
+                context.l10n.authVerify,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -569,11 +568,14 @@ class _PhoneOtpVerificationScreenState
 
     return Column(
       children: [
-        Text('কোডটি পাননি?', style: TextStyle(color: AppTheme.textSecondary)),
+        Text(
+          context.l10n.authCodeNotReceived,
+          style: TextStyle(color: AppTheme.textSecondary),
+        ),
         const SizedBox(height: AppTheme.space8),
         if (_countdown > 0)
           Text(
-            'নতুন কোড পাঠাতে $_formatCountdown অবশিষ্ট',
+            context.l10n.authResendCountdown(_formatCountdown),
             style: const TextStyle(
               color: AppTheme.textHint,
               fontWeight: FontWeight.w600,
@@ -588,9 +590,9 @@ class _PhoneOtpVerificationScreenState
                     width: 18,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text(
-                    'আবার কোড পাঠান',
-                    style: TextStyle(
+                : Text(
+                    context.l10n.authResendCode,
+                    style: const TextStyle(
                       color: AppTheme.primaryBlue,
                       fontWeight: FontWeight.bold,
                     ),
@@ -608,9 +610,9 @@ class _PhoneOtpVerificationScreenState
         size: 18,
         color: AppTheme.textSecondary,
       ),
-      label: const Text(
-        'ফোন নম্বর পরিবর্তন / নিবন্ধনে ফিরে যান',
-        style: TextStyle(
+      label: Text(
+        context.l10n.authChangePhoneBack,
+        style: const TextStyle(
           color: AppTheme.textSecondary,
           fontWeight: FontWeight.w600,
         ),

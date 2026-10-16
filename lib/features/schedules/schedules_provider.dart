@@ -75,7 +75,7 @@ class ScheduleListState {
       final englishQuery = TimeUtils.toEnglishDigits(query);
 
       final time = schedule.departureTime ?? '';
-      final bengaliTime = TimeUtils.formatTimeBengali(time).toLowerCase();
+      final bengaliTime = TimeUtils.formatTime(time).toLowerCase();
 
       final matchesSearch =
           (schedule.busNumber?.toLowerCase().contains(query) ?? false) ||

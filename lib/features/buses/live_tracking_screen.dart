@@ -7,6 +7,7 @@ import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'dart:async';
 import 'live_tracking_conditional.dart';
 import '../../app/theme.dart';
+import '../../l10n/l10n.dart';
 
 class LiveTrackingScreen extends StatefulWidget {
   final String url;
@@ -27,7 +28,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
   bool _isLoading = true;
   bool _hasNetworkError = false;
   String _speed = '0 km/h';
-  String _status = 'সংযুক্ত হচ্ছে...';
+  String _status = L10n.current.trackingConnecting;
   String _distance = '-- km';
   Position? _userPosition;
   StreamSubscription<Position>? _positionStream;
@@ -107,7 +108,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
 
       serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        if (mounted) setState(() => _distance = 'GPS বন্ধ');
+        if (mounted) setState(() => _distance = L10n.current.trackingGpsOff);
         return;
       }
 
@@ -115,13 +116,21 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          if (mounted) setState(() => _distance = 'অনুমতি নেই');
+          if (mounted) {
+            setState(
+              () => _distance = L10n.current.trackingPermissionDenied,
+            );
+          }
           return;
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
-        if (mounted) setState(() => _distance = 'অনুমতি ব্লক');
+        if (mounted) {
+          setState(
+            () => _distance = L10n.current.trackingPermissionBlocked,
+          );
+        }
         return;
       }
 
@@ -411,16 +420,16 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.tips_and_updates_rounded,
+                    const Icon(Icons.tips_and_updates_rounded,
                         color: Colors.yellowAccent, size: 14),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'দ্রুত আপডেট পেতে নিচের বাম পাশের ড্রপডাউন থেকে ৫ সেঃ সিলেক্ট করুন',
-                        style: TextStyle(
+                        context.l10n.trackingFastUpdateHint,
+                        style: const TextStyle(
                           fontSize: 11,
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -617,19 +626,19 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
             children: [
               Icon(Icons.wifi_off_rounded, color: AppTheme.error, size: 72),
               const SizedBox(height: 24),
-              const Text(
-                'ইন্টারনেট সংযোগ নেই',
-                style: TextStyle(
+              Text(
+                context.l10n.noInternetTitle,
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF1A1F2E),
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
-                'বাসের লোকেশন দেখতে ইন্টারনেট সংযোগ চালু করে\nআবার চেষ্টা করুন।',
+              Text(
+                context.l10n.trackingNoInternetBody,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 14,
                   color: AppTheme.textSecondary,
                   height: 1.5,
@@ -645,9 +654,9 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                   _controller?.reload();
                 },
                 icon: const Icon(Icons.refresh_rounded),
-                label: const Text('আবার চেষ্টা করুন',
+                label: Text(context.l10n.commonRetry,
                     style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(220, 52),
                   shape: RoundedRectangleBorder(

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../app/theme.dart';
 import '../../core/utils/phone_utils.dart';
+import '../../l10n/l10n.dart';
 import 'auth_notification_permission.dart';
 import 'auth_provider.dart';
 
@@ -56,8 +57,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
 
     final roleTitle = widget.role == 'student'
-        ? 'শিক্ষার্থী লগইন'
-        : 'শিক্ষক লগইন';
+        ? context.l10n.authStudentLogin
+        : context.l10n.authTeacherLogin;
 
     return PopScope(
       canPop: false,
@@ -111,15 +112,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 .fadeIn(delay: 200.ms)
                                 .slideY(begin: 0.2, end: 0),
                             const SizedBox(height: AppTheme.space8),
-                            const Text(
-                              'ফোন নম্বর ও পাসওয়ার্ড দিয়ে লগইন করুন',
+                            Text(
+                              context.l10n.loginSubtitle,
                               textAlign: TextAlign.center,
-                              style: TextStyle(color: AppTheme.textSecondary),
+                              style:
+                                  const TextStyle(color: AppTheme.textSecondary),
                             ).animate().fadeIn(delay: 300.ms),
                             const SizedBox(height: AppTheme.space40),
                             _buildTextField(
                                   controller: _phoneController,
-                                  label: 'ফোন নম্বর',
+                                  label: context.l10n.fieldPhoneNumber,
                                   icon: Icons.phone_android_rounded,
                                   keyboardType: TextInputType.phone,
                                   inputFormatters: [
@@ -128,10 +130,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   ],
                                   validator: (v) {
                                     if (v == null || v.isEmpty) {
-                                      return 'ফোন নম্বর দিন';
+                                      return context.l10n.validationPhoneRequired;
                                     }
                                     if (!isValidBangladeshiPhone(v)) {
-                                      return 'সঠিক ফোন নম্বর দিন (01XXXXXXXXX)';
+                                      return context.l10n.validationPhoneInvalid;
                                     }
                                     return null;
                                   },
@@ -140,9 +142,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 .fadeIn(delay: 400.ms)
                                 .slideX(begin: 0.1, end: 0),
                             const SizedBox(height: AppTheme.space8),
-                            const Text(
-                              'যেমন: 01712345678',
-                              style: TextStyle(
+                            Text(
+                              context.l10n.hintExamplePhone,
+                              style: const TextStyle(
                                 color: AppTheme.textHint,
                                 fontSize: 12,
                               ),
@@ -150,7 +152,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             const SizedBox(height: AppTheme.space32),
                             _buildTextField(
                                   controller: _passwordController,
-                                  label: 'পাসওয়ার্ড',
+                                  label: context.l10n.fieldPassword,
                                   icon: Icons.lock_outline_rounded,
                                   obscureText: _obscurePassword,
                                   suffixIcon: IconButton(
@@ -168,10 +170,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   ),
                                   validator: (v) {
                                     if (v == null || v.isEmpty) {
-                                      return 'পাসওয়ার্ড দিন';
+                                      return context.l10n.validationPasswordRequired;
                                     }
                                     if (v.length < 8) {
-                                      return 'পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে';
+                                      return context.l10n.validationPasswordLength8;
                                     }
                                     return null;
                                   },
@@ -185,9 +187,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             TextButton(
                               onPressed: () =>
                                   context.go('/auth/forgot-password'),
-                              child: const Text(
-                                'পাসওয়ার্ড ভুলে গেছেন?',
-                                style: TextStyle(
+                              child: Text(
+                                context.l10n.authForgotPassword,
+                                style: const TextStyle(
                                   color: AppTheme.primaryBlue,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -200,13 +202,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ),
                               child: Text.rich(
                                 TextSpan(
-                                  text: 'অ্যাকাউন্ট নেই? ',
+                                  text: context.l10n.authNoAccount,
                                   style: const TextStyle(
                                     color: AppTheme.textSecondary,
                                   ),
                                   children: [
                                     TextSpan(
-                                      text: 'নিবন্ধন করুন',
+                                      text: context.l10n.authRegister,
                                       style: TextStyle(
                                         color: AppTheme.primaryBlue,
                                         fontWeight: FontWeight.bold,
@@ -361,9 +363,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   strokeWidth: 2,
                 ),
               )
-            : const Text(
-                'লগইন করুন',
-                style: TextStyle(
+            : Text(
+                context.l10n.authLogin,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,

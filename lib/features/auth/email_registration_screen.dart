@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/theme.dart';
+import '../../l10n/l10n.dart';
 import 'auth_provider.dart';
 import 'department_options.dart';
 import 'session_options.dart';
@@ -94,8 +95,8 @@ class _EmailRegistrationScreenState
   @override
   Widget build(BuildContext context) {
     final roleTitle = isStudent
-        ? 'শিক্ষার্থী নিবন্ধন'
-        : 'শিক্ষক ও কর্মকর্তাবৃন্দ নিবন্ধন';
+        ? context.l10n.authStudentRegister
+        : context.l10n.authTeacherOfficerRegister;
 
     return PopScope(
       canPop: false,
@@ -145,18 +146,20 @@ class _EmailRegistrationScreenState
                           const SizedBox(height: AppTheme.space8),
                           Text(
                             isStudent
-                                ? 'আপনার এডুমেইলের মাধ্যমে OTP নিবন্ধন করুন'
-                                : 'আপনার প্রতিষ্ঠানিক ইমেইলের মাধ্যমে OTP নিবন্ধন করুন',
+                                ? context.l10n.emailRegisterSubtitleEdu
+                                : context.l10n.emailRegisterSubtitleInst,
                             textAlign: TextAlign.center,
                             style: TextStyle(color: AppTheme.textSecondary),
                           ).animate().fadeIn(delay: 200.ms),
                           const SizedBox(height: AppTheme.space24),
                           _buildTextField(
                                 controller: _nameController,
-                                label: 'পুরো নাম',
+                                label: context.l10n.fieldFullName,
                                 icon: Icons.person_outline_rounded,
                                 validator: (v) =>
-                                    v == null || v.isEmpty ? 'নাম দিন' : null,
+                                    v == null || v.isEmpty
+                                        ? context.l10n.validationNameRequired
+                                        : null,
                               )
                               .animate()
                               .fadeIn(delay: 300.ms)
@@ -165,19 +168,21 @@ class _EmailRegistrationScreenState
                           _buildTextField(
                                 controller: _emailController,
                                 label: isStudent
-                                    ? 'এডুমেইল'
-                                    : 'প্রতিষ্ঠানিক ইমেইল',
+                                    ? context.l10n.emailFieldEdu
+                                    : context.l10n.emailFieldInst,
                                 icon: Icons.email_outlined,
                                 keyboardType: TextInputType.emailAddress,
                                 validator: (v) {
                                   if (v == null || v.isEmpty) {
-                                    return 'ইমেইল দিন';
+                                    return context
+                                        .l10n
+                                        .validationEmailRequired;
                                   }
                                   return RegExp(
                                         r'^[^@]+@[^@]+\.[^@]+',
                                       ).hasMatch(v)
                                       ? null
-                                      : 'সঠিক ইমেইল দিন';
+                                      : context.l10n.validationEmailInvalid;
                                 },
                               )
                               .animate()
@@ -186,8 +191,8 @@ class _EmailRegistrationScreenState
                           const SizedBox(height: AppTheme.space8),
                           Text(
                             isStudent
-                                ? 'যদি আপনার এডুমেইল না থাকে, তাহলে আইসিটি সেলে যোগাযগ করুন'
-                                : 'যদি আপনার প্রতিষ্ঠানিক ইমেইল না থাকে, তাহলে আইসিটি সেলে যোগাযগ করুন',
+                                ? context.l10n.noEduMailHintEdu
+                                : context.l10n.noEduMailHintInst,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               color: AppTheme.textHint,
@@ -198,8 +203,8 @@ class _EmailRegistrationScreenState
                           DropdownButtonFormField<String>(
                                 decoration: InputDecoration(
                                   labelText: (widget.role == 'student')
-                                      ? 'বিভাগ'
-                                      : 'বিভাগ/অফিস',
+                                      ? context.l10n.fieldDepartment
+                                      : context.l10n.fieldDepartmentOffice,
                                   prefixIcon: Icon(
                                     Icons.business_outlined,
                                     color: AppTheme.primaryBlue,
@@ -244,8 +249,8 @@ class _EmailRegistrationScreenState
                                 ),
                                 hint: Text(
                                   (widget.role == 'student')
-                                      ? 'বিভাগ নির্বাচন করুন'
-                                      : 'বিভাগ/অফিস নির্বাচন করুন',
+                                      ? context.l10n.selectDepartment
+                                      : context.l10n.selectDepartmentOffice,
                                 ),
                                 initialValue: _selectedDepartment,
                                 items:
@@ -281,7 +286,11 @@ class _EmailRegistrationScreenState
                                   });
                                 },
                                 validator: (v) =>
-                                    v == null ? 'বিভাগ দিন' : null,
+                                    v == null
+                                        ? context
+                                              .l10n
+                                              .validationDepartmentRequired
+                                        : null,
                               )
                               .animate()
                               .fadeIn(delay: 500.ms)
@@ -290,11 +299,11 @@ class _EmailRegistrationScreenState
                           if (isStudent) ...[
                             _buildTextField(
                                   controller: _rollNumberController,
-                                  label: 'রোল নম্বর',
+                                  label: context.l10n.fieldRollNumber,
                                   icon: Icons.badge_outlined,
-                                  hint: 'যেমন: 12208055',
+                                  hint: context.l10n.hintExampleRoll,
                                   validator: (v) => v == null || v.isEmpty
-                                      ? 'রোল নম্বর দিন'
+                                      ? context.l10n.validationRollRequired
                                       : null,
                                 )
                                 .animate()
@@ -303,7 +312,7 @@ class _EmailRegistrationScreenState
                             const SizedBox(height: AppTheme.space12),
                             DropdownButtonFormField<String>(
                                   decoration: InputDecoration(
-                                    labelText: 'সেশন',
+                                    labelText: context.l10n.fieldSession,
                                     prefixIcon: Icon(
                                       Icons.class_outlined,
                                       color: AppTheme.primaryBlue,
@@ -346,7 +355,7 @@ class _EmailRegistrationScreenState
                                       ),
                                     ),
                                   ),
-                                  hint: const Text('সেশন নির্বাচন করুন'),
+                                  hint: Text(context.l10n.selectSession),
                                   initialValue: _selectedSession,
                                   items: sessionOptions
                                       .map(
@@ -363,7 +372,11 @@ class _EmailRegistrationScreenState
                                     });
                                   },
                                   validator: (v) =>
-                                      v == null ? 'সেশন দিন' : null,
+                                      v == null
+                                          ? context
+                                                .l10n
+                                                .validationSessionRequired
+                                          : null,
                                 )
                                 .animate()
                                 .fadeIn(delay: 700.ms)
@@ -371,10 +384,10 @@ class _EmailRegistrationScreenState
                           ] else ...[
                             _buildTextField(
                                   controller: _employeeIdController,
-                                  label: 'আইডি',
+                                  label: context.l10n.fieldId,
                                   icon: Icons.badge_outlined,
                                   validator: (v) => v == null || v.isEmpty
-                                      ? 'আইডি দিন'
+                                      ? context.l10n.validationIdRequired
                                       : null,
                                 )
                                 .animate()
@@ -383,7 +396,7 @@ class _EmailRegistrationScreenState
                             const SizedBox(height: AppTheme.space12),
                             _buildTextField(
                                   controller: _designationController,
-                                  label: 'পদবী',
+                                  label: context.l10n.fieldDesignation,
                                   icon: Icons.work_outline_rounded,
                                 )
                                 .animate()
@@ -393,7 +406,7 @@ class _EmailRegistrationScreenState
                           const SizedBox(height: AppTheme.space32),
                           _buildTextField(
                                 controller: _passwordController,
-                                label: 'পাসওয়ার্ড',
+                                label: context.l10n.fieldPassword,
                                 icon: Icons.lock_outline_rounded,
                                 obscureText: _obscurePassword,
                                 suffixIcon: IconButton(
@@ -410,10 +423,14 @@ class _EmailRegistrationScreenState
                                 ),
                                 validator: (v) {
                                   if (v == null || v.isEmpty) {
-                                    return 'পাসওয়ার্ড দিন';
+                                    return context
+                                        .l10n
+                                        .validationPasswordRequired;
                                   }
                                   if (v.length < 8) {
-                                    return 'পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে';
+                                    return context
+                                        .l10n
+                                        .validationPasswordLength8;
                                   }
                                   return null;
                                 },
@@ -424,7 +441,7 @@ class _EmailRegistrationScreenState
                           const SizedBox(height: AppTheme.space12),
                           _buildTextField(
                                 controller: _confirmPasswordController,
-                                label: 'পাসওয়ার্ড আবার দিন',
+                                label: context.l10n.fieldPasswordConfirm,
                                 icon: Icons.lock_outline_rounded,
                                 obscureText: _obscureConfirmPassword,
                                 suffixIcon: IconButton(
@@ -442,10 +459,12 @@ class _EmailRegistrationScreenState
                                 ),
                                 validator: (v) {
                                   if (v == null || v.isEmpty) {
-                                    return 'পাসওয়ার্ড আবার দিন';
+                                    return context.l10n.fieldPasswordConfirm;
                                   }
                                   if (v != _passwordController.text) {
-                                    return 'পাসওয়ার্ড মিলছে না';
+                                    return context
+                                        .l10n
+                                        .validationPasswordMismatch;
                                   }
                                   return null;
                                 },
@@ -461,13 +480,13 @@ class _EmailRegistrationScreenState
                                 context.go('/auth/email-login?role=${widget.role}'),
                             child: Text.rich(
                               TextSpan(
-                                text: 'ইতিমধ্যে অ্যাকাউন্ট আছে? ',
+                                text: context.l10n.authHaveAccount,
                                 style: const TextStyle(
                                   color: AppTheme.textSecondary,
                                 ),
                                 children: [
                                   TextSpan(
-                                    text: 'লগইন করুন',
+                                    text: context.l10n.authLogin,
                                     style: TextStyle(
                                       color: AppTheme.primaryBlue,
                                       fontWeight: FontWeight.bold,
@@ -617,9 +636,9 @@ class _EmailRegistrationScreenState
                   strokeWidth: 2.5,
                 ),
               )
-            : const Text(
-                'নিবন্ধন করুন',
-                style: TextStyle(
+            : Text(
+                context.l10n.authRegister,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,

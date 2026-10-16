@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../app/theme.dart';
+import '../../l10n/l10n.dart';
 
 class RoleScreen extends StatelessWidget {
   const RoleScreen({super.key});
@@ -28,7 +29,7 @@ class RoleScreen extends StatelessWidget {
               children: [
                 const SizedBox(height: 12),
                 Text(
-                  'আপনার ভূমিকা',
+                  context.l10n.roleSelectTitle,
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -54,7 +55,7 @@ class RoleScreen extends StatelessWidget {
                           _buildIllustration(),
                           const SizedBox(height: AppTheme.space32),
                           Text(
-                                'আপনার ভূমিকা নির্বাচন করুন',
+                                context.l10n.roleChoosePrompt,
                                 style: Theme.of(context).textTheme.headlineSmall
                                     ?.copyWith(fontWeight: FontWeight.bold),
                               )
@@ -62,17 +63,19 @@ class RoleScreen extends StatelessWidget {
                               .fadeIn(delay: 200.ms)
                               .slideY(begin: 0.2, end: 0),
                           const SizedBox(height: AppTheme.space8),
-                          const Text(
-                            'লগইন বা নিবন্ধনের জন্য ভূমিকা বাছাই করুন',
+                          Text(
+                            context.l10n.roleLoginRegisterHint,
                             textAlign: TextAlign.center,
-                            style: TextStyle(color: AppTheme.textSecondary),
+                            style: const TextStyle(
+                              color: AppTheme.textSecondary,
+                            ),
                           ).animate().fadeIn(delay: 300.ms),
                           const SizedBox(height: AppTheme.space48),
                           _buildRoleCard(
                             context,
                             icon: Icons.school_rounded,
-                            label: 'শিক্ষার্থী',
-                            subtitle: 'ছাত্র হিসেবে লগইন বা নিবন্ধন করুন',
+                            label: context.l10n.roleStudent,
+                            subtitle: context.l10n.roleStudentSubtitle,
                             onTap: () =>
                                 context.go('/auth/google-signin?role=student'),
                             delay: 400.ms,
@@ -81,8 +84,8 @@ class RoleScreen extends StatelessWidget {
                           _buildRoleCard(
                             context,
                             icon: Icons.psychology_rounded,
-                            label: 'শিক্ষক',
-                            subtitle: 'শিক্ষক হিসেবে লগইন বা নিবন্ধন করুন',
+                            label: context.l10n.roleTeacher,
+                            subtitle: context.l10n.roleTeacherSubtitle,
                             onTap: () =>
                                 context.go('/auth/google-signin?role=teacher'),
                             delay: 500.ms,

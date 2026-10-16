@@ -67,18 +67,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           children: [
             Icon(Icons.wifi_off_rounded, color: AppTheme.error, size: 28),
             const SizedBox(width: AppTheme.space12),
-            const Expanded(
+            Expanded(
               child: Text(
-                'ইন্টারনেট সংযোগ নেই',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ctx.l10n.noInternetTitle,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
         ),
-        content: const Text(
-          'ইন্টারনেট সংযোগ চালু করে রিলোড করুন।\n\n'
-          'আপনার আগের ডেটা ক্যাশে সংরক্ষিত আছে।',
-          style: TextStyle(height: 1.5),
+        content: Text(
+          ctx.l10n.noInternetBody,
+          style: const TextStyle(height: 1.5),
         ),
         actions: [
           TextButton(
@@ -87,9 +89,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               _connectionDialogShown = false;
               ref.read(dashboardProvider.notifier).refresh();
             },
-            child: const Text(
-              'রিলোড করুন',
-              style: TextStyle(
+            child: Text(
+              ctx.l10n.homeReload,
+              style: const TextStyle(
                 color: AppTheme.primaryBlue,
                 fontWeight: FontWeight.bold,
               ),
@@ -111,14 +113,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         backgroundColor: isDark ? AppTheme.surfaceDark : Colors.white,
         title: Text(
-          'অ্যাপ বন্ধ করুন',
+          ctx.l10n.homeCloseApp,
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: isDark ? Colors.white : AppTheme.textPrimary,
           ),
         ),
         content: Text(
-          'আপনি কি নিশ্চিত যে অ্যাপ থেকে বের হতে চান?',
+          ctx.l10n.homeExitMessage,
           style: TextStyle(
             color: isDark ? Colors.white70 : AppTheme.textSecondary,
           ),
@@ -126,9 +128,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text(
-              'না',
-              style: TextStyle(color: AppTheme.textSecondary),
+            child: Text(
+              ctx.l10n.commonNo,
+              style: const TextStyle(color: AppTheme.textSecondary),
             ),
           ),
           ElevatedButton(
@@ -137,7 +139,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               backgroundColor: AppTheme.error,
               minimumSize: const Size(80, 40),
             ),
-            child: const Text('হ্যাঁ', style: TextStyle(color: Colors.white)),
+            child: Text(
+              ctx.l10n.commonYes,
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -173,11 +178,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               physics: const BouncingScrollPhysics(),
               slivers: [
                 _buildModernHeader(context, state),
-                _buildConnectionStrip(state),
+                _buildConnectionStrip(context, state),
                 _buildModernStatGrid(context, state),
                 _buildSectionHeader(
                   context,
-                  title: 'আজকের সময়সূচি',
+                  title: context.l10n.todayScheduleTitle,
                   onSeeAll: () => context.go('/schedules'),
                 ),
                 _buildSchedulePreviewList(context, state),
@@ -233,7 +238,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'আসসালামু আলাইকুম,',
+                          context.l10n.homeGreeting,
                           style: GoogleFonts.inter(
                             color: Colors.white.withValues(alpha: 0.9),
                             fontSize: 14,
@@ -242,7 +247,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ),
                         const SizedBox(height: AppTheme.space4),
                         Text(
-                          'কুবি যাত্রা',
+                          context.l10n.appName,
                           style: GoogleFonts.plusJakartaSans(
                             color: Colors.white,
                             fontSize: 26,
@@ -257,7 +262,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ],
             ),
             const SizedBox(height: AppTheme.space24),
-            _buildHeaderInfoCard(state),
+            _buildHeaderInfoCard(context, state),
           ],
         ),
       ),
@@ -270,7 +275,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
       ),
-      tooltip: 'মেনু',
+      tooltip: context.l10n.menuTooltip,
       icon: Container(
         padding: const EdgeInsets.all(AppTheme.space8),
         decoration: BoxDecoration(
@@ -303,7 +308,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildHeaderInfoCard(DashboardState state) {
+  Widget _buildHeaderInfoCard(BuildContext context, DashboardState state) {
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppTheme.space16,
@@ -334,8 +339,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           Expanded(
             child: Text(
               state.hasData
-                  ? '${state.activeBusCount} টি বাস সক্রিয় আছে'
-                  : 'CoU যাত্রী',
+                  ? context.l10n
+                      .homeActiveBusCount(state.activeBusCount)
+                  : context.l10n.homeBrandTagline,
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
@@ -452,11 +458,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             Text(title, style: Theme.of(context).textTheme.titleLarge),
             TextButton(
               onPressed: onSeeAll,
-              child: const Row(
+              child: Row(
                 children: [
-                  Text('সব দেখুন'),
-                  SizedBox(width: 4),
-                  Icon(Icons.arrow_forward_ios_rounded, size: 12),
+                  Text(context.l10n.seeAll),
+                  const SizedBox(width: 4),
+                  const Icon(Icons.arrow_forward_ios_rounded, size: 12),
                 ],
               ),
             ),
@@ -470,7 +476,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final schedules = state.filteredSchedules;
     if (schedules.isEmpty) {
       if (state.isLoading) return _buildSchedulesLoading();
-      return _buildEmptySchedules();
+      return _buildEmptySchedules(context);
     }
 
     // Grouping by departure time (limiting to 2-3 groups for preview)
@@ -496,7 +502,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildTimeGroup(String time, List<Schedule> schedules, int index) {
-    final bengaliTime = TimeUtils.formatTimeBengali(time);
+    final bengaliTime = TimeUtils.formatTime(time);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
@@ -534,7 +540,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   Text(
-                    '${schedules.length} টি বাস',
+                    context.l10n.countBuses(schedules.length),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],
@@ -598,7 +604,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildEmptySchedules() {
+  Widget _buildEmptySchedules(BuildContext context) {
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.all(AppTheme.space48),
@@ -611,9 +617,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 color: AppTheme.textHint.withValues(alpha: 0.3),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'আজকে আর কোনো শিডিউল নেই',
-                style: TextStyle(color: AppTheme.textSecondary),
+              Text(
+                context.l10n.noScheduleToday,
+                style: const TextStyle(color: AppTheme.textSecondary),
               ),
             ],
           ),
@@ -622,7 +628,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildConnectionStrip(DashboardState state) {
+  Widget _buildConnectionStrip(BuildContext context, DashboardState state) {
     if (!state.hasError) {
       return const SliverToBoxAdapter(child: SizedBox(height: 12));
     }
@@ -639,10 +645,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           children: [
             const Icon(Icons.wifi_off_rounded, color: AppTheme.error, size: 20),
             const SizedBox(width: AppTheme.space12),
-            const Expanded(
+            Expanded(
               child: Text(
-                'অফলাইন • সংরক্ষিত তথ্য দেখানো হচ্ছে',
-                style: TextStyle(
+                context.l10n.offlineBanner,
+                style: const TextStyle(
                   color: AppTheme.error,
                   fontWeight: FontWeight.bold,
                   fontSize: 13,

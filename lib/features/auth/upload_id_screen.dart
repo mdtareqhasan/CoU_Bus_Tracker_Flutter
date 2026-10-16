@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../app/theme.dart';
+import '../../l10n/l10n.dart';
 
 class UploadIdScreen extends ConsumerStatefulWidget {
   const UploadIdScreen({super.key});
@@ -41,8 +42,8 @@ class _UploadIdScreenState extends ConsumerState<UploadIdScreen> {
     if (mounted) {
       setState(() => _isUploading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('আইডি কার্ড সফলভাবে আপলোড হয়েছে'),
+        SnackBar(
+          content: Text(context.l10n.uploadIdSuccess),
           backgroundColor: AppTheme.successGreen,
         ),
       );
@@ -54,7 +55,7 @@ class _UploadIdScreenState extends ConsumerState<UploadIdScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('আইডি কার্ড আপলোড'),
+        title: Text(context.l10n.uploadIdTitle),
         backgroundColor: AppTheme.primaryBlue,
       ),
       body: Padding(
@@ -62,10 +63,10 @@ class _UploadIdScreenState extends ConsumerState<UploadIdScreen> {
         child: Column(
           children: [
             const SizedBox(height: AppTheme.space32),
-            const Text(
-              'আপনার বিশ্ববিদ্যালয়ের পরিচয়পত্র আপলোড করুন',
+            Text(
+              context.l10n.uploadIdSubtitle,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: AppTheme.space32),
             GestureDetector(
@@ -98,9 +99,11 @@ class _UploadIdScreenState extends ConsumerState<UploadIdScreen> {
                             color: AppTheme.primaryBlue.withValues(alpha: 0.5),
                           ),
                           const SizedBox(height: 16),
-                          const Text(
-                            'ছবি সিলেক্ট করুন',
-                            style: TextStyle(color: AppTheme.textSecondary),
+                          Text(
+                            context.l10n.selectPhoto,
+                            style: const TextStyle(
+                              color: AppTheme.textSecondary,
+                            ),
                           ),
                         ],
                       ),
@@ -117,9 +120,9 @@ class _UploadIdScreenState extends ConsumerState<UploadIdScreen> {
               ),
               child: _isUploading
                   ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text(
-                      'আপলোড সম্পন্ন করুন',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                  : Text(
+                      context.l10n.completeUpload,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
             ),
             const SizedBox(height: AppTheme.space48),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../app/theme.dart';
+import '../../l10n/l10n.dart';
 
 class MaintenanceScreen extends StatelessWidget {
   final String message;
@@ -34,9 +35,9 @@ class MaintenanceScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 32),
-                  const Text(
-                    'রক্ষণাবেক্ষণ',
-                    style: TextStyle(
+                  Text(
+                    context.l10n.maintenanceTitle,
+                    style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -47,7 +48,7 @@ class MaintenanceScreen extends StatelessWidget {
                   Text(
                     message.isNotEmpty
                         ? message
-                        : 'অ্যাপটি রক্ষণাবেক্ষণে আছে। শীঘ্রই ফিরে আসছি।',
+                        : context.l10n.maintenanceBody,
                     style: const TextStyle(
                       fontSize: 16,
                       color: Colors.white70,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../app/theme.dart';
+import '../../l10n/l10n.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -98,7 +99,7 @@ class AboutScreen extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         Text(
-          'কুবি যাত্রা',
+          context.l10n.appName,
           style: Theme.of(
             context,
           ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),

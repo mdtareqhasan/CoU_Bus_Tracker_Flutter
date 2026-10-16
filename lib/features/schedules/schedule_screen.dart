@@ -6,6 +6,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../app/theme.dart';
+import '../../l10n/l10n.dart';
 import 'schedules_provider.dart';
 import '../auth/auth_provider.dart';
 import '../buses/buses_provider.dart';
@@ -92,8 +93,8 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
           Flexible(
             child: Text(
               allowedCategories.contains('TEACHER')
-                  ? 'শিক্ষক বাস'
-                  : 'শিক্ষার্থী বাস',
+                  ? context.l10n.scheduleTeacherBus
+                  : context.l10n.scheduleStudentBus,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 color: AppTheme.textPrimary,
@@ -132,11 +133,11 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                   size: 20,
                 ),
               ),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'সময়সূচি',
+                  context.l10n.scheduleTitle,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -158,11 +159,14 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
               onChanged: (v) =>
                   ref.read(scheduleListProvider.notifier).setSearchQuery(v),
               style: const TextStyle(color: AppTheme.textPrimary),
-              decoration: const InputDecoration(
-                hintText: 'শিডিউল খুঁজুন (সময় বা রুট)...',
-                hintStyle: TextStyle(color: AppTheme.textHint),
+              decoration: InputDecoration(
+                hintText: context.l10n.scheduleSearchHint,
+                hintStyle: const TextStyle(color: AppTheme.textHint),
                 border: InputBorder.none,
-                icon: Icon(Icons.search_rounded, color: AppTheme.primaryBlue),
+                icon: const Icon(
+                  Icons.search_rounded,
+                  color: AppTheme.primaryBlue,
+                ),
               ),
             ),
           ),
@@ -177,9 +181,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
 
   Widget _buildDayTypeFilter(ScheduleListState state) {
     final dayTypes = <String?, (String, Color)>{
-      null: ('আজকের তালিকা', AppTheme.primaryBlue),
-      'WORKING': ('কর্মদিবস', AppTheme.successGreen),
-      'WEEKEND': ('শুক্র ও শনিবার', AppTheme.warningAmber),
+      null: (context.l10n.scheduleFilterToday, AppTheme.primaryBlue),
+      'WORKING': (context.l10n.scheduleFilterWorking, AppTheme.successGreen),
+      'WEEKEND': (context.l10n.scheduleFilterWeekend, AppTheme.warningAmber),
     };
 
     return SizedBox(
@@ -221,9 +225,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
 
   Widget _buildDirectionFilter(ScheduleListState state) {
     final directions = {
-      null: 'সব',
-      'UP': 'ক্যাম্পাস অভিমুখে',
-      'DOWN': 'ক্যাম্পাস থেকে',
+      null: context.l10n.filterAll,
+      'UP': context.l10n.scheduleDirectionToCampus,
+      'DOWN': context.l10n.scheduleDirectionFromCampus,
     };
 
     return SizedBox(
@@ -327,7 +331,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   }
 
   Widget _buildTimeGroup(String time, List<Schedule> schedules, int index) {
-    final bengaliTime = TimeUtils.formatTimeBengali(time);
+    final bengaliTime = TimeUtils.formatTime(time);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
@@ -365,7 +369,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   Text(
-                    '${schedules.length} টি বাস',
+                    context.l10n.countBuses(schedules.length),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],
@@ -441,7 +445,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
           ElevatedButton(
             onPressed: () =>
                 ref.read(scheduleListProvider.notifier).loadSchedules(),
-            child: const Text('আবার চেষ্টা করুন'),
+            child: Text(context.l10n.commonRetry),
           ),
         ],
       ),
@@ -459,9 +463,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
             color: AppTheme.textHint.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'আজকে কোনো শিডিউল নেই',
-            style: TextStyle(
+          Text(
+            context.l10n.scheduleEmpty,
+            style: const TextStyle(
               color: AppTheme.textSecondary,
               fontWeight: FontWeight.bold,
             ),

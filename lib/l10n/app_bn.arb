@@ -143,5 +143,892 @@
   "@languageEnglish": {
     "description": "Language option; always written in English, in every locale."
   },
-  "languageEnglish": "English"
+  "languageEnglish": "English",
+
+  "@navHome": {
+    "description": "Bottom navigation — home tab."
+  },
+  "navHome": "হোম",
+
+  "@navBuses": {
+    "description": "Bottom navigation — bus list tab."
+  },
+  "navBuses": "বাস",
+
+  "@navSchedules": {
+    "description": "Bottom navigation — schedules tab."
+  },
+  "navSchedules": "সময়সূচি",
+
+  "@navNotices": {
+    "description": "Bottom navigation — notices tab."
+  },
+  "navNotices": "নোটিশ",
+
+  "@navProfile": {
+    "description": "Bottom navigation — profile tab."
+  },
+  "navProfile": "প্রোফাইল",
+
+  "@commonYes": {
+    "description": "Confirmation dialog — affirmative."
+  },
+  "commonYes": "হ্যাঁ",
+
+  "@commonNo": {
+    "description": "Confirmation dialog — negative."
+  },
+  "commonNo": "না",
+
+  "@commonUserName": {
+    "description": "Fallback display name when a user has none."
+  },
+  "commonUserName": "ব্যবহারকারী",
+
+  "@exitAppTitle": {
+    "description": "Title of the leave-the-app confirmation."
+  },
+  "exitAppTitle": "অ্যাপ থেকে বের হতে চান?",
+
+  "@exitAppMessage": {
+    "description": "Body of the leave-the-app confirmation."
+  },
+  "exitAppMessage": "আপনি কি নিশ্চিতভাবে অ্যাপ বন্ধ করতে চান?",
+
+  "@timeNotScheduled": {
+    "description": "Shown where a time is missing."
+  },
+  "timeNotScheduled": "নির্ধারিত নয়",
+
+  "@timeMorning": {
+    "description": "Schedule time period, 05:00–11:59."
+  },
+  "timeMorning": "সকাল",
+
+  "@timeAfternoon": {
+    "description": "Schedule time period, 12:00–14:59."
+  },
+  "timeAfternoon": "দুপুর",
+
+  "@timeEvening": {
+    "description": "Schedule time period, 15:00–17:59."
+  },
+  "timeEvening": "বিকাল",
+
+  "@timeNight": {
+    "description": "Schedule time period, 18:00–04:59."
+  },
+  "timeNight": "রাত",
+
+  "@busCategoryBlue": {
+    "description": "Bus category badge."
+  },
+  "busCategoryBlue": "নীল",
+
+  "@busCategoryRed": {
+    "description": "Bus category badge."
+  },
+  "busCategoryRed": "লাল",
+
+  "@busCategoryTeacher": {
+    "description": "Bus category badge."
+  },
+  "busCategoryTeacher": "শিক্ষক",
+
+  "@busCategoryOfficer": {
+    "description": "Bus category badge."
+  },
+  "busCategoryOfficer": "অফিসার",
+
+  "@busCategoryStaff": {
+    "description": "Bus category badge."
+  },
+  "busCategoryStaff": "স্টাফ",
+
+  "@scheduleDirectionToCampus": {
+    "description": "Schedule direction UP — heading to the campus."
+  },
+  "scheduleDirectionToCampus": "ক্যাম্পাস অভিমুখে",
+
+  "@scheduleDirectionFromCampus": {
+    "description": "Schedule direction DOWN — leaving the campus."
+  },
+  "scheduleDirectionFromCampus": "ক্যাম্পাস থেকে",
+
+  "@statusVerified": {
+    "description": "Student account status."
+  },
+  "statusVerified": "যাচাইকৃত",
+
+  "@statusInactive": {
+    "description": "Student account status."
+  },
+  "statusInactive": "নিষ্ক্রিয়",
+
+  "@statusPending": {
+    "description": "Student account status — awaiting verification."
+  },
+  "statusPending": "অপেক্ষমাণ",
+
+  "@idCardNoText": {
+    "description": "ID card OCR found no readable text."
+  },
+  "idCardNoText": "ছবি থেকে কোনো তথ্য পড়া যায়নি। আইডি কার্ডের ছবি দিন।",
+
+  "@idCardNotCoU": {
+    "description": "ID card does not look like a Comilla University card."
+  },
+  "idCardNotCoU": "এটি কুমিল্লা বিশ্ববিদ্যালয়ের আইডি কার্ড মনে হচ্ছে না।",
+
+  "@idCardIsStudent": {
+    "description": "A teacher uploaded a student ID card."
+  },
+  "idCardIsStudent": "এটি শিক্ষার্থীর আইডি কার্ড। শিক্ষক আইডি কার্ড দিন।",
+
+  "@idCardTeacherNotFound": {
+    "description": "Teacher role, but no teacher ID detected."
+  },
+  "idCardTeacherNotFound": "শিক্ষক আইডি কার্ড সনাক্ত হয়নি। শিক্ষক পরিচয়পত্রের ছবি দিন।",
+
+  "@idCardOnlyAccepted": {
+    "description": "Non-ID image uploaded (form, photo, etc.)."
+  },
+  "idCardOnlyAccepted": "শুধুমাত্র আইডি কার্ড গ্রহণযোগ্য। ভর্তির ফর্ম বা অন্যান্য ছবি দেওয়া যাবে না।",
+
+  "@idCardProcessingFailed": {
+    "description": "Image processing threw."
+  },
+  "idCardProcessingFailed": "ছবি প্রক্রিয়াকরণে সমস্যা হয়েছে।",
+
+  "@notifPermissionTitle": {
+    "description": "Notification permission rationale — dialog title."
+  },
+  "notifPermissionTitle": "বাস আপডেট পেতে নোটিফিকেশন চালু করুন",
+
+  "@notifPermissionBody": {
+    "description": "Notification permission rationale — dialog body."
+  },
+  "notifPermissionBody": "আপনার বাসের সময়সূচি, রুট বা জরুরি কোনো পরিবর্তন হলে আমরা নোটিফিকেশনের মাধ্যমে আপনাকে জানাতে চাই। এতে গুরুত্বপূর্ণ আপডেট মিস হওয়ার সম্ভাবনা কমবে।",
+
+  "@notifLater": {
+    "description": "Notification permission rationale — dismiss."
+  },
+  "notifLater": "পরে করব",
+
+  "@notifAllow": {
+    "description": "Notification permission rationale — grant."
+  },
+  "notifAllow": "অনুমতি দিন",
+
+  "@busTrackingTitle": {
+    "description": "Live tracking screen title when no bus name was passed."
+  },
+  "busTrackingTitle": "বাস ট্র্যাকিং",
+
+  "@noInternetTitle": {
+    "description": "Offline state heading, shown wherever connectivity is required."
+  },
+  "noInternetTitle": "ইন্টারনেট সংযোগ নেই",
+
+  "@noInternetBody": {
+    "description": "Home offline body — mentions cached data is kept."
+  },
+  "noInternetBody": "ইন্টারনেট সংযোগ চালু করে রিলোড করুন।\n\nআপনার আগের ডেটা ক্যাশে সংরক্ষিত আছে।",
+
+  "@homeReload": {
+    "description": "Home offline — reload button."
+  },
+  "homeReload": "রিলোড করুন",
+
+  "@homeCloseApp": {
+    "description": "Home exit dialog — close button."
+  },
+  "homeCloseApp": "অ্যাপ বন্ধ করুন",
+
+  "@homeExitMessage": {
+    "description": "Home exit dialog body (home uses its own wording here)."
+  },
+  "homeExitMessage": "আপনি কি নিশ্চিত যে অ্যাপ থেকে বের হতে চান?",
+
+  "@todayScheduleTitle": {
+    "description": "Home — today's schedule section heading."
+  },
+  "todayScheduleTitle": "আজকের সময়সূচি",
+
+  "@homeGreeting": {
+    "description": "Home header greeting shown above the brand name."
+  },
+  "homeGreeting": "আসসালামু আলাইকুম,",
+
+  "@appName": {
+    "description": "The app's Bengali product name."
+  },
+  "appName": "কুবি যাত্রা",
+
+  "@homeBrandTagline": {
+    "description": "Home header fallback text when no data has loaded."
+  },
+  "homeBrandTagline": "CoU যাত্রী",
+
+  "@menuTooltip": {
+    "description": "Accessibility tooltip on the home menu button."
+  },
+  "menuTooltip": "মেনু",
+
+  "@homeActiveBusCount": {
+    "description": "Home header — buses currently active.",
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "homeActiveBusCount": "{count} টি বাস সক্রিয় আছে",
+
+  "@countBuses": {
+    "description": "Generic 'N buses' count label.",
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "countBuses": "{count} টি বাস",
+
+  "@seeAll": {
+    "description": "Section header link to the full list."
+  },
+  "seeAll": "সব দেখুন",
+
+  "@noScheduleToday": {
+    "description": "Home — today's schedule list is exhausted."
+  },
+  "noScheduleToday": "আজকে আর কোনো শিডিউল নেই",
+
+  "@offlineBanner": {
+    "description": "Banner shown when displaying cached data without a connection."
+  },
+  "offlineBanner": "অফলাইন • সংরক্ষিত তথ্য দেখানো হচ্ছে",
+
+  "@profileTitle": {
+    "description": "Profile screen app bar title."
+  },
+  "profileTitle": "প্রোফাইল",
+
+  "@profileYourProfile": {
+    "description": "Logged-out profile heading."
+  },
+  "profileYourProfile": "আপনার প্রোফাইল",
+
+  "@profileLoginPrompt": {
+    "description": "Logged-out profile explanation."
+  },
+  "profileLoginPrompt": "বাসের তথ্য ও সঠিক শিডিউল ট্র্যাক করতে আপনার অ্যাকাউন্টে লগইন করুন",
+
+  "@profileLoginRegister": {
+    "description": "Logged-out profile — login/register button."
+  },
+  "profileLoginRegister": "লগইন / নিবন্ধন করুন",
+
+  "@roleStudent": {
+    "description": "Student role label, shown to both roles."
+  },
+  "roleStudent": "শিক্ষার্থী",
+
+  "@roleTeacher": {
+    "description": "Teacher role label, shown to both roles."
+  },
+  "roleTeacher": "শিক্ষক",
+
+  "@profileIdCard": {
+    "description": "Profile — ID card section heading."
+  },
+  "profileIdCard": "আইডি কার্ড",
+
+  "@profileTapToViewPhoto": {
+    "description": "Profile — hint under the ID card image."
+  },
+  "profileTapToViewPhoto": "ছবি দেখতে ট্যাপ করুন",
+
+  "@profileName": {
+    "description": "Profile info row — name."
+  },
+  "profileName": "নাম",
+
+  "@profileEmail": {
+    "description": "Profile info row — email."
+  },
+  "profileEmail": "ইমেইল",
+
+  "@profileRole": {
+    "description": "Profile info row — role."
+  },
+  "profileRole": "ভূমিকা",
+
+  "@profileLogout": {
+    "description": "Profile — logout button."
+  },
+  "profileLogout": "লগ আউট",
+
+  "@scheduleTeacherBus": {
+    "description": "Schedules screen — title for the teacher-bus variant."
+  },
+  "scheduleTeacherBus": "শিক্ষক বাস",
+
+  "@scheduleStudentBus": {
+    "description": "Schedules screen — title for the student-bus variant."
+  },
+  "scheduleStudentBus": "শিক্ষার্থী বাস",
+
+  "@scheduleTitle": {
+    "description": "Schedules screen app bar title."
+  },
+  "scheduleTitle": "সময়সূচি",
+
+  "@scheduleSearchHint": {
+    "description": "Schedules — search field hint."
+  },
+  "scheduleSearchHint": "শিডিউল খুঁজুন (সময় বা রুট)...",
+
+  "@scheduleFilterToday": {
+    "description": "Schedules — day-type filter chip (default)."
+  },
+  "scheduleFilterToday": "আজকের তালিকা",
+
+  "@scheduleFilterWorking": {
+    "description": "Schedules — day-type filter chip, working days."
+  },
+  "scheduleFilterWorking": "কর্মদিবস",
+
+  "@scheduleFilterWeekend": {
+    "description": "Schedules — day-type filter chip, weekend."
+  },
+  "scheduleFilterWeekend": "শুক্র ও শনিবার",
+
+  "@filterAll": {
+    "description": "Filter chip that clears the filter."
+  },
+  "filterAll": "সব",
+
+  "@scheduleEmpty": {
+    "description": "Schedules — nothing matches for today."
+  },
+  "scheduleEmpty": "আজকে কোনো শিডিউল নেই",
+
+  "@busSearchHint": {
+    "description": "Bus list — search field hint."
+  },
+  "busSearchHint": "বাস খুঁজুন...",
+
+  "@busRouteMissing": {
+    "description": "Bus list — a bus has no route data."
+  },
+  "busRouteMissing": "রুট তথ্য নেই",
+
+  "@busListEmpty": {
+    "description": "Bus list — no buses match the filter/search."
+  },
+  "busListEmpty": "কোনো বাস পাওয়া যায়নি",
+
+  "@trackingConnecting": {
+    "description": "Live tracking — initial status while the web view loads."
+  },
+  "trackingConnecting": "সংযুক্ত হচ্ছে...",
+
+  "@trackingGpsOff": {
+    "description": "Live tracking — device GPS is disabled."
+  },
+  "trackingGpsOff": "GPS বন্ধ",
+
+  "@trackingPermissionDenied": {
+    "description": "Live tracking — location permission denied."
+  },
+  "trackingPermissionDenied": "অনুমতি নেই",
+
+  "@trackingPermissionBlocked": {
+    "description": "Live tracking — location permission permanently blocked."
+  },
+  "trackingPermissionBlocked": "অনুমতি ব্লক",
+
+  "@trackingFastUpdateHint": {
+    "description": "Live tracking — hint to lower the update interval."
+  },
+  "trackingFastUpdateHint": "দ্রুত আপডেট পেতে নিচের বাম পাশের ড্রপডাউন থেকে ৫ সেঃ সিলেক্ট করুন",
+
+  "@trackingNoInternetBody": {
+    "description": "Live tracking — offline body."
+  },
+  "trackingNoInternetBody": "বাসের লোকেশন দেখতে ইন্টারনেট সংযোগ চালু করে\nআবার চেষ্টা করুন।",
+
+  "@roleSelectTitle": {
+    "description": "Role selection screen heading."
+  },
+  "roleSelectTitle": "আপনার ভূমিকা",
+
+  "@roleChoosePrompt": {
+    "description": "Role selection — screen title."
+  },
+  "roleChoosePrompt": "আপনার ভূমিকা নির্বাচন করুন",
+
+  "@roleLoginRegisterHint": {
+    "description": "Role selection — subtitle."
+  },
+  "roleLoginRegisterHint": "লগইন বা নিবন্ধনের জন্য ভূমিকা বাছাই করুন",
+
+  "@roleStudentSubtitle": {
+    "description": "Role selection — student card subtitle."
+  },
+  "roleStudentSubtitle": "ছাত্র হিসেবে লগইন বা নিবন্ধন করুন",
+
+  "@roleTeacherSubtitle": {
+    "description": "Role selection — teacher card subtitle."
+  },
+  "roleTeacherSubtitle": "শিক্ষক হিসেবে লগইন বা নিবন্ধন করুন",
+
+  "@driverInfoTitle": {
+    "description": "Bus detail — driver information section heading."
+  },
+  "driverInfoTitle": "ড্রাইভার তথ্য",
+
+  "@scheduleRouteTitle": {
+    "description": "Bus detail — schedule and route section heading."
+  },
+  "scheduleRouteTitle": "শিডিউল ও রুট",
+
+  "@busSeeLiveLocation": {
+    "description": "Bus detail — link to live tracking."
+  },
+  "busSeeLiveLocation": "লাইভ লোকেশন দেখুন",
+
+  "@commonError": {
+    "description": "Generic error fallback text."
+  },
+  "commonError": "ত্রুটি",
+
+  "@forceUpdateTitle": {
+    "description": "Forced update — dialog title."
+  },
+  "forceUpdateTitle": "আপডেট প্রয়োজন",
+
+  "@newVersionTitle": {
+    "description": "Optional update — dialog title."
+  },
+  "newVersionTitle": "নতুন ভার্সন পাওয়া গেছে",
+
+  "@newVersionBody": {
+    "description": "Optional update — dialog body."
+  },
+  "newVersionBody": "অ্যাপের নতুন ভার্সন পাওয়া গেছে। আপডেট করুন।",
+
+  "@updateNow": {
+    "description": "Update dialog — accept button."
+  },
+  "updateNow": "আপডেট করুন",
+
+  "@updateLater": {
+    "description": "Update dialog — dismiss button."
+  },
+  "updateLater": "পরে করুন",
+
+  "@noticeTitle": {
+    "description": "Notices screen app bar title."
+  },
+  "noticeTitle": "নোটিশ",
+
+  "@noticeExpired": {
+    "description": "Notice badge — past its validity."
+  },
+  "noticeExpired": "মেয়াদোত্তীর্ণ",
+
+  "@noticeActive": {
+    "description": "Notice badge — currently valid."
+  },
+  "noticeActive": "সক্রিয়",
+
+  "@noticeEmpty": {
+    "description": "Notices — nothing active."
+  },
+  "noticeEmpty": "এখন কোনো সক্রিয় নোটিশ নেই",
+
+  "@maintenanceTitle": {
+    "description": "Maintenance screen heading."
+  },
+  "maintenanceTitle": "রক্ষণাবেক্ষণ",
+
+  "@maintenanceBody": {
+    "description": "Maintenance screen body."
+  },
+  "maintenanceBody": "অ্যাপটি রক্ষণাবেক্ষণে আছে। শীঘ্রই ফিরে আসছি।",
+
+  "@commonRetry": {
+    "description": "Generic retry button."
+  },
+  "commonRetry": "আবার চেষ্টা করুন",
+
+  "@commonOk": {
+    "description": "Dialog acknowledge button."
+  },
+  "commonOk": "ঠিক আছে",
+
+  "@commonCancel": {
+    "description": "Dialog cancel button."
+  },
+  "commonCancel": "বাতিল",
+
+  "fieldFullName": "পুরো নাম",
+  "fieldPhoneNumber": "ফোন নম্বর",
+  "fieldEmail": "ইমেইল",
+  "fieldPassword": "পাসওয়ার্ড",
+
+  "@fieldPasswordConfirm": {
+    "description": "Confirm-password field label; also reused as its validator message."
+  },
+  "fieldPasswordConfirm": "পাসওয়ার্ড আবার দিন",
+
+  "fieldNewPassword": "নতুন পাসওয়ার্ড",
+  "fieldRollNumber": "রোল নম্বর",
+  "fieldTeacherId": "শিক্ষক আইডি",
+  "fieldEmployeeId": "কর্মচারী আইডি",
+
+  "@fieldId": {
+    "description": "Generic ID field label (teacher/staff registration)."
+  },
+  "fieldId": "আইডি",
+
+  "fieldDesignation": "পদবী",
+  "fieldDepartment": "বিভাগ",
+  "fieldDepartmentOffice": "বিভাগ/অফিস",
+  "fieldSession": "সেশন",
+
+  "validationNameRequired": "নাম দিন",
+  "validationPhoneRequired": "ফোন নম্বর দিন",
+  "validationPhoneInvalid": "সঠিক ফোন নম্বর দিন (01XXXXXXXXX)",
+  "validationEmailRequired": "ইমেইল দিন",
+  "validationEmailInvalid": "সঠিক ইমেইল দিন",
+  "validationPasswordRequired": "পাসওয়ার্ড দিন",
+  "validationPasswordLength8": "পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে",
+  "validationPasswordLength6": "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে",
+  "validationPasswordMismatch": "পাসওয়ার্ড মিলছে না",
+  "validationDepartmentRequired": "বিভাগ দিন",
+  "validationDepartmentLength": "বিভাগ ২ থেকে ১০০ অক্ষরের হতে হবে",
+  "validationSessionRequired": "সেশন দিন",
+
+  "@validationSessionFormat": {
+    "description": "Session validator — lists accepted formats."
+  },
+  "validationSessionFormat": "সেশন সঠিকভাবে দিন (যেমন: 16, 2020, 2021-22, অথবা 2020-2024)",
+
+  "validationRollRequired": "রোল নম্বর দিন",
+  "validationRollLength": "রোল নম্বর ২-৫০ অক্ষরের হতে হবে",
+  "validationEmployeeIdRequired": "কর্মচারী আইডি দিন",
+  "validationEmployeeIdLength": "কর্মচারী আইডি ২-৫০ অক্ষরের হতে হবে",
+  "validationDesignationRequired": "পদবী দিন",
+  "validationDesignationLength": "পদবী ১০০ অক্ষরের হতে হবে",
+
+  "@validationIdRequired": {
+    "description": "Generic ID validator (teacher/staff registration)."
+  },
+  "validationIdRequired": "আইডি দিন",
+
+  "selectDepartment": "বিভাগ নির্বাচন করুন",
+  "selectDepartmentOffice": "বিভাগ/অফিস নির্বাচন করুন",
+  "selectSession": "সেশন নির্বাচন করুন",
+  "hintExampleRoll": "যেমন: 12208055",
+  "hintExampleEmployeeId": "যেমন: 1234",
+  "hintExampleDesignation": "যেমন: সহযোগী অধ্যাপক",
+  "hintExamplePhone": "যেমন: 01712345678",
+
+  "authLogin": "লগইন করুন",
+  "authRegister": "নিবন্ধন করুন",
+  "authLoginBack": "লগইনে ফিরে যান",
+  "authForgotPassword": "পাসওয়ার্ড ভুলে গেছেন?",
+
+  "@authNoAccount": {
+    "description": "Preceding the underlined register link — keep the trailing space."
+  },
+  "authNoAccount": "অ্যাকাউন্ট নেই? ",
+
+  "@authHaveAccount": {
+    "description": "Preceding the underlined login link — keep the trailing space."
+  },
+  "authHaveAccount": "ইতিমধ্যে অ্যাকাউন্ট আছে? ",
+
+  "authStudentLogin": "শিক্ষার্থী লগইন",
+  "authTeacherLogin": "শিক্ষক লগইন",
+  "authTeacherOfficerLogin": "শিক্ষক ও কর্মকর্তাবৃন্দ লগইন",
+  "authStudentRegister": "শিক্ষার্থী নিবন্ধন",
+  "authTeacherRegister": "শিক্ষক নিবন্ধন",
+  "authTeacherOfficerRegister": "শিক্ষক ও কর্মকর্তাবৃন্দ নিবন্ধন",
+  "passwordResetTitle": "পাসওয়ার্ড রিসেট",
+  "authPhoneVerificationTitle": "ফোন নম্বর যাচাইকরণ",
+  "authEmailVerificationTitle": "ইমেইল যাচাইকরণ",
+  "loginSubtitle": "ফোন নম্বর ও পাসওয়ার্ড দিয়ে লগইন করুন",
+  "forgotPhoneSubtitle": "আপনার ফোন নম্বর দিন, আমরা OTP পাঠাবো",
+  "forgotEmailSubtitle": "আপনার ইমেইল দিন, আমরা OTP পাঠাবো",
+
+  "@emailLoginSubtitleEdu": {
+    "description": "Login subtitle when the user picked the Edumail path."
+  },
+  "emailLoginSubtitleEdu": "এডুমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন",
+
+  "@emailLoginSubtitleInst": {
+    "description": "Login subtitle when the user picked the institutional-email path."
+  },
+  "emailLoginSubtitleInst": "প্রতিষ্ঠানিক ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন",
+
+  "@emailFieldEdu": {
+    "description": "Field label for the @student.cou.ac.bd style address."
+  },
+  "emailFieldEdu": "এডুমেইল",
+
+  "@emailFieldInst": {
+    "description": "Field label for staff/professional addresses."
+  },
+  "emailFieldInst": "প্রতিষ্ঠানিক ইমেইল",
+
+  "emailRegisterSubtitleEdu": "আপনার এডুমেইলের মাধ্যমে OTP নিবন্ধন করুন",
+  "emailRegisterSubtitleInst": "আপনার প্রতিষ্ঠানিক ইমেইলের মাধ্যমে OTP নিবন্ধন করুন",
+
+  "@noEduMailHintEdu": {
+    "description": "Keeps the source's original wording."
+  },
+  "noEduMailHintEdu": "যদি আপনার এডুমেইল না থাকে, তাহলে আইসিটি সেলে যোগাযগ করুন",
+
+  "@noEduMailHintInst": {
+    "description": "Keeps the source's original wording."
+  },
+  "noEduMailHintInst": "যদি আপনার প্রতিষ্ঠানিক ইমেইল না থাকে, তাহলে আইসিটি সেলে যোগাযগ করুন",
+
+  "googleSignInSubtitle": "বিশ্ববিদ্যালয়ের ইমেইল অ্যাকাউন্ট দিয়ে প্রবেশ করুন",
+  "googleInstitutionalPrompt": "আপনার বিশ্ববিদ্যালয়ের প্রাতিষ্ঠানিক ইমেইল ব্যবহার করে প্রবেশ করুন।",
+  "googleEmailFormatLabel": "প্রয়োজনীয় ইমেইল ফরমেট:",
+  "googleIctHelp": "আপনার প্রাতিষ্ঠানিক ইমেইল না থাকলে অনুগ্রহ করে বিশ্ববিদ্যালয়ের আইসিটি সেলের সঙ্গে যোগাযোগ করুন।",
+  "googleSignInButton": "গুগল অ্যাকাউন্ট দিয়ে প্রবেশ করুন",
+
+  "@googleSignInCancelled": {
+    "description": "User dismissed the Google account picker."
+  },
+  "googleSignInCancelled": "প্রবেশ বাতিল করা হয়েছে।",
+
+  "@googleSignInConfigError": {
+    "description": "Google sign-in is misconfigured (SHA-1 / client ID)."
+  },
+  "googleSignInConfigError": "গুগল সাইন-ইন কনফিগারেশনে সমস্যা হয়েছে। যোগাযোগ করুন।",
+
+  "uploadIdTitle": "আইডি কার্ড আপলোড",
+  "uploadIdSubtitle": "আপনার বিশ্ববিদ্যালয়ের পরিচয়পত্র আপলোড করুন",
+  "uploadIdSuccess": "আইডি কার্ড সফলভাবে আপলোড হয়েছে",
+  "selectPhoto": "ছবি সিলেক্ট করুন",
+  "completeUpload": "আপলোড সম্পন্ন করুন",
+
+  "authSendOtp": "OTP পাঠান",
+  "authVerifyOtp": "OTP যাচাই করুন",
+  "authVerify": "যাচাই করুন",
+  "authResendCode": "আবার কোড পাঠান",
+  "authChangePhoneBack": "ফোন নম্বর পরিবর্তন / নিবন্ধনে ফিরে যান",
+  "authChangeEmailBack": "ইমেইল পরিবর্তন / নিবন্ধনে ফিরে যান",
+
+  "@authCodeNotReceived": {
+    "description": "Heading above the resend-code button."
+  },
+  "authCodeNotReceived": "কোডটি পাননি?",
+
+  "@authResendCountdown": {
+    "description": "Resend cooldown, e.g. '0:45' remaining.",
+    "placeholders": {
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "authResendCountdown": "নতুন কোড পাঠাতে {remaining} অবশিষ্ট",
+
+  "otpDigitHint": "৬ ডিজিট OTP",
+  "otpDigitRequired": "৬ ডিজিট OTP দিন",
+  "resetPasswordButton": "পাসওয়ার্ড রিসেট করুন",
+
+  "@otpSentToPhone": {
+    "description": "Confirmation after requesting an OTP for a phone number.",
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "otpSentToPhone": "{phone} নম্বরে OTP পাঠানো হয়েছে",
+
+  "@otpSentToEmail": {
+    "description": "Confirmation after requesting an OTP for an email address.",
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "otpSentToEmail": "{email} ইমেইলে OTP পাঠানো হয়েছে",
+
+  "@otpIncomplete": {
+    "description": "Validator/inline error for a partially typed OTP."
+  },
+  "otpIncomplete": "৬ সংখ্যার কোডটি সম্পূর্ণ লিখুন।",
+
+  "@verificationFailedFallback": {
+    "description": "Generic fallback when no specific verification error exists."
+  },
+  "verificationFailedFallback": "ভেরিফিকেশন ব্যর্থ হয়েছে। আবার চেষ্টা করুন।",
+
+  "@otpExpiredResent": {
+    "description": "Shown after an expired OTP triggers an automatic resend."
+  },
+  "otpExpiredResent": "OTP মেয়াদোত্তীর্ণ হয়েছে। নতুন OTP পাঠানো হয়েছে।",
+
+  "codeSendFailed": "কোড পাঠানো যায়নি। আবার চেষ্টা করুন।",
+
+  "@phoneVerifySubtitle": {
+    "description": "OTP screen subtitle — mentions a verification code."
+  },
+  "phoneVerifySubtitle": "আমরা আপনার ফোনে ৬ সংখ্যার একটি verification code পাঠিয়েছি।",
+
+  "@emailVerifySubtitle": {
+    "description": "OTP screen subtitle — mentions a verification code."
+  },
+  "emailVerifySubtitle": "আমরা আপনার ইমেইলে ৬ সংখ্যার একটি verification code পাঠিয়েছি।",
+
+  "@invalidImageType": {
+    "description": "Image picker rejected a non JPG/PNG file."
+  },
+  "invalidImageType": "শুধুমাত্র JPG, JPEG বা PNG ছবি নির্বাচন করুন।",
+
+  "@idCardDetectedTeacher": {
+    "description": "OCR recognized a teacher ID card (success toast)."
+  },
+  "idCardDetectedTeacher": "✅ শিক্ষক আইডি কার্ড সনাক্ত হয়েছে",
+
+  "@idCardDetected": {
+    "description": "OCR recognized a student ID card (success toast)."
+  },
+  "idCardDetected": "✅ আইডি কার্ড সনাক্ত হয়েছে",
+
+  "@photoUploaded": {
+    "description": "Upload finished (success toast)."
+  },
+  "photoUploaded": "✅ ছবি আপলোড হয়েছে",
+
+  "@autoFilledInfo": {
+    "description": "OCR auto-filled the form — asks the user to review it."
+  },
+  "autoFilledInfo": "তথ্য স্বয়ংক্রিয়ভাবে পূরণ হয়েছে। পরীক্ষা করে নিন।",
+
+  "photoValidationFailed": "ছবি যাচাইয়ে সমস্যা হয়েছে।",
+  "registerSubtitle": "আইডি কার্ড অথবা ভর্তির ফর্ম আপলোড করুন",
+  "otpWillBeSentToPhone": "নিবন্ধনের পর এই নম্বরে OTP পাঠানো হবে",
+
+  "@uploadDocStudent": {
+    "description": "Registration upload section heading (student)."
+  },
+  "uploadDocStudent": "আইডি কার্ড বা ভর্তির ফর্ম — যেকোনো একটি দিন!",
+
+  "@uploadDocTeacher": {
+    "description": "Registration upload section heading (teacher)."
+  },
+  "uploadDocTeacher": "শিক্ষক আইডি কার্ড আপলোড করুন",
+
+  "@uploadGuidelinesStudent": {
+    "description": "Bulleted upload guidelines (student) — newlines between bullets."
+  },
+  "uploadGuidelinesStudent": "• আইডি কার্ড আছে → আইডি কার্ডের ছবি আপলোড করুন\n• আইডি কার্ড নেই → ভর্তির ফর্ম / ভর্তি ভাউচারের ছবি আপলোড করুন\n• উভয়ই কুমিল্লা বিশ্ববিদ্যালয়ের হতে হবে",
+
+  "@uploadGuidelinesTeacher": {
+    "description": "Bulleted upload guidelines (teacher) — newlines between bullets."
+  },
+  "uploadGuidelinesTeacher": "• শিক্ষক পরিচয়পত্রের ছবি আপলোড করুন\n• কুমিল্লা বিশ্ববিদ্যালয়ের শিক্ষক আইডি কার্ড হতে হবে\n• ডিপার্টমেন্ট ও পদবি স্বয়ংক্রিয়ভাবে পূরণ হবে",
+
+  "@docPhotoLabelStudent": {
+    "description": "File-picker caption (student)."
+  },
+  "docPhotoLabelStudent": "পরিচয়পত্র / ভর্তির ফর্মের ছবি (MANDATORY)",
+
+  "@docPhotoLabelTeacher": {
+    "description": "File-picker caption (teacher)."
+  },
+  "docPhotoLabelTeacher": "শিক্ষক পরিচয়পত্রের ছবি (MANDATORY)",
+
+  "photoFormatStudent": "(JPG/PNG — আইডি কার্ড অথবা ভর্তির ফর্ম)",
+  "photoFormatTeacher": "(JPG/PNG — শিক্ষক আইডি কার্ড)",
+
+  "@photoSizeMb": {
+    "description": "Photo size hint in megabytes — {size} is already formatted.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "photoSizeMb": "ছবির সাইজ: {size} MB",
+
+  "@photoSizeKb": {
+    "description": "Photo size hint in kilobytes — {size} is already formatted.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "photoSizeKb": "ছবির সাইজ: {size} KB",
+
+  "photoValidatingIndicator": "ছবি যাচাই করা হচ্ছে...",
+  "registerDocTitle": "নথি প্রয়োজন",
+  "registerDocRequiredMsg": "নিবন্ধন সম্পন্ন করতে আপনার বিশ্ববিদ্যালয় আইডি কার্ড অথবা ভর্তির ফর্মের ছবি আপলোড করা বাধ্যতামূলক।",
+  "photoValidatingDialog": "ছবি যাচাই হচ্ছে... অপেক্ষা করুন।",
+
+  "@validIdCardPrompt": {
+    "description": "Shown when the uploaded document could not be accepted."
+  },
+  "validIdCardPrompt": "সঠিক আইডি কার্ড দিন।",
+
+  "academicStudentTitle": "শিক্ষার্থীর তথ্য সম্পূর্ণ করুন",
+  "academicStaffTitle": "শিক্ষক ও কর্মকর্তাদের তথ্য সম্পূর্ণ করুন",
+  "academicSubtitle": "অ্যাকাউন্ট ব্যবহার করতে নিচের তথ্যগুলো দিন।",
+
+  "@academicOnceOnlyNote": {
+    "description": "Academic details are submitted only once."
+  },
+  "academicOnceOnlyNote": "এই তথ্য একবার দেওয়ার পর পরিবর্তন করা যাবে না। সঠিকভাবে দিন।",
+
+  "@academicHelperOnce": {
+    "description": "Field helper under locked-after-submit fields."
+  },
+  "academicHelperOnce": "একবার দেওয়ার পর পরিবর্তন করা যাবে না",
+
+  "academicSave": "সংরক্ষণ করুন",
+
+  "@academicLogoutTitle": {
+    "description": "Confirm dialog before logging out from the completion form."
+  },
+  "academicLogoutTitle": "লগ আউট করবেন?",
+
+  "@academicLogoutBody": {
+    "description": "Confirm dialog body for skipping the completion form."
+  },
+  "academicLogoutBody": "তথ্য ছাড়া অ্যাকাউন্ট ব্যবহার করা যাবে না। পরে আবার লগইন করে পূরণ করতে পারবেন।",
+
+  "@errorVerifyOtpNoToken": {
+    "description": "Backend verified the OTP but returned no access token."
+  },
+  "errorVerifyOtpNoToken": "ভেরিফিকেশন সফল হলেও টোকেন পাওয়া যায়নি। আবার চেষ্টা করুন।",
+
+  "@otpSent": {
+    "description": "Success message returned by the OTP send request."
+  },
+  "otpSent": "OTP পাঠানো হয়েছে",
+
+  "@otpResent": {
+    "description": "Success message returned by the OTP resend request."
+  },
+  "otpResent": "OTP পুনরায় পাঠানো হয়েছে",
+
+  "@errorUnknownResponse": {
+    "description": "Unexpected backend response shape; kept as-is."
+  },
+  "errorUnknownResponse": "Unknown response"
 }

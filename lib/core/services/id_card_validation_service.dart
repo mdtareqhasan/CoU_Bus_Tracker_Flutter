@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import '../../l10n/l10n.dart';
 
 class IdCardValidationResult {
   final bool isValid;
@@ -41,9 +42,9 @@ class IdCardValidationService {
 
       if (text.trim().isEmpty) {
         debugPrint('FAIL: Empty text');
-        return const IdCardValidationResult(
+        return IdCardValidationResult(
           isValid: false,
-          errorMessage: 'ছবি থেকে কোনো তথ্য পড়া যায়নি। আইডি কার্ডের ছবি দিন।',
+          errorMessage: L10n.current.idCardNoText,
           rawText: '',
         );
       }
@@ -60,7 +61,7 @@ class IdCardValidationService {
         debugPrint('FAIL: No Comilla University found');
         return IdCardValidationResult(
           isValid: false,
-          errorMessage: 'এটি কুমিল্লা বিশ্ববিদ্যালয়ের আইডি কার্ড মনে হচ্ছে না।',
+          errorMessage: L10n.current.idCardNotCoU,
           rawText: text,
         );
       }
@@ -86,7 +87,7 @@ class IdCardValidationService {
           debugPrint('FAIL: Student card for teacher');
           return IdCardValidationResult(
             isValid: false,
-            errorMessage: 'এটি শিক্ষার্থীর আইডি কার্ড। শিক্ষক আইডি কার্ড দিন।',
+            errorMessage: L10n.current.idCardIsStudent,
             rawText: text,
           );
         }
@@ -104,9 +105,9 @@ class IdCardValidationService {
         }
 
         debugPrint('FAIL: Not teacher ID card');
-        return const IdCardValidationResult(
+        return IdCardValidationResult(
           isValid: false,
-          errorMessage: 'শিক্ষক আইডি কার্ড সনাক্ত হয়নি। শিক্ষক পরিচয়পত্রের ছবি দিন।',
+          errorMessage: L10n.current.idCardTeacherNotFound,
           rawText: '',
         );
       }
@@ -140,17 +141,17 @@ class IdCardValidationService {
       }
 
       debugPrint('FAIL: Not a student ID card');
-      return const IdCardValidationResult(
+      return IdCardValidationResult(
         isValid: false,
-        errorMessage: 'শুধুমাত্র আইডি কার্ড গ্রহণযোগ্য। ভর্তির ফর্ম বা অন্যান্য ছবি দেওয়া যাবে না।',
+        errorMessage: L10n.current.idCardOnlyAccepted,
         rawText: '',
       );
 
     } catch (e) {
       debugPrint('VALIDATION ERROR: $e');
-      return const IdCardValidationResult(
+      return IdCardValidationResult(
         isValid: false,
-        errorMessage: 'ছবি প্রক্রিয়াকরণে সমস্যা হয়েছে।',
+        errorMessage: L10n.current.idCardProcessingFailed,
         rawText: '',
       );
     }

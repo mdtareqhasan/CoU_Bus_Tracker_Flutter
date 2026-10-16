@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import '../../core/utils/time_utils.dart';
+import '../../l10n/l10n.dart';
 
 part 'schedule.g.dart';
 
@@ -38,9 +39,9 @@ class Schedule {
   String get directionLabel {
     switch (direction?.toUpperCase()) {
       case 'UP':
-        return 'ক্যাম্পাস অভিমুখে';
+        return L10n.current.scheduleDirectionToCampus;
       case 'DOWN':
-        return 'ক্যাম্পাস থেকে';
+        return L10n.current.scheduleDirectionFromCampus;
       default:
         return direction ?? '';
     }
@@ -48,7 +49,7 @@ class Schedule {
 
   String get displayArrival {
     if (arrivalTime != null && arrivalTime!.isNotEmpty) return arrivalTime!;
-    return 'নির্ধারিত নয়';
+    return L10n.current.timeNotScheduled;
   }
 
   String get routeDisplay {
@@ -59,6 +60,6 @@ class Schedule {
   }
 
   String get displayDeparture {
-    return TimeUtils.formatTimeBengali(departureTime);
+    return TimeUtils.formatTime(departureTime);
   }
 }

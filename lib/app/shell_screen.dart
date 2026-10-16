@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import '../l10n/l10n.dart';
 import 'theme.dart';
 
 class ShellScreen extends StatefulWidget {
@@ -45,19 +46,22 @@ class _ShellScreenState extends State<ShellScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          title: const Text(
-            'অ্যাপ থেকে বের হতে চান?',
-            style: TextStyle(fontWeight: FontWeight.bold),
+          title: Text(
+            ctx.l10n.exitAppTitle,
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
-          content: const Text('আপনি কি নিশ্চিতভাবে অ্যাপ বন্ধ করতে চান?'),
+          content: Text(ctx.l10n.exitAppMessage),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(false),
-              child: const Text('না'),
+              child: Text(ctx.l10n.commonNo),
             ),
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(true),
-              child: const Text('হ্যাঁ', style: TextStyle(color: Colors.red)),
+              child: Text(
+                ctx.l10n.commonYes,
+                style: const TextStyle(color: Colors.red),
+              ),
             ),
           ],
         ),
@@ -92,31 +96,31 @@ class _ShellScreenState extends State<ShellScreen> {
           unselectedItemColor: isDark ? Colors.white24 : AppTheme.textHint,
           type: BottomNavigationBarType.fixed,
           elevation: 15,
-          items: const [
+          items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home_rounded),
-              label: 'হোম',
+              icon: const Icon(Icons.home_outlined),
+              activeIcon: const Icon(Icons.home_rounded),
+              label: context.l10n.navHome,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.directions_bus_outlined),
-              activeIcon: Icon(Icons.directions_bus_rounded),
-              label: 'বাস',
+              icon: const Icon(Icons.directions_bus_outlined),
+              activeIcon: const Icon(Icons.directions_bus_rounded),
+              label: context.l10n.navBuses,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.schedule_outlined),
-              activeIcon: Icon(Icons.schedule_rounded),
-              label: 'সময়সূচি',
+              icon: const Icon(Icons.schedule_outlined),
+              activeIcon: const Icon(Icons.schedule_rounded),
+              label: context.l10n.navSchedules,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.notifications_outlined),
-              activeIcon: Icon(Icons.notifications_rounded),
-              label: 'নোটিশ',
+              icon: const Icon(Icons.notifications_outlined),
+              activeIcon: const Icon(Icons.notifications_rounded),
+              label: context.l10n.navNotices,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline_rounded),
-              activeIcon: Icon(Icons.person_rounded),
-              label: 'প্রোফাইল',
+              icon: const Icon(Icons.person_outline_rounded),
+              activeIcon: const Icon(Icons.person_rounded),
+              label: context.l10n.navProfile,
             ),
           ],
         ),
