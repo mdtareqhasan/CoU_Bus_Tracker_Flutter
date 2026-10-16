@@ -86,6 +86,96 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your account could not be found. Please register first.';
 
   @override
+  String get errorValidation => 'Please check your information and try again.';
+
+  @override
+  String get errorInvalidEmail => 'Please enter a valid email address.';
+
+  @override
+  String get errorInvalidPhone => 'Please enter a valid phone number.';
+
+  @override
+  String get errorOtpLength => 'The OTP must be 6 digits.';
+
+  @override
+  String get errorPasswordLength => 'Password must be at least 6 characters.';
+
+  @override
+  String get errorRoleRequired => 'Please select your role.';
+
+  @override
+  String get errorUnauthorized => 'You are not authorized to do this.';
+
+  @override
+  String get errorUserNotFound => 'Account not found.';
+
+  @override
+  String get errorRollAlreadyRegistered =>
+      'This roll number is already registered.';
+
+  @override
+  String get errorTeacherIdAlreadyRegistered =>
+      'This teacher ID is already registered.';
+
+  @override
+  String get errorDepartmentImmutable =>
+      'Department cannot be changed once it has been set.';
+
+  @override
+  String get errorRollImmutable =>
+      'Roll number cannot be changed once it has been set.';
+
+  @override
+  String get errorSessionImmutable =>
+      'Session cannot be changed once it has been set.';
+
+  @override
+  String get errorEmployeeIdImmutable =>
+      'Employee ID cannot be changed once it has been set.';
+
+  @override
+  String get errorDesignationImmutable =>
+      'Designation cannot be changed once it has been set.';
+
+  @override
+  String get errorEmailDomainNotAllowed =>
+      'Only official Comilla University email addresses are allowed.';
+
+  @override
+  String get errorGoogleSignInFailed =>
+      'Could not verify the Google sign-in. Please try again.';
+
+  @override
+  String get errorGoogleTokenInvalid =>
+      'The Google sign-in token is invalid or the email is not verified.';
+
+  @override
+  String get errorFacultyEmailRequired =>
+      'To sign in as a teacher, use a staff email (name@cou.ac.bd).';
+
+  @override
+  String get errorCannotDeleteSelf => 'You cannot delete your own account.';
+
+  @override
+  String get errorOtpNotFound => 'No OTP found. Please request a new one.';
+
+  @override
+  String get errorRegistrationNotFound =>
+      'Registration not found. Please submit the registration form first.';
+
+  @override
+  String get errorPendingRegistrationNotFound =>
+      'No pending registration found for this phone. Please submit the registration form first.';
+
+  @override
+  String get errorProfileIncomplete =>
+      'Please complete your profile to continue.';
+
+  @override
+  String get successPasswordReset =>
+      'Password reset successfully. Log in with your new password.';
+
+  @override
   String get homeStatActiveBuses => 'Active buses';
 
   @override
@@ -479,6 +569,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get validationNameRequired => 'Enter your name';
+
+  @override
+  String get validationNameLength => 'Name must be 2 to 100 characters';
 
   @override
   String get validationPhoneRequired => 'Enter your phone number';

@@ -67,6 +67,41 @@ Display strings owned by a helper class keep the helper's vocabulary
 (`ErrorHandler.defaultError` reads `L10n.current.errorDefault`), so the mapping
 stays guessable.
 
+### Backend error codes
+
+The API is single-language: every error body carries an English `message` plus
+a stable machine-readable `code` (the `ErrorCode` enum in
+`cou-bus-tracker-api`). **The app owns the display language**, so it translates
+on the code, never on the wording:
+
+```dart
+ErrorHandler.resolve(code: 'OTP_EXPIRED', message: 'The OTP has expired…');
+// bn → "ওটিপির মেয়াদ শেষ হয়ে গেছে। আবার কোড পাঠান।"
+// en → "The OTP has expired. Please request a new code."
+```
+
+Resolution order (used by `auth_repository`, `notification_repository`,
+`academic_details_screen`):
+
+1. `code` → `ErrorHandler.fromCode` — the reliable path.
+2. field-level `errors` → `ErrorHandler.field` (Bean-Validation copy has no
+   code, only the English text from the DTO annotations).
+3. `message` → `ErrorHandler.friendly` — substring heuristics, for text we
+   don't have a code for yet.
+4. HTTP status → `ErrorHandler.getMessage`.
+
+An unknown `code` returns `null` so a newer backend degrades to step 2/3
+instead of showing a raw code to the user.
+
+When adding an error to the backend, add the code to
+`ErrorHandler.fromCode` and its copy to **both** ARBs — `test/error_code_test.dart`
+lists every `ErrorCode` constant and fails if one is missing or untranslated.
+
+Flow checks (is this a dead session? has the OTP expired?) should match on the
+code via `ErrorHandler.isCodeIn(code, ErrorHandler.otpExpiredCodes)` when the
+code is still in hand; `isSessionExpired` / `isOtpExpired` exist for the cases
+where only the message survived.
+
 ### Parameters and plurals (ICU syntax)
 
 ```jsonc

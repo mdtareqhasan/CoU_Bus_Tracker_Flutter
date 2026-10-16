@@ -85,6 +85,96 @@ class AppLocalizationsBn extends AppLocalizations {
       'আপনার অ্যাকাউন্ট পাওয়া যায়নি। আগে নিবন্ধন করুন।';
 
   @override
+  String get errorValidation => 'আপনার তথ্য যাচাই করে আবার চেষ্টা করুন।';
+
+  @override
+  String get errorInvalidEmail => 'সঠিক ইমেইল ঠিকানা লিখুন।';
+
+  @override
+  String get errorInvalidPhone => 'সঠিক ফোন নম্বর লিখুন।';
+
+  @override
+  String get errorOtpLength => 'ওটিপি ৬ সংখ্যার হতে হবে।';
+
+  @override
+  String get errorPasswordLength => 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।';
+
+  @override
+  String get errorRoleRequired => 'অনুগ্রহ করে আপনার ভূমিকা নির্বাচন করুন।';
+
+  @override
+  String get errorUnauthorized => 'এই কাজটি করার অনুমতি আপনার নেই।';
+
+  @override
+  String get errorUserNotFound => 'অ্যাকাউন্ট পাওয়া যায়নি।';
+
+  @override
+  String get errorRollAlreadyRegistered => 'এই রোল নম্বর ইতিমধ্যে নিবন্ধিত।';
+
+  @override
+  String get errorTeacherIdAlreadyRegistered =>
+      'এই শিক্ষক আইডি ইতিমধ্যে নিবন্ধিত।';
+
+  @override
+  String get errorDepartmentImmutable =>
+      'বিভাগ একবার সংরক্ষণের পর পরিবর্তন করা যাবে না।';
+
+  @override
+  String get errorRollImmutable =>
+      'রোল নম্বর একবার সংরক্ষণের পর পরিবর্তন করা যাবে না।';
+
+  @override
+  String get errorSessionImmutable =>
+      'সেশন একবার সংরক্ষণের পর পরিবর্তন করা যাবে না।';
+
+  @override
+  String get errorEmployeeIdImmutable =>
+      'কর্মী আইডি একবার সংরক্ষণের পর পরিবর্তন করা যাবে না।';
+
+  @override
+  String get errorDesignationImmutable =>
+      'পদবি একবার সংরক্ষণের পর পরিবর্তন করা যাবে না।';
+
+  @override
+  String get errorEmailDomainNotAllowed =>
+      'শুধুমাত্র কুমিল্লা বিশ্ববিদ্যালয়ের অফিসিয়াল ইমেইল গ্রহণযোগ্য।';
+
+  @override
+  String get errorGoogleSignInFailed =>
+      'গুগল সাইন ইন যাচাই করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get errorGoogleTokenInvalid =>
+      'গুগল সাইন ইন টোকেন অবৈধ অথবা ইমেইল যাচাই করা হয়নি।';
+
+  @override
+  String get errorFacultyEmailRequired =>
+      'শিক্ষক হিসেবে সাইন ইন করতে স্টাফ ইমেইল (name@cou.ac.bd) ব্যবহার করুন।';
+
+  @override
+  String get errorCannotDeleteSelf => 'আপনি নিজের অ্যাকাউন্ট মুছতে পারবেন না।';
+
+  @override
+  String get errorOtpNotFound =>
+      'কোনো ওটিপি পাওয়া যায়নি। নতুন কোড অনুরোধ করুন।';
+
+  @override
+  String get errorRegistrationNotFound =>
+      'নিবন্ধন পাওয়া যায়নি। প্রথমে নিবন্ধন ফর্ম জমা দিন।';
+
+  @override
+  String get errorPendingRegistrationNotFound =>
+      'এই ফোন নম্বরে কোনো অপেক্ষমাণ নিবন্ধন নেই। প্রথমে নিবন্ধন ফর্ম জমা দিন।';
+
+  @override
+  String get errorProfileIncomplete =>
+      'চালিয়ে যেতে অনুগ্রহ করে আপনার প্রোফাইল সম্পূর্ণ করুন।';
+
+  @override
+  String get successPasswordReset =>
+      'পাসওয়ার্ড সফলভাবে রিসেট হয়েছে। নতুন পাসওয়ার্ড দিয়ে লগইন করুন।';
+
+  @override
   String get homeStatActiveBuses => 'সক্রিয় বাস';
 
   @override
@@ -476,6 +566,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get validationNameRequired => 'নাম দিন';
+
+  @override
+  String get validationNameLength => 'নাম ২ থেকে ১০০ অক্ষরের হতে হবে';
 
   @override
   String get validationPhoneRequired => 'ফোন নম্বর দিন';

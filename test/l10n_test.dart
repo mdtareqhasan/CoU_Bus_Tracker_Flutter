@@ -199,22 +199,27 @@ void main() {
           .clearLocaleTestValue();
     });
 
-    test('first launch follows the system locale when nothing is saved', () async {
+    test('first launch is Bengali only for a Bengali device, else English', () async {
       final dispatcher = TestWidgetsFlutterBinding.instance.platformDispatcher;
 
-      dispatcher.localeTestValue = const Locale('en');
-      var container = ProviderContainer(
-        overrides: [storageServiceProvider.overrideWithValue(storage)],
-      );
-      expect(container.read(localeProvider), const Locale('en'));
-      container.dispose();
+      Future<Locale> localeFor(String systemCode) async {
+        dispatcher.localeTestValue = Locale(systemCode);
+        final container = ProviderContainer(
+          overrides: [storageServiceProvider.overrideWithValue(storage)],
+        );
+        addTearDown(container.dispose);
+        return container.read(localeProvider);
+      }
 
-      dispatcher.localeTestValue = const Locale('bn');
-      container = ProviderContainer(
-        overrides: [storageServiceProvider.overrideWithValue(storage)],
-      );
-      expect(container.read(localeProvider), const Locale('bn'));
-      container.dispose();
+      // Bangla device → Bangla.
+      expect(await localeFor('bn'), const Locale('bn'));
+      // English device → English.
+      expect(await localeFor('en'), const Locale('en'));
+      // Every other system language falls back to English, not Bengali.
+      expect(await localeFor('hi'), const Locale('en'));
+      expect(await localeFor('fr'), const Locale('en'));
+      expect(await localeFor('ar'), const Locale('en'));
+      dispatcher.clearLocaleTestValue();
     });
 
     test('a saved choice wins over the system locale', () async {

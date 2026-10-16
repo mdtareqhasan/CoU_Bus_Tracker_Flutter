@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/theme.dart';
+import '../../core/error_handler.dart';
 import '../../core/result.dart';
 import '../../l10n/l10n.dart';
 import 'auth_notification_permission.dart';
@@ -248,28 +249,29 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
   }
 
   /// Pulls `{"errors": {"rollNumber": ["msg"]}}` out of a 400 body.
+  ///
+  /// The backend's Bean-Validation text is English-only, so each value is run
+  /// through [ErrorHandler.field] before it is shown inline under a form field.
   static Map<String, String> _extractFieldErrors(Object? body) {
     if (body is Map) {
       final errors = body['errors'];
-      if (errors is Map) {
-        final parsed = <String, String>{};
-        errors.forEach((key, value) {
-          if (key is! String) return;
-          if (value is List && value.isNotEmpty) {
-            parsed[key] = value.first.toString();
-          } else if (value != null) {
-            parsed[key] = value.toString();
-          }
-        });
-        return parsed;
-      }
+      if (errors is Map) return ErrorHandler.localizeFieldErrors(errors);
     }
     return const {};
   }
 
-  /// The business-rule / bean message when the body has no field errors.
+  /// The business-rule message when the body has no field errors.
+  ///
+  /// Prefers the localized text for the backend's machine-readable `code`;
+  /// falls back to the raw English `message` (older responses), then [fallback]
+  /// — which is already localized by `ErrorHandler`.
   static String _extractServerMessage(Object? body, String fallback) {
     if (body is Map) {
+      final code = body['code'];
+      if (code is String) {
+        final localized = ErrorHandler.fromCode(code);
+        if (localized != null) return localized;
+      }
       final message = body['message'];
       if (message is String &&
           message.trim().isNotEmpty &&

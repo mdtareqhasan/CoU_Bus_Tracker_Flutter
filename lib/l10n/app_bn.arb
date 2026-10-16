@@ -110,6 +110,131 @@
   },
   "errorAccountNotFound": "আপনার অ্যাকাউন্ট পাওয়া যায়নি। আগে নিবন্ধন করুন।",
 
+  "@errorValidation": {
+    "description": "যাচাই ব্যর্থ হয়েছে"
+  },
+  "errorValidation": "আপনার তথ্য যাচাই করে আবার চেষ্টা করুন।",
+
+  "@errorInvalidEmail": {
+    "description": "Backend code EMAIL_INVALID — malformed email address."
+  },
+  "errorInvalidEmail": "সঠিক ইমেইল ঠিকানা লিখুন।",
+
+  "@errorInvalidPhone": {
+    "description": "Backend code PHONE_INVALID — malformed phone number."
+  },
+  "errorInvalidPhone": "সঠিক ফোন নম্বর লিখুন।",
+
+  "@errorOtpLength": {
+    "description": "Backend code OTP_INVALID_LENGTH."
+  },
+  "errorOtpLength": "ওটিপি ৬ সংখ্যার হতে হবে।",
+
+  "@errorPasswordLength": {
+    "description": "Backend code PASSWORD_TOO_SHORT."
+  },
+  "errorPasswordLength": "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।",
+
+  "@errorRoleRequired": {
+    "description": "Backend code ROLE_REQUIRED / INVALID_ROLE."
+  },
+  "errorRoleRequired": "অনুগ্রহ করে আপনার ভূমিকা নির্বাচন করুন।",
+
+  "@errorUnauthorized": {
+    "description": "Backend code UNAUTHORIZED."
+  },
+  "errorUnauthorized": "এই কাজটি করার অনুমতি আপনার নেই।",
+
+  "@errorUserNotFound": {
+    "description": "Backend code STUDENT_NOT_FOUND / TEACHER_NOT_FOUND."
+  },
+  "errorUserNotFound": "অ্যাকাউন্ট পাওয়া যায়নি।",
+
+  "@errorRollAlreadyRegistered": {
+    "description": "Backend code ROLL_ALREADY_REGISTERED."
+  },
+  "errorRollAlreadyRegistered": "এই রোল নম্বর ইতিমধ্যে নিবন্ধিত।",
+
+  "@errorTeacherIdAlreadyRegistered": {
+    "description": "Backend code TEACHER_ID_ALREADY_REGISTERED."
+  },
+  "errorTeacherIdAlreadyRegistered": "এই শিক্ষক আইডি ইতিমধ্যে নিবন্ধিত।",
+
+  "@errorDepartmentImmutable": {
+    "description": "Backend code DEPARTMENT_IMMUTABLE."
+  },
+  "errorDepartmentImmutable": "বিভাগ একবার সংরক্ষণের পর পরিবর্তন করা যাবে না।",
+
+  "@errorRollImmutable": {
+    "description": "Backend code ROLL_NUMBER_IMMUTABLE."
+  },
+  "errorRollImmutable": "রোল নম্বর একবার সংরক্ষণের পর পরিবর্তন করা যাবে না।",
+
+  "@errorSessionImmutable": {
+    "description": "Backend code SESSION_IMMUTABLE."
+  },
+  "errorSessionImmutable": "সেশন একবার সংরক্ষণের পর পরিবর্তন করা যাবে না।",
+
+  "@errorEmployeeIdImmutable": {
+    "description": "Backend code EMPLOYEE_ID_IMMUTABLE."
+  },
+  "errorEmployeeIdImmutable": "কর্মী আইডি একবার সংরক্ষণের পর পরিবর্তন করা যাবে না।",
+
+  "@errorDesignationImmutable": {
+    "description": "Backend code DESIGNATION_IMMUTABLE."
+  },
+  "errorDesignationImmutable": "পদবি একবার সংরক্ষণের পর পরিবর্তন করা যাবে না।",
+
+  "@errorEmailDomainNotAllowed": {
+    "description": "Backend code EMAIL_DOMAIN_NOT_ALLOWED / GOOGLE_EMAIL_NOT_ALLOWED."
+  },
+  "errorEmailDomainNotAllowed": "শুধুমাত্র কুমিল্লা বিশ্ববিদ্যালয়ের অফিসিয়াল ইমেইল গ্রহণযোগ্য।",
+
+  "@errorGoogleSignInFailed": {
+    "description": "Backend code GOOGLE_TOKEN_VERIFICATION_FAILED."
+  },
+  "errorGoogleSignInFailed": "গুগল সাইন ইন যাচাই করা যায়নি। আবার চেষ্টা করুন।",
+
+  "@errorGoogleTokenInvalid": {
+    "description": "Backend code GOOGLE_TOKEN_INVALID."
+  },
+  "errorGoogleTokenInvalid": "গুগল সাইন ইন টোকেন অবৈধ অথবা ইমেইল যাচাই করা হয়নি।",
+
+  "@errorFacultyEmailRequired": {
+    "description": "Backend code FACULTY_EMAIL_REQUIRED — teacher sign-in used a student email."
+  },
+  "errorFacultyEmailRequired": "শিক্ষক হিসেবে সাইন ইন করতে স্টাফ ইমেইল (name@cou.ac.bd) ব্যবহার করুন।",
+
+  "@errorCannotDeleteSelf": {
+    "description": "Backend code CANNOT_DELETE_SELF."
+  },
+  "errorCannotDeleteSelf": "আপনি নিজের অ্যাকাউন্ট মুছতে পারবেন না।",
+
+  "@errorOtpNotFound": {
+    "description": "Backend code OTP_NOT_FOUND."
+  },
+  "errorOtpNotFound": "কোনো ওটিপি পাওয়া যায়নি। নতুন কোড অনুরোধ করুন।",
+
+  "@errorRegistrationNotFound": {
+    "description": "Backend code REGISTRATION_NOT_FOUND."
+  },
+  "errorRegistrationNotFound": "নিবন্ধন পাওয়া যায়নি। প্রথমে নিবন্ধন ফর্ম জমা দিন।",
+
+  "@errorPendingRegistrationNotFound": {
+    "description": "Backend code PENDING_REGISTRATION_NOT_FOUND."
+  },
+  "errorPendingRegistrationNotFound": "এই ফোন নম্বরে কোনো অপেক্ষমাণ নিবন্ধন নেই। প্রথমে নিবন্ধন ফর্ম জমা দিন।",
+
+  "@errorProfileIncomplete": {
+    "description": "Backend code PROFILE_INCOMPLETE."
+  },
+  "errorProfileIncomplete": "চালিয়ে যেতে অনুগ্রহ করে আপনার প্রোফাইল সম্পূর্ণ করুন।",
+
+  "@successPasswordReset": {
+    "description": "Success code PASSWORD_RESET_SUCCESS on a 200 body."
+  },
+  "successPasswordReset": "পাসওয়ার্ড সফলভাবে রিসেট হয়েছে। নতুন পাসওয়ার্ড দিয়ে লগইন করুন।",
+
   "@homeStatActiveBuses": {
     "description": "Home stats card — number of buses running right now."
   },
@@ -701,6 +826,7 @@
   "fieldSession": "সেশন",
 
   "validationNameRequired": "নাম দিন",
+  "validationNameLength": "নাম ২ থেকে ১০০ অক্ষরের হতে হবে",
   "validationPhoneRequired": "ফোন নম্বর দিন",
   "validationPhoneInvalid": "সঠিক ফোন নম্বর দিন (01XXXXXXXXX)",
   "validationEmailRequired": "ইমেইল দিন",

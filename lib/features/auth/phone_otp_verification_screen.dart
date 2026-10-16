@@ -180,11 +180,10 @@ class _PhoneOtpVerificationScreenState
         });
 
         // OTP expired → backend auto-triggers a refresh, mirror that in the UI
-        // by immediately resending and resetting the countdown. The first check
-        // catches a raw (unmapped) backend message, the helper our own
-        // localized text in any language.
+        // by immediately resending and resetting the countdown. The message
+        // came from `ErrorHandler`, so the locale-safe matcher covers it.
         final message = authState.error ?? '';
-        if (message.contains('মেয়াদ') || ErrorHandler.isOtpExpired(message)) {
+        if (ErrorHandler.isOtpExpired(message)) {
           _autoResendOnExpiry();
         }
       }

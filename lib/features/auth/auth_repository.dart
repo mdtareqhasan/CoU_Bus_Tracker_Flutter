@@ -303,10 +303,7 @@ class AuthRepository {
         data: {'phone': normalized, 'role': role.toUpperCase()},
       );
       if (response.statusCode == 200) {
-        final msg = (response.data is Map && response.data['message'] is String)
-            ? response.data['message'] as String
-            : 'OTP sent successfully';
-        return Success(msg);
+        return Success(_successMessage(response, 'OTP sent successfully'));
       }
       return Failure(message: _extractErrorMessage(response));
     } on DioException catch (e) {
@@ -338,10 +335,7 @@ class AuthRepository {
         },
       );
       if (response.statusCode == 200) {
-        final msg = (response.data is Map && response.data['message'] is String)
-            ? response.data['message'] as String
-            : 'Password reset successful';
-        return Success(msg);
+        return Success(_successMessage(response, 'Password reset successful'));
       }
       return Failure(message: _extractErrorMessage(response));
     } on DioException catch (e) {
@@ -426,10 +420,7 @@ class AuthRepository {
       );
       _logResponse(response);
       if (response.statusCode == 200 || response.statusCode == 201) {
-        final msg = (response.data is Map && response.data['message'] is String)
-            ? response.data['message'] as String
-            : 'OTP sent successfully';
-        return Success(msg);
+        return Success(_successMessage(response, 'OTP sent successfully'));
       }
       return Failure(message: _extractErrorMessage(response));
     } on DioException catch (e) {
@@ -478,10 +469,7 @@ class AuthRepository {
       );
       _logResponse(response);
       if (response.statusCode == 200) {
-        final msg = (response.data is Map && response.data['message'] is String)
-            ? response.data['message'] as String
-            : 'OTP resent successfully';
-        return Success(msg);
+        return Success(_successMessage(response, 'OTP resent successfully'));
       }
       return Failure(message: _extractErrorMessage(response));
     } on DioException catch (e) {
@@ -505,10 +493,7 @@ class AuthRepository {
         data: {'email': email.trim().toLowerCase(), 'role': role.toUpperCase()},
       );
       if (response.statusCode == 200) {
-        final msg = (response.data is Map && response.data['message'] is String)
-            ? response.data['message'] as String
-            : 'OTP sent successfully';
-        return Success(msg);
+        return Success(_successMessage(response, 'OTP sent successfully'));
       }
       return Failure(message: _extractErrorMessage(response));
     } on DioException catch (e) {
@@ -539,10 +524,7 @@ class AuthRepository {
         },
       );
       if (response.statusCode == 200) {
-        final msg = (response.data is Map && response.data['message'] is String)
-            ? response.data['message'] as String
-            : 'Password reset successful';
-        return Success(msg);
+        return Success(_successMessage(response, 'Password reset successful'));
       }
       return Failure(message: _extractErrorMessage(response));
     } on DioException catch (e) {
@@ -610,10 +592,7 @@ class AuthRepository {
       );
       _logResponse(response);
       if (response.statusCode == 200 || response.statusCode == 201) {
-        final msg = (response.data is Map && response.data['message'] is String)
-            ? response.data['message'] as String
-            : 'OTP sent successfully';
-        return Success(msg);
+        return Success(_successMessage(response, 'OTP sent successfully'));
       }
       return Failure(message: _extractErrorMessage(response));
     } on DioException catch (e) {
@@ -677,41 +656,75 @@ class AuthRepository {
     );
   }
 
-  String _extractErrorMessage(Response response) {
+  /// Picks the message to show the user for a non-2xx response.
+  ///
+  /// The backend sends English text plus a stable machine-readable `code`, so
+  /// the `code` is the primary signal (localized by [ErrorHandler.fromCode]).
+  /// Field-level `errors` are preferred over a generic message when no code
+  /// mapping exists, because they name exactly which input was rejected.
+  /// User-facing text for a 2xx body: prefers a localized success `code`
+  /// (see [ErrorHandler.successFromCode]), then the backend's English
+  /// `message`, then [fallback].
+  String _successMessage(Response response, String fallback) {
     final data = response.data;
     if (data is Map) {
+      final code = data['code'];
+      if (code is String) {
+        final localized = ErrorHandler.successFromCode(code);
+        if (localized != null) return localized;
+      }
       final message = data['message'];
-      final isGenericValidationMessage = message is String &&
-          message.trim().toLowerCase() == 'validation failed';
-      if (message is String && message.trim().isNotEmpty && !isGenericValidationMessage) {
-        return ErrorHandler.friendly(message);
-      }
-      final errors = data['errors'];
-      if (errors is Map && errors.isNotEmpty) {
-        return _formatValidationErrors(errors);
-      }
-      if (message is String && message.trim().isNotEmpty) {
-        return ErrorHandler.friendly(message);
-      }
+      if (message is String && message.trim().isNotEmpty) return message;
     }
-    return ErrorHandler.getMessage(response.statusCode, null);
+    return fallback;
+  }
+
+  /// Resolves the user-facing message for a decoded error body.
+  ///
+  /// Order: machine-readable `code` → field-level `errors` → the backend's
+  /// English `message` → HTTP status. Shared by [_extractErrorMessage] and
+  /// [_handleDioError] so both paths localize identically. Returns `null`
+  /// when the body carries nothing usable, letting the caller fall back to
+  /// transport-level logic (timeouts, bare 401s, ...).
+  String? _messageFromBody(Object? body) {
+    if (body is! Map) return null;
+    final code = body['code'];
+    if (code is String && code.trim().isNotEmpty) {
+      final localized = ErrorHandler.fromCode(code);
+      if (localized != null) return localized;
+    }
+    final errors = body['errors'];
+    if (errors is Map && errors.isNotEmpty) {
+      return _formatValidationErrors(errors);
+    }
+    final message = body['message'];
+    if (message is String && message.trim().isNotEmpty) {
+      return ErrorHandler.friendly(message);
+    }
+    return null;
+  }
+
+  String _extractErrorMessage(Response response) {
+    return _messageFromBody(response.data) ??
+        ErrorHandler.getMessage(response.statusCode, null);
   }
 
   /// Formats Spring-style field validation errors into a readable message.
+  ///
+  /// The backend sends these in English; [ErrorHandler.field] localizes the
+  /// known ones and passes anything unfamiliar through unchanged. Duplicates
+  /// are dropped — several fields can collapse onto the same localized text.
   String _formatValidationErrors(Map<dynamic, dynamic> errors) {
     final parts = <String>[];
-    errors.forEach((field, value) {
-      if (value is List && value.isNotEmpty) {
-        parts.add(value.first.toString());
-      } else if (value != null) {
-        parts.add(value.toString());
-      }
-    });
+    for (final message in ErrorHandler.localizeFieldErrors(errors).values) {
+      final text = message.trim();
+      if (text.isNotEmpty && !parts.contains(text)) parts.add(text);
+    }
     return parts.isNotEmpty ? parts.join('\n') : ErrorHandler.defaultError;
   }
 
-  /// Handles network-level failures. Prefers the backend `message`/`errors`
-  /// from the response body, and maps timeouts / connection errors /
+  /// Handles network-level failures. Prefers the backend `code`/`errors`/
+  /// `message` from the response body, and maps timeouts / connection errors /
   /// 502/503/504 to the server-busy message.
   String _handleDioError(DioException e, {bool isLoginRequest = false}) {
     final response = e.response;
@@ -721,21 +734,9 @@ class AuthRepository {
       return ErrorHandler.serverBusyMessage;
     }
 
-    if (response?.data is Map) {
-      final data = response!.data as Map;
-      final message = data['message'];
-      final isGenericValidationMessage = message is String &&
-          message.trim().toLowerCase() == 'validation failed';
-      if (message is String && message.trim().isNotEmpty && !isGenericValidationMessage) {
-        return ErrorHandler.friendly(message);
-      }
-      final errors = data['errors'];
-      if (errors is Map && errors.isNotEmpty) {
-        return _formatValidationErrors(errors);
-      }
-      if (message is String && message.trim().isNotEmpty) {
-        return ErrorHandler.friendly(message);
-      }
+    final bodyMessage = _messageFromBody(response?.data);
+    if (bodyMessage != null) {
+      return bodyMessage;
     }
 
     switch (e.type) {

@@ -82,16 +82,8 @@ class NotificationRepository {
     return fallback;
   }
 
-  String _extractErrorMessage(Response response) {
-    final data = response.data;
-    if (data is Map) {
-      final message = data['message'];
-      if (message is String && message.trim().isNotEmpty) {
-        return ErrorHandler.friendly(message);
-      }
-    }
-    return ErrorHandler.getMessage(response.statusCode, null);
-  }
+  String _extractErrorMessage(Response response) =>
+      ErrorHandler.resolveBody(response.data, statusCode: response.statusCode);
 
   String _handleDioError(DioException e) {
     final statusCode = e.response?.statusCode;
