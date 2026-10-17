@@ -58,6 +58,9 @@ class FcmTokenService {
         token: token,
         platform: _platform,
         deviceId: deviceId,
+        // The backend renders push notifications in this language, so keep it
+        // current on every (re-)registration.
+        appLanguage: _storage.getLanguageCode(),
       );
 
       switch (result) {
