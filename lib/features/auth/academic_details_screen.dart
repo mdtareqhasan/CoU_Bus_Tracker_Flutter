@@ -35,12 +35,6 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
   static final _idPattern = RegExp(r'^[A-Za-z0-9\-]{2,50}$');
   static final _sessionPattern = RegExp(r'^([0-9]{1,2}|[0-9]{4}(-[0-9]{2,4})?)$');
 
-  /// Reverse of [sessionValueByLabel]: the stored value (`2020-2021`) → the
-  /// Bengali label shown in the dropdown (`২০২০-২০২১`).
-  static final Map<String, String> _sessionLabelByValue = {
-    for (final entry in sessionValueByLabel.entries) entry.value: entry.key,
-  };
-
   final _formKey = GlobalKey<FormState>();
   final _departmentController = TextEditingController();
   final _rollNumberController = TextEditingController();
@@ -95,8 +89,10 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
 
     final session = _textOrNull(profile.session);
     if (session != null) {
-      _selectedSession = _sessionLabelFor(session);
-      _sessionController.text = _selectedSession!;
+      // The controller always holds the canonical stored value; the dropdown
+      // and locked field render it in the app's language.
+      _selectedSession = session;
+      _sessionController.text = session;
       _sessionLocked = true;
     }
 
@@ -129,12 +125,10 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
     super.dispose();
   }
 
-  /// The Bengali dropdown label → the English value the backend pattern
-  /// expects. An unknown label (e.g. a stored value that is not in
-  /// [sessionOptions]) is passed through unchanged.
-  String _sessionValue() =>
-      sessionValueByLabel[_sessionController.text.trim()] ??
-      _sessionController.text.trim();
+  /// The canonical session value the backend pattern expects. The controller
+  /// holds the value directly (the dropdown maps it to a localized label only
+  /// for display), so this is a plain read.
+  String _sessionValue() => _sessionController.text.trim();
 
   // ---------------------------------------------------------------------------
   // Validation — mirrors the backend bean validation so mistakes are caught
@@ -460,11 +454,6 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
     ];
   }
 
-  /// The Bengali label to show for a session that is already stored (which is
-  /// the English value the backend keeps).
-  String _sessionLabelFor(String storedValue) =>
-      _sessionLabelByValue[storedValue] ?? storedValue;
-
   Widget _buildWriteOnceNotice() {
     return Container(
       padding: const EdgeInsets.all(AppTheme.space12),
@@ -507,6 +496,9 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
             : context.l10n.fieldDepartmentOffice,
         icon: Icons.business_outlined,
         validator: _validateDepartment,
+        // The stored value is canonical (Bengali); show the localized name.
+        displayText:
+            departmentLabelFor(_departmentController.text.trim(), context.l10n),
       );
     }
 
@@ -515,8 +507,11 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
     final options = isStudent ? departmentOptions : teacherDepartmentOptions;
     final items = _selectedDepartment != null &&
             _selectedDepartment!.isNotEmpty &&
-            !options.contains(_selectedDepartment)
-        ? [...options, _selectedDepartment!]
+            !options.any((option) => option.value == _selectedDepartment)
+        ? [
+            ...options,
+            AcademicOption(_selectedDepartment!, (l10n) => _selectedDepartment!),
+          ]
         : options;
 
     return DropdownButtonFormField<String>(
@@ -534,14 +529,14 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
       initialValue: _selectedDepartment,
       items: items
           .map(
-            (department) => DropdownMenuItem<String>(
-              value: department,
+            (option) => DropdownMenuItem<String>(
+              value: option.value,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxWidth: MediaQuery.of(context).size.width - 100,
                 ),
                 child: Text(
-                  department,
+                  option.label(context.l10n),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -590,15 +585,22 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
         label: context.l10n.fieldSession,
         icon: Icons.class_outlined,
         validator: _validateSession,
+        // The stored value is the English form; show the localized label.
+        displayText:
+            sessionLabelFor(_sessionController.text.trim(), context.l10n),
       );
     }
 
-    // `sessionOptions` holds Bengali labels; keep any stored/unknown value
-    // selectable so the dropdown's value always matches what is displayed.
+    // The controller holds the canonical value (`2020-2021`); the dropdown
+    // shows the localized label. Keep any stored/unknown value selectable so
+    // the dropdown's value always matches what is submitted.
     final items = _selectedSession != null &&
             _selectedSession!.isNotEmpty &&
-            !sessionOptions.contains(_selectedSession)
-        ? [...sessionOptions, _selectedSession!]
+            !sessionValues.contains(_selectedSession)
+        ? [
+            ...sessionOptions,
+            SessionOption(_selectedSession!, (l10n) => _selectedSession!),
+          ]
         : sessionOptions;
 
     return DropdownButtonFormField<String>(
@@ -610,9 +612,13 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
       initialValue: _selectedSession,
       items: items
           .map(
-            (session) => DropdownMenuItem<String>(
-              value: session,
-              child: Text(session),
+            (option) => DropdownMenuItem<String>(
+              value: option.value,
+              child: Text(
+                option.label(context.l10n),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           )
           .toList(),
@@ -681,9 +687,14 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
     required String label,
     required IconData icon,
     required String? Function(String?) validator,
+    String? displayText,
   }) {
+    // [displayText] overrides what is shown while [controller] keeps the
+    // canonical value for validation/submission (e.g. the session's English
+    // value shown as its localized label).
     return TextFormField(
-      controller: controller,
+      controller: displayText == null ? controller : null,
+      initialValue: displayText,
       enabled: false,
       style: _fieldStyle,
       decoration: _inputDecoration(
