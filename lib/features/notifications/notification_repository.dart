@@ -25,6 +25,7 @@ class NotificationRepository {
     required String token,
     String? platform,
     String? deviceId,
+    String? appLanguage,
   }) async {
     _logRequest(ApiEndpoints.registerFcmToken);
     try {
@@ -34,6 +35,9 @@ class NotificationRepository {
           'token': token,
           if (platform != null && platform.isNotEmpty) 'platform': platform,
           if (deviceId != null && deviceId.isNotEmpty) 'deviceId': deviceId,
+          // Lets the backend render push text in this device's app language.
+          if (appLanguage != null && appLanguage.isNotEmpty)
+            'appLanguage': appLanguage,
         },
       );
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../features/notifications/fcm_token_service.dart';
 import '../features/providers.dart';
 import '../l10n/l10n.dart';
 
@@ -36,6 +37,10 @@ class LocaleController extends Notifier<Locale> {
     state = Locale(code);
     L10n.activate(state);
     await ref.read(storageServiceProvider).setLanguageCode(code);
+    // Push notifications are localized server-side using the language the
+    // device registered with, so re-register to keep it in sync. Best-effort:
+    // [FcmTokenService] never throws, and the upsert is idempotent.
+    await ref.read(fcmTokenServiceProvider).registerIfAuthenticated();
   }
 }
 
