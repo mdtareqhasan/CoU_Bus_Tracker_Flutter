@@ -2,10 +2,10 @@ import 'package:flutter/foundation.dart';
 
 /// Backend API base URL — debug builds hit the local Docker backend,
 /// release/profile builds hit the production API.
-const String kBaseUrl = kDebugMode
-    ? 'http://192.168.1.111:8081'
-    : 'https://api.kubijatra.com';
-// const String kBaseUrl = 'https://api.kubijatra.com';
+// const String kBaseUrl = kDebugMode
+//     ? 'http://192.168.1.111:8081'
+//     : 'https://api.kubijatra.com';
+const String kBaseUrl = 'https://api.kubijatra.com';
 
 const String kDefaultPlayStoreUrl =
     'https://play.google.com/store/apps/details?id=com.cse.coubustracker';
