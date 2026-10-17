@@ -66,10 +66,7 @@ class _EmailRegistrationScreenState
           password: _passwordController.text,
           department: _departmentController.text.trim(),
           rollNumber: isStudent ? _rollNumberController.text.trim() : null,
-          session: isStudent
-              ? sessionValueByLabel[_sessionController.text.trim()] ??
-                    _sessionController.text.trim()
-              : null,
+          session: isStudent ? _sessionController.text.trim() : null,
           employeeId: isStudent ? null : _employeeIdController.text.trim(),
           designation: isStudent ? null : _designationController.text.trim(),
         );
@@ -258,9 +255,9 @@ class _EmailRegistrationScreenState
                                             ? departmentOptions
                                             : teacherDepartmentOptions)
                                         .map(
-                                          (department) =>
+                                          (option) =>
                                               DropdownMenuItem<String>(
-                                                value: department,
+                                                value: option.value,
                                                 child: ConstrainedBox(
                                                   constraints: BoxConstraints(
                                                     maxWidth:
@@ -270,7 +267,7 @@ class _EmailRegistrationScreenState
                                                         100,
                                                   ),
                                                   child: Text(
-                                                    department,
+                                                    option.label(context.l10n),
                                                     maxLines: 1,
                                                     overflow:
                                                         TextOverflow.ellipsis,
@@ -359,9 +356,13 @@ class _EmailRegistrationScreenState
                                   initialValue: _selectedSession,
                                   items: sessionOptions
                                       .map(
-                                        (session) => DropdownMenuItem<String>(
-                                          value: session,
-                                          child: Text(session),
+                                        (option) => DropdownMenuItem<String>(
+                                          value: option.value,
+                                          child: Text(
+                                            option.label(context.l10n),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
                                         ),
                                       )
                                       .toList(),

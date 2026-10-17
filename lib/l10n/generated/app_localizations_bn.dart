@@ -958,4 +958,162 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get errorUnknownResponse => 'Unknown response';
+
+  @override
+  String get deptCse => 'কম্পিউটার সায়েন্স অ্যান্ড ইঞ্জিনিয়ারিং (CSE)';
+
+  @override
+  String get deptMathematics => 'গণিত';
+
+  @override
+  String get deptPhysics => 'পদার্থবিজ্ঞান';
+
+  @override
+  String get deptStatistics => 'পরিসংখ্যান';
+
+  @override
+  String get deptChemistry => 'রসায়ন';
+
+  @override
+  String get deptPharmacy => 'ফার্মেসি';
+
+  @override
+  String get deptEnglish => 'ইংরেজি';
+
+  @override
+  String get deptBangla => 'বাংলা';
+
+  @override
+  String get deptEconomics => 'অর্থনীতি';
+
+  @override
+  String get deptPublicAdministration => 'লোক প্রশাসন';
+
+  @override
+  String get deptAnthropology => 'নৃবিজ্ঞান';
+
+  @override
+  String get deptMassCommunication => 'গণযোগাযোগ ও সাংবাদিকতা';
+
+  @override
+  String get deptArchaeology => 'প্রত্নতত্ত্ব';
+
+  @override
+  String get deptManagement => 'ব্যবস্থাপনা শিক্ষা';
+
+  @override
+  String get deptAccounting => 'অ্যাকাউন্টিং অ্যান্ড ইনফরমেশন সিস্টেমস';
+
+  @override
+  String get deptMarketing => 'মার্কেটিং';
+
+  @override
+  String get deptFinance => 'ফাইন্যান্স অ্যান্ড ব্যাংকিং';
+
+  @override
+  String get deptIct => 'ইনফরমেশন অ্যান্ড কমিউনিকেশন টেকনোলজি (ICT)';
+
+  @override
+  String get deptLaw => 'আইন';
+
+  @override
+  String get officeVc => 'উপাচার্যের কার্যালয়';
+
+  @override
+  String get officeProVc => 'উপ-উপাচার্যের কার্যালয়';
+
+  @override
+  String get officeTreasurer => 'কোষাধ্যক্ষের কার্যালয়';
+
+  @override
+  String get officeRegistrar => 'রেজিস্ট্রারের কার্যালয়';
+
+  @override
+  String get officeProctor => 'প্রক্টরের কার্যালয়';
+
+  @override
+  String get officeResearchExtension =>
+      'গবেষণা ও সম্প্রসারণ পরিচালকের কার্যালয়';
+
+  @override
+  String get officeEstate => 'এস্টেট শাখা';
+
+  @override
+  String get officeSecurity => 'নিরাপত্তা শাখা';
+
+  @override
+  String get officeCentralStore => 'কেন্দ্রীয় স্টোর';
+
+  @override
+  String get officeFinanceAccounts => 'অর্থ ও হিসাব পরিচালকের কার্যালয়';
+
+  @override
+  String get officeExaminations => 'পরীক্ষা নিয়ন্ত্রকের কার্যালয়';
+
+  @override
+  String get officePlanningDevelopment =>
+      'পরিকল্পনা ও উন্নয়ন পরিচালকের কার্যালয়';
+
+  @override
+  String get officeLibrary => 'কেন্দ্রীয় গ্রন্থাগার';
+
+  @override
+  String get officeEngineering => 'প্রকৌশল কার্যালয়';
+
+  @override
+  String get officeMedical => 'মেডিকেল সেন্টার';
+
+  @override
+  String get officeIctCell => 'আইসিটি সেল';
+
+  @override
+  String get officePhysicalEducation => 'শারীরিক শিক্ষা কার্যালয়';
+
+  @override
+  String get officePublicRelations => 'জনসংযোগ কার্যালয়';
+
+  @override
+  String get officeCentralMosque => 'কেন্দ্রীয় মসজিদ';
+
+  @override
+  String get officeTransportPool => 'পরিবহন পুল';
+
+  @override
+  String get officeCounseling => 'শিক্ষার্থী কাউন্সেলিং ও গাইডেন্স';
+
+  @override
+  String get officeInternationalRelations => 'আন্তর্জাতিক সম্পর্ক';
+
+  @override
+  String get officeCareerDevelopment => 'ক্যারিয়ার ডেভেলপমেন্ট সেন্টার';
+
+  @override
+  String get session2016 => '২০১৬-২০১৭';
+
+  @override
+  String get session2017 => '২০১৭-২০১৮';
+
+  @override
+  String get session2018 => '২০১৮-২০১৯';
+
+  @override
+  String get session2019 => '২০১৯-২০২০';
+
+  @override
+  String get session2020 => '২০২০-২০২১';
+
+  @override
+  String get session2021 => '২০২১-২০২২';
+
+  @override
+  String get session2022 => '২০২২-২০২৩';
+
+  @override
+  String get session2023 => '২০২৩-২০২৪';
+
+  @override
+  String get session2024 => '২০২৪-২০২৫';
+
+  @override
+  String get session2025 => '২০২৫-২০২৬';
 }

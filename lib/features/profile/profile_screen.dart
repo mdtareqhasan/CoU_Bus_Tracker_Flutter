@@ -6,6 +6,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../app/theme.dart';
 import '../../l10n/l10n.dart';
 import '../auth/auth_provider.dart';
+import '../auth/department_options.dart';
+import '../auth/session_options.dart';
 import 'language_settings_card.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -400,6 +402,8 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   Widget _buildInfoCard(BuildContext context, AuthState authState) {
+    final isStudent = authState.role == 'student';
+
     return Container(
       padding: const EdgeInsets.all(AppTheme.space12),
       decoration: BoxDecoration(
@@ -428,14 +432,73 @@ class ProfileScreen extends ConsumerWidget {
           _buildInfoRow(
             context,
             context.l10n.profileRole,
-            authState.role == 'student'
-                ? context.l10n.roleStudent
-                : context.l10n.roleTeacher,
+            isStudent ? context.l10n.roleStudent : context.l10n.roleTeacher,
             Icons.badge_outlined,
           ),
+
+          // Academic details — write-once fields filled in at registration /
+          // profile completion. Department and session are stored canonically
+          // (Bengali department name, English session value), so show them in
+          // the app's language like the registration pickers do.
+          const Divider(indent: 48, height: 1),
+          _buildInfoRow(
+            context,
+            isStudent
+                ? context.l10n.fieldDepartment
+                : context.l10n.fieldDepartmentOffice,
+            _localizedOrDash(
+              authState.department,
+              (value) => departmentLabelFor(value, context.l10n),
+            ),
+            Icons.business_outlined,
+            // Department/office names can be long ("Office of the Director of
+            // Planning & Development") — give them a second line.
+            maxLines: 2,
+          ),
+          if (isStudent) ...[
+            const Divider(indent: 48, height: 1),
+            _buildInfoRow(
+              context,
+              context.l10n.fieldRollNumber,
+              _localizedOrDash(authState.rollNumber, (value) => value),
+              Icons.pin_outlined,
+            ),
+            const Divider(indent: 48, height: 1),
+            _buildInfoRow(
+              context,
+              context.l10n.fieldSession,
+              _localizedOrDash(
+                authState.session,
+                (value) => sessionLabelFor(value, context.l10n),
+              ),
+              Icons.class_outlined,
+            ),
+          ] else ...[
+            const Divider(indent: 48, height: 1),
+            _buildInfoRow(
+              context,
+              context.l10n.fieldDesignation,
+              _localizedOrDash(authState.designation, (value) => value),
+              Icons.work_outline_rounded,
+            ),
+            const Divider(indent: 48, height: 1),
+            _buildInfoRow(
+              context,
+              context.l10n.fieldEmployeeId,
+              _localizedOrDash(authState.employeeId, (value) => value),
+              Icons.badge_outlined,
+            ),
+          ],
         ],
       ),
     );
+  }
+
+  /// The display form of a stored academic value: blank → '—', otherwise
+  /// [localize] (e.g. the localized department/session name).
+  String _localizedOrDash(String? stored, String Function(String) localize) {
+    if (stored == null || stored.trim().isEmpty) return '—';
+    return localize(stored.trim());
   }
 
   Widget _buildLogoutButton(BuildContext context, WidgetRef ref) {
@@ -469,8 +532,9 @@ class ProfileScreen extends ConsumerWidget {
     BuildContext context,
     String label,
     String value,
-    IconData icon,
-  ) {
+    IconData icon, {
+    int maxLines = 1,
+  }) {
     return Padding(
       padding: const EdgeInsets.all(AppTheme.space16),
       child: Row(
@@ -494,7 +558,7 @@ class ProfileScreen extends ConsumerWidget {
                 ),
                 Text(
                   value,
-                  maxLines: 1,
+                  maxLines: maxLines,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context)
                       .textTheme

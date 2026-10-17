@@ -1849,6 +1849,318 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'Unknown response'**
   String get errorUnknownResponse;
+
+  /// No description provided for @deptCse.
+  ///
+  /// In bn, this message translates to:
+  /// **'কম্পিউটার সায়েন্স অ্যান্ড ইঞ্জিনিয়ারিং (CSE)'**
+  String get deptCse;
+
+  /// No description provided for @deptMathematics.
+  ///
+  /// In bn, this message translates to:
+  /// **'গণিত'**
+  String get deptMathematics;
+
+  /// No description provided for @deptPhysics.
+  ///
+  /// In bn, this message translates to:
+  /// **'পদার্থবিজ্ঞান'**
+  String get deptPhysics;
+
+  /// No description provided for @deptStatistics.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরিসংখ্যান'**
+  String get deptStatistics;
+
+  /// No description provided for @deptChemistry.
+  ///
+  /// In bn, this message translates to:
+  /// **'রসায়ন'**
+  String get deptChemistry;
+
+  /// No description provided for @deptPharmacy.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফার্মেসি'**
+  String get deptPharmacy;
+
+  /// No description provided for @deptEnglish.
+  ///
+  /// In bn, this message translates to:
+  /// **'ইংরেজি'**
+  String get deptEnglish;
+
+  /// No description provided for @deptBangla.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাংলা'**
+  String get deptBangla;
+
+  /// No description provided for @deptEconomics.
+  ///
+  /// In bn, this message translates to:
+  /// **'অর্থনীতি'**
+  String get deptEconomics;
+
+  /// No description provided for @deptPublicAdministration.
+  ///
+  /// In bn, this message translates to:
+  /// **'লোক প্রশাসন'**
+  String get deptPublicAdministration;
+
+  /// No description provided for @deptAnthropology.
+  ///
+  /// In bn, this message translates to:
+  /// **'নৃবিজ্ঞান'**
+  String get deptAnthropology;
+
+  /// No description provided for @deptMassCommunication.
+  ///
+  /// In bn, this message translates to:
+  /// **'গণযোগাযোগ ও সাংবাদিকতা'**
+  String get deptMassCommunication;
+
+  /// No description provided for @deptArchaeology.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রত্নতত্ত্ব'**
+  String get deptArchaeology;
+
+  /// No description provided for @deptManagement.
+  ///
+  /// In bn, this message translates to:
+  /// **'ব্যবস্থাপনা শিক্ষা'**
+  String get deptManagement;
+
+  /// No description provided for @deptAccounting.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাকাউন্টিং অ্যান্ড ইনফরমেশন সিস্টেমস'**
+  String get deptAccounting;
+
+  /// No description provided for @deptMarketing.
+  ///
+  /// In bn, this message translates to:
+  /// **'মার্কেটিং'**
+  String get deptMarketing;
+
+  /// No description provided for @deptFinance.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফাইন্যান্স অ্যান্ড ব্যাংকিং'**
+  String get deptFinance;
+
+  /// No description provided for @deptIct.
+  ///
+  /// In bn, this message translates to:
+  /// **'ইনফরমেশন অ্যান্ড কমিউনিকেশন টেকনোলজি (ICT)'**
+  String get deptIct;
+
+  /// No description provided for @deptLaw.
+  ///
+  /// In bn, this message translates to:
+  /// **'আইন'**
+  String get deptLaw;
+
+  /// No description provided for @officeVc.
+  ///
+  /// In bn, this message translates to:
+  /// **'উপাচার্যের কার্যালয়'**
+  String get officeVc;
+
+  /// No description provided for @officeProVc.
+  ///
+  /// In bn, this message translates to:
+  /// **'উপ-উপাচার্যের কার্যালয়'**
+  String get officeProVc;
+
+  /// No description provided for @officeTreasurer.
+  ///
+  /// In bn, this message translates to:
+  /// **'কোষাধ্যক্ষের কার্যালয়'**
+  String get officeTreasurer;
+
+  /// No description provided for @officeRegistrar.
+  ///
+  /// In bn, this message translates to:
+  /// **'রেজিস্ট্রারের কার্যালয়'**
+  String get officeRegistrar;
+
+  /// No description provided for @officeProctor.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রক্টরের কার্যালয়'**
+  String get officeProctor;
+
+  /// No description provided for @officeResearchExtension.
+  ///
+  /// In bn, this message translates to:
+  /// **'গবেষণা ও সম্প্রসারণ পরিচালকের কার্যালয়'**
+  String get officeResearchExtension;
+
+  /// No description provided for @officeEstate.
+  ///
+  /// In bn, this message translates to:
+  /// **'এস্টেট শাখা'**
+  String get officeEstate;
+
+  /// No description provided for @officeSecurity.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিরাপত্তা শাখা'**
+  String get officeSecurity;
+
+  /// No description provided for @officeCentralStore.
+  ///
+  /// In bn, this message translates to:
+  /// **'কেন্দ্রীয় স্টোর'**
+  String get officeCentralStore;
+
+  /// No description provided for @officeFinanceAccounts.
+  ///
+  /// In bn, this message translates to:
+  /// **'অর্থ ও হিসাব পরিচালকের কার্যালয়'**
+  String get officeFinanceAccounts;
+
+  /// No description provided for @officeExaminations.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরীক্ষা নিয়ন্ত্রকের কার্যালয়'**
+  String get officeExaminations;
+
+  /// No description provided for @officePlanningDevelopment.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরিকল্পনা ও উন্নয়ন পরিচালকের কার্যালয়'**
+  String get officePlanningDevelopment;
+
+  /// No description provided for @officeLibrary.
+  ///
+  /// In bn, this message translates to:
+  /// **'কেন্দ্রীয় গ্রন্থাগার'**
+  String get officeLibrary;
+
+  /// No description provided for @officeEngineering.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রকৌশল কার্যালয়'**
+  String get officeEngineering;
+
+  /// No description provided for @officeMedical.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেডিকেল সেন্টার'**
+  String get officeMedical;
+
+  /// No description provided for @officeIctCell.
+  ///
+  /// In bn, this message translates to:
+  /// **'আইসিটি সেল'**
+  String get officeIctCell;
+
+  /// No description provided for @officePhysicalEducation.
+  ///
+  /// In bn, this message translates to:
+  /// **'শারীরিক শিক্ষা কার্যালয়'**
+  String get officePhysicalEducation;
+
+  /// No description provided for @officePublicRelations.
+  ///
+  /// In bn, this message translates to:
+  /// **'জনসংযোগ কার্যালয়'**
+  String get officePublicRelations;
+
+  /// No description provided for @officeCentralMosque.
+  ///
+  /// In bn, this message translates to:
+  /// **'কেন্দ্রীয় মসজিদ'**
+  String get officeCentralMosque;
+
+  /// No description provided for @officeTransportPool.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরিবহন পুল'**
+  String get officeTransportPool;
+
+  /// No description provided for @officeCounseling.
+  ///
+  /// In bn, this message translates to:
+  /// **'শিক্ষার্থী কাউন্সেলিং ও গাইডেন্স'**
+  String get officeCounseling;
+
+  /// No description provided for @officeInternationalRelations.
+  ///
+  /// In bn, this message translates to:
+  /// **'আন্তর্জাতিক সম্পর্ক'**
+  String get officeInternationalRelations;
+
+  /// No description provided for @officeCareerDevelopment.
+  ///
+  /// In bn, this message translates to:
+  /// **'ক্যারিয়ার ডেভেলপমেন্ট সেন্টার'**
+  String get officeCareerDevelopment;
+
+  /// No description provided for @session2016.
+  ///
+  /// In bn, this message translates to:
+  /// **'২০১৬-২০১৭'**
+  String get session2016;
+
+  /// No description provided for @session2017.
+  ///
+  /// In bn, this message translates to:
+  /// **'২০১৭-২০১৮'**
+  String get session2017;
+
+  /// No description provided for @session2018.
+  ///
+  /// In bn, this message translates to:
+  /// **'২০১৮-২০১৯'**
+  String get session2018;
+
+  /// No description provided for @session2019.
+  ///
+  /// In bn, this message translates to:
+  /// **'২০১৯-২০২০'**
+  String get session2019;
+
+  /// No description provided for @session2020.
+  ///
+  /// In bn, this message translates to:
+  /// **'২০২০-২০২১'**
+  String get session2020;
+
+  /// No description provided for @session2021.
+  ///
+  /// In bn, this message translates to:
+  /// **'২০২১-২০২২'**
+  String get session2021;
+
+  /// No description provided for @session2022.
+  ///
+  /// In bn, this message translates to:
+  /// **'২০২২-২০২৩'**
+  String get session2022;
+
+  /// No description provided for @session2023.
+  ///
+  /// In bn, this message translates to:
+  /// **'২০২৩-২০২৪'**
+  String get session2023;
+
+  /// No description provided for @session2024.
+  ///
+  /// In bn, this message translates to:
+  /// **'২০২৪-২০২৫'**
+  String get session2024;
+
+  /// No description provided for @session2025.
+  ///
+  /// In bn, this message translates to:
+  /// **'২০২৫-২০২৬'**
+  String get session2025;
 }
 
 class _AppLocalizationsDelegate

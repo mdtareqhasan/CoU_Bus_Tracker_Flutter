@@ -969,4 +969,163 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorUnknownResponse => 'Unknown response';
+
+  @override
+  String get deptCse => 'Computer Science and Engineering (CSE)';
+
+  @override
+  String get deptMathematics => 'Mathematics';
+
+  @override
+  String get deptPhysics => 'Physics';
+
+  @override
+  String get deptStatistics => 'Statistics';
+
+  @override
+  String get deptChemistry => 'Chemistry';
+
+  @override
+  String get deptPharmacy => 'Pharmacy';
+
+  @override
+  String get deptEnglish => 'English';
+
+  @override
+  String get deptBangla => 'Bangla';
+
+  @override
+  String get deptEconomics => 'Economics';
+
+  @override
+  String get deptPublicAdministration => 'Public Administration';
+
+  @override
+  String get deptAnthropology => 'Anthropology';
+
+  @override
+  String get deptMassCommunication => 'Mass Communication and Journalism';
+
+  @override
+  String get deptArchaeology => 'Archaeology';
+
+  @override
+  String get deptManagement => 'Management Studies';
+
+  @override
+  String get deptAccounting => 'Accounting and Information Systems';
+
+  @override
+  String get deptMarketing => 'Marketing';
+
+  @override
+  String get deptFinance => 'Finance and Banking';
+
+  @override
+  String get deptIct => 'Information and Communication Technology (ICT)';
+
+  @override
+  String get deptLaw => 'Law';
+
+  @override
+  String get officeVc => 'Office of the Vice-Chancellor';
+
+  @override
+  String get officeProVc => 'Office of the Pro-Vice-Chancellor';
+
+  @override
+  String get officeTreasurer => 'Office of the Treasurer';
+
+  @override
+  String get officeRegistrar => 'Office of the Registrar';
+
+  @override
+  String get officeProctor => 'Office of the Proctor';
+
+  @override
+  String get officeResearchExtension =>
+      'Office of the Director of Research & Extension';
+
+  @override
+  String get officeEstate => 'Estate Section';
+
+  @override
+  String get officeSecurity => 'Security Section';
+
+  @override
+  String get officeCentralStore => 'Central Store';
+
+  @override
+  String get officeFinanceAccounts =>
+      'Office of the Director of Finance & Accounts';
+
+  @override
+  String get officeExaminations => 'Office of the Controller of Examinations';
+
+  @override
+  String get officePlanningDevelopment =>
+      'Office of the Director of Planning & Development';
+
+  @override
+  String get officeLibrary => 'Central Library';
+
+  @override
+  String get officeEngineering => 'Engineering Office';
+
+  @override
+  String get officeMedical => 'Medical Center';
+
+  @override
+  String get officeIctCell => 'ICT Cell';
+
+  @override
+  String get officePhysicalEducation => 'Physical Education Office';
+
+  @override
+  String get officePublicRelations => 'Public Relations Office';
+
+  @override
+  String get officeCentralMosque => 'Central Mosque';
+
+  @override
+  String get officeTransportPool => 'Transport Pool';
+
+  @override
+  String get officeCounseling => 'Student Counseling & Guidance';
+
+  @override
+  String get officeInternationalRelations => 'International Relations';
+
+  @override
+  String get officeCareerDevelopment => 'Career Development Center';
+
+  @override
+  String get session2016 => '2016-2017';
+
+  @override
+  String get session2017 => '2017-2018';
+
+  @override
+  String get session2018 => '2018-2019';
+
+  @override
+  String get session2019 => '2019-2020';
+
+  @override
+  String get session2020 => '2020-2021';
+
+  @override
+  String get session2021 => '2021-2022';
+
+  @override
+  String get session2022 => '2022-2023';
+
+  @override
+  String get session2023 => '2023-2024';
+
+  @override
+  String get session2024 => '2024-2025';
+
+  @override
+  String get session2025 => '2025-2026';
 }

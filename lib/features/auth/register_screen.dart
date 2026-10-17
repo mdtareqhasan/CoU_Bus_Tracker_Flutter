@@ -925,14 +925,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   ? teacherDepartmentOptions
                   : departmentOptions)
               .map(
-                (department) => DropdownMenuItem<String>(
-                  value: department,
+                (option) => DropdownMenuItem<String>(
+                  value: option.value,
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                       maxWidth: MediaQuery.of(context).size.width - 100,
                     ),
                     child: Text(
-                      department,
+                      option.label(context.l10n),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -984,8 +984,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       initialValue: _selectedSession,
       items: sessionOptions
           .map(
-            (session) =>
-                DropdownMenuItem<String>(value: session, child: Text(session)),
+            (option) => DropdownMenuItem<String>(
+              value: option.value,
+              child: Text(
+                option.label(context.l10n),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           )
           .toList(),
       onChanged: (value) {
@@ -1105,8 +1111,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ? _rollNumberController.text.trim()
                 : null,
             session: role == 'student'
-                ? sessionValueByLabel[_sessionController.text.trim()] ??
-                      _sessionController.text.trim()
+                ? _sessionController.text.trim()
                 : null,
             teacherId: role == 'teacher'
                 ? _teacherIdController.text.trim()
