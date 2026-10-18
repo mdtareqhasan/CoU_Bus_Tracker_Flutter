@@ -344,6 +344,18 @@ abstract class AppLocalizations {
   /// **'শিক্ষক হিসেবে সাইন ইন করতে স্টাফ ইমেইল (name@cou.ac.bd) ব্যবহার করুন।'**
   String get errorFacultyEmailRequired;
 
+  /// Backend code EMAIL_REGISTERED_AS_TEACHER — the email already belongs to a teacher account, so student sign-in is refused.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই ইমেইলটি ইতিমধ্যে শিক্ষক হিসেবে নিবন্ধিত। শিক্ষক হিসেবে সাইন ইন করুন।'**
+  String get errorEmailRegisteredAsTeacher;
+
+  /// Backend code EMAIL_REGISTERED_AS_STUDENT — the email already belongs to a student account, so teacher sign-in is refused.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই ইমেইলটি ইতিমধ্যে শিক্ষ্যার্থী হিসেবে নিবন্ধিত। শিক্ষ্যার্থী হিসেবে সাইন ইন করুন।'**
+  String get errorEmailRegisteredAsStudent;
+
   /// Backend code CANNOT_DELETE_SELF.
   ///
   /// In bn, this message translates to:

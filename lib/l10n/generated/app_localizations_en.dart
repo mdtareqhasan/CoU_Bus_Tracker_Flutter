@@ -154,6 +154,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'To sign in as a teacher, use a staff email (name@cou.ac.bd).';
 
   @override
+  String get errorEmailRegisteredAsTeacher =>
+      'This email is already registered as a teacher. Sign in as a teacher instead.';
+
+  @override
+  String get errorEmailRegisteredAsStudent =>
+      'This email is already registered as a student. Sign in as a student instead.';
+
+  @override
   String get errorCannotDeleteSelf => 'You cannot delete your own account.';
 
   @override

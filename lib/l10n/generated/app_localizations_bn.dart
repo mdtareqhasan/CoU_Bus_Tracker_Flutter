@@ -152,6 +152,14 @@ class AppLocalizationsBn extends AppLocalizations {
       'শিক্ষক হিসেবে সাইন ইন করতে স্টাফ ইমেইল (name@cou.ac.bd) ব্যবহার করুন।';
 
   @override
+  String get errorEmailRegisteredAsTeacher =>
+      'এই ইমেইলটি ইতিমধ্যে শিক্ষক হিসেবে নিবন্ধিত। শিক্ষক হিসেবে সাইন ইন করুন।';
+
+  @override
+  String get errorEmailRegisteredAsStudent =>
+      'এই ইমেইলটি ইতিমধ্যে শিক্ষ্যার্থী হিসেবে নিবন্ধিত। শিক্ষ্যার্থী হিসেবে সাইন ইন করুন।';
+
+  @override
   String get errorCannotDeleteSelf => 'আপনি নিজের অ্যাকাউন্ট মুছতে পারবেন না।';
 
   @override
