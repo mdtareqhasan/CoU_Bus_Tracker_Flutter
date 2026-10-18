@@ -762,7 +762,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get googleIctHelp =>
-      'If you don\'t have an institutional email, please contact the university ICT cell.';
+      'If you don\'t have a university email, please contact Comilla University ICT cell.';
 
   @override
   String get googleSignInButton => 'Continue with Google';

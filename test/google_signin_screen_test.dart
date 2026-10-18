@@ -83,8 +83,8 @@ void main() {
       expect(find.text('example@cou.ac.bd'), findsOneWidget);
       expect(
         find.text(
-          "If you don't have an institutional email, please contact the "
-          'university ICT cell.',
+          "If you don't have a university email, please contact Comilla "
+          'University ICT cell.',
         ),
         findsOneWidget,
       );

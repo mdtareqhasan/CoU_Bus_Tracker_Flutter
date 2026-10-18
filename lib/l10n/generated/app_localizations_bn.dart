@@ -755,7 +755,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get googleIctHelp =>
-      'আপনার প্রাতিষ্ঠানিক ইমেইল না থাকলে অনুগ্রহ করে বিশ্ববিদ্যালয়ের আইসিটি সেলের সঙ্গে যোগাযোগ করুন।';
+      'আপনার বিশ্ববিদ্যালয় ইমেইল না থাকলে অনুগ্রহ করে কুমিল্লা বিশ্ববিদ্যালয়ের আইসিটি সেলের সঙ্গে যোগাযোগ করুন।';
 
   @override
   String get googleSignInButton => 'গুগল অ্যাকাউন্ট দিয়ে প্রবেশ করুন';

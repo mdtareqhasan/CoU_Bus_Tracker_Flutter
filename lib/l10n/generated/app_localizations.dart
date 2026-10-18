@@ -1487,7 +1487,7 @@ abstract class AppLocalizations {
   /// No description provided for @googleIctHelp.
   ///
   /// In bn, this message translates to:
-  /// **'আপনার প্রাতিষ্ঠানিক ইমেইল না থাকলে অনুগ্রহ করে বিশ্ববিদ্যালয়ের আইসিটি সেলের সঙ্গে যোগাযোগ করুন।'**
+  /// **'আপনার বিশ্ববিদ্যালয় ইমেইল না থাকলে অনুগ্রহ করে কুমিল্লা বিশ্ববিদ্যালয়ের আইসিটি সেলের সঙ্গে যোগাযোগ করুন।'**
   String get googleIctHelp;
 
   /// No description provided for @googleSignInButton.

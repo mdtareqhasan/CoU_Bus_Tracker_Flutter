@@ -261,7 +261,7 @@
   "googleSignInSubtitle": "Sign in with your university email account",
   "googleInstitutionalPrompt": "Sign in using your university institutional email.",
   "googleEmailFormatLabel": "Required email format:",
-  "googleIctHelp": "If you don''t have an institutional email, please contact the university ICT cell.",
+  "googleIctHelp": "If you don''t have a university email, please contact Comilla University ICT cell.",
   "googleSignInButton": "Continue with Google",
   "googleSignInCancelled": "Sign-in was cancelled.",
   "googleSignInConfigError": "Google sign-in configuration problem. Please contact us.",
