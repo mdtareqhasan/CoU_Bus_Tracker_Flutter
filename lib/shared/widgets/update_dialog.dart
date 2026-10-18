@@ -50,7 +50,7 @@ class UpdateDialog extends StatelessWidget {
       canPop: !updateInfo.forceUpdate,
       child: Dialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+          borderRadius: BorderRadius.circular(AppTheme.radiusLG),
         ),
         child: Padding(
           padding: const EdgeInsets.all(AppTheme.space24),
@@ -60,7 +60,7 @@ class UpdateDialog extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  gradient: AppTheme.primaryGradient,
+                  gradient: AppTheme.auroraHeaderGradient,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -78,8 +78,9 @@ class UpdateDialog extends StatelessWidget {
                 'নতুন আপডেট পাওয়া গেছে',
                 style: TextStyle(
                   fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1A1F2E),
+                  fontWeight: FontWeight.w800,
+                  color: AppTheme.textPrimary,
+                  letterSpacing: -0.2,
                 ),
                 textAlign: TextAlign.center,
               ).animate().fadeIn(delay: 100.ms).slideY(begin: 0.2, end: 0),
@@ -90,15 +91,16 @@ class UpdateDialog extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryBlue.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20),
+                  color: AppTheme.bluePrimary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusPill),
                 ),
                 child: Text(
                   'ভার্সন ${updateInfo.latestVersion}',
                   style: const TextStyle(
                     fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.primaryBlue,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.bluePrimary,
+                    letterSpacing: 0.2,
                   ),
                 ),
               ),
@@ -111,6 +113,7 @@ class UpdateDialog extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 14,
                     color: AppTheme.textSecondary,
+                    fontWeight: FontWeight.w500,
                     height: 1.5,
                   ),
                 ).animate().fadeIn(delay: 200.ms),
@@ -122,13 +125,20 @@ class UpdateDialog extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: _launchUpdate,
                   style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.blueVivid,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusMD),
                     ),
                   ),
                   child: const Text(
                     'আপডেট করুন',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15,
+                      letterSpacing: 0.3,
+                    ),
                   ),
                 ),
               ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.1, end: 0),

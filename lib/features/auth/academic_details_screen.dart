@@ -12,6 +12,8 @@ import 'auth_provider.dart';
 import 'department_options.dart';
 import 'session_options.dart';
 import '../../shared/widgets/app_bar_language_switcher.dart';
+import '../../shared/widgets/primary_button.dart';
+import '../../shared/widgets/glass_card.dart';
 
 /// Forced profile-completion form.
 ///
@@ -282,9 +284,9 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppTheme.surfaceLight,
+        backgroundColor: AppTheme.surface,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+          borderRadius: BorderRadius.circular(AppTheme.radiusLG),
         ),
         title: Text(
           context.l10n.academicLogoutTitle,
@@ -345,7 +347,7 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
       child: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light,
         child: Scaffold(
-          backgroundColor: AppTheme.backgroundLight,
+          backgroundColor: AppTheme.bgLight,
           resizeToAvoidBottomInset: false,
           body: GestureDetector(
             onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -462,22 +464,26 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
   }
 
   Widget _buildWriteOnceNotice() {
-    return Container(
+    return GlassCard(
       padding: const EdgeInsets.all(AppTheme.space12),
-      decoration: BoxDecoration(
-        color: AppTheme.warning.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        border: Border.all(color: AppTheme.warning.withValues(alpha: 0.2)),
-      ),
+      elevation: GlassCardElevation.soft,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(
-            Icons.info_outline_rounded,
-            size: 18,
-            color: AppTheme.warning,
+          Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              color: AppTheme.warning.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(AppTheme.radiusXS),
+            ),
+            child: const Icon(
+              Icons.info_outline_rounded,
+              size: 16,
+              color: AppTheme.warning,
+            ),
           ),
-          const SizedBox(width: AppTheme.space8),
+          const SizedBox(width: AppTheme.space12),
           Expanded(
             child: Text(
               context.l10n.academicOnceOnlyNote,
@@ -723,8 +729,10 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
       padding: const EdgeInsets.all(AppTheme.space12),
       decoration: BoxDecoration(
         color: AppTheme.error.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        border: Border.all(color: AppTheme.error.withValues(alpha: 0.2)),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMD),
+        border: Border.all(
+          color: AppTheme.error.withValues(alpha: 0.30),
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -752,47 +760,11 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
   }
 
   Widget _buildSubmitButton() {
-    return Container(
-      width: double.infinity,
-      height: 56,
-      decoration: BoxDecoration(
-        gradient: AppTheme.primaryGradient,
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: ElevatedButton(
-        onPressed: _isLoading ? null : _submit,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-          ),
-        ),
-        child: _isLoading
-            ? const SizedBox(
-                height: 24,
-                width: 24,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2.5,
-                ),
-              )
-            : Text(
-                context.l10n.academicSave,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-      ),
+    return PrimaryButton(
+      label: context.l10n.academicSave,
+      icon: Icons.check_rounded,
+      isLoading: _isLoading,
+      onPressed: _submit,
     );
   }
 
@@ -823,38 +795,87 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
   Widget _buildSliverAppBar(BuildContext context, String title) {
     return SliverAppBar(
       pinned: true,
-      backgroundColor: AppTheme.primaryBlue,
+      backgroundColor: AppTheme.blueVivid,
       automaticallyImplyLeading: false,
       title: Text(
         title,
         style: const TextStyle(
           color: Colors.white,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w800,
           fontSize: 18,
+          letterSpacing: 0.2,
         ),
       ),
-      flexibleSpace: Container(
-        decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
+      flexibleSpace: Stack(
+        fit: StackFit.expand,
+        children: [
+          const DecoratedBox(
+            decoration: BoxDecoration(gradient: AppTheme.auroraHeaderGradient),
+          ),
+          Positioned(
+            top: -40,
+            right: -30,
+            child: IgnorePointer(
+              child: Container(
+                width: 200,
+                height: 200,
+                decoration: BoxDecoration(
+                  color: AppTheme.cyanBright.withValues(alpha: 0.30),
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+          ),
+          const DecoratedBox(
+            decoration: BoxDecoration(gradient: AppTheme.glassOverlay),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildHeaderIllustration() {
-    return Container(
-      width: 80,
-      height: 80,
-      decoration: BoxDecoration(
-        color: AppTheme.primaryBlue.withValues(alpha: 0.1),
-        shape: BoxShape.circle,
+    return SizedBox(
+      width: 100,
+      height: 100,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+              color: AppTheme.blueVivid.withValues(alpha: 0.06),
+              shape: BoxShape.circle,
+            ),
+          ),
+          Container(
+            width: 80,
+            height: 80,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [
+                  AppTheme.indigoDeep,
+                  AppTheme.blueVivid,
+                  AppTheme.cyanBright,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Icon(
+              isStudent ? Icons.school_rounded : Icons.psychology_rounded,
+              size: 40,
+              color: Colors.white,
+            ),
+          ),
+        ],
       ),
-      child: Center(
-        child: Icon(
-          isStudent ? Icons.school_rounded : Icons.psychology_rounded,
-          size: 44,
-          color: AppTheme.primaryBlue,
-        ),
-      ),
-    ).animate().scale(duration: 500.ms, curve: Curves.easeOutBack);
+    )
+        .animate()
+        .fadeIn(duration: 500.ms)
+        .scale(begin: const Offset(0.85, 0.85), curve: Curves.easeOutBack);
   }
 
   static const _fieldStyle = TextStyle(
@@ -876,28 +897,28 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
       labelStyle: const TextStyle(color: AppTheme.textSecondary, fontSize: 14),
       hintStyle: const TextStyle(color: AppTheme.textHint, fontSize: 13),
       helperStyle: const TextStyle(color: AppTheme.textHint, fontSize: 11),
-      prefixIcon: Icon(icon, color: AppTheme.primaryBlue, size: 20),
+      prefixIcon: Icon(icon, color: AppTheme.bluePrimary, size: 20),
       suffixIcon: suffixIcon,
       filled: true,
       fillColor: Colors.white,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMD),
         borderSide: BorderSide(
-          color: AppTheme.primaryBlue.withValues(alpha: 0.2),
+          color: AppTheme.bluePrimary.withValues(alpha: 0.2),
         ),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMD),
         borderSide: BorderSide(
-          color: AppTheme.primaryBlue.withValues(alpha: 0.1),
+          color: AppTheme.bluePrimary.withValues(alpha: 0.1),
         ),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        borderSide: const BorderSide(color: AppTheme.primaryBlue, width: 2),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMD),
+        borderSide: const BorderSide(color: AppTheme.bluePrimary, width: 2),
       ),
       disabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMD),
         borderSide: BorderSide(
           color: AppTheme.textHint.withValues(alpha: 0.3),
         ),

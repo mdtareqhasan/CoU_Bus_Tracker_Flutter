@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../l10n/l10n.dart';
 import 'theme.dart';
+import '../shared/widgets/animated_bottom_nav.dart';
+import '../shared/widgets/app_pill.dart';
 
 class ShellScreen extends StatefulWidget {
   final Widget child;
@@ -13,24 +15,18 @@ class ShellScreen extends StatefulWidget {
 }
 
 class _ShellScreenState extends State<ShellScreen> {
-  static const _tabs = [
-    '/home',
-    '/buses',
-    '/schedules',
-    '/notices',
-    '/profile',
-  ];
-
   int _calculateSelectedIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
-    for (int i = 0; i < _tabs.length; i++) {
-      if (location.startsWith(_tabs[i])) return i;
+    const tabs = ['/home', '/buses', '/schedules', '/notices', '/profile'];
+    for (int i = 0; i < tabs.length; i++) {
+      if (location.startsWith(tabs[i])) return i;
     }
     return 0;
   }
 
   void _onTap(int index, BuildContext context) {
-    context.go(_tabs[index]);
+    const tabs = ['/home', '/buses', '/schedules', '/notices', '/profile'];
+    context.go(tabs[index]);
   }
 
   bool _isHomeTab(BuildContext context) {
@@ -39,47 +35,120 @@ class _ShellScreenState extends State<ShellScreen> {
 
   Future<bool> _onWillPop() async {
     if (_isHomeTab(context)) {
-      // On home tab — show exit confirmation dialog
-      final shouldExit = await showDialog<bool>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Text(
-            ctx.l10n.exitAppTitle,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          content: Text(ctx.l10n.exitAppMessage),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: Text(ctx.l10n.commonNo),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(true),
-              child: Text(
-                ctx.l10n.commonYes,
-                style: const TextStyle(color: Colors.red),
-              ),
-            ),
-          ],
-        ),
-      );
+      final shouldExit = await _showExitDialog();
       if (shouldExit == true) {
         SystemNavigator.pop();
       }
       return false;
     } else {
-      // On other tabs — go to home
       context.go('/home');
       return false;
     }
   }
 
+  Future<bool?> _showExitDialog() {
+    return showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: false,
+      builder: (ctx) {
+        final isDark = Theme.of(ctx).brightness == Brightness.dark;
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(AppTheme.space16),
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(
+                  AppTheme.space24,
+                  AppTheme.space20,
+                  AppTheme.space24,
+                  AppTheme.space24,
+                ),
+                decoration: BoxDecoration(
+                  color: isDark ? AppTheme.surfaceDark : AppTheme.surface,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusXL),
+                  border: Border.all(
+                    color: isDark
+                        ? Colors.white12
+                        : AppTheme.textHint.withValues(alpha: 0.18),
+                  ),
+                  boxShadow: AppTheme.shadowLG,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 56,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: AppTheme.space20),
+                      decoration: BoxDecoration(
+                        color: AppTheme.textHint.withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    Container(
+                      width: 72,
+                      height: 72,
+                      decoration: BoxDecoration(
+                        color: AppTheme.error.withValues(alpha: 0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.power_settings_new_rounded,
+                        color: AppTheme.error,
+                        size: 32,
+                      ),
+                    ),
+                    const SizedBox(height: AppTheme.space16),
+                    Text(
+                      ctx.l10n.exitAppTitle,
+                      style: Theme.of(ctx).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: AppTheme.space8),
+                    Text(
+                      ctx.l10n.exitAppMessage,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
+                            color: isDark
+                                ? Colors.white60
+                                : AppTheme.textSecondary,
+                          ),
+                    ),
+                    const SizedBox(height: AppTheme.space24),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _SheetButton(
+                            label: ctx.l10n.commonNo,
+                            onTap: () => Navigator.of(ctx).pop(false),
+                            tonal: true,
+                          ),
+                        ),
+                        const SizedBox(width: AppTheme.space12),
+                        Expanded(
+                          child: _SheetButton(
+                            label: ctx.l10n.commonYes,
+                            onTap: () => Navigator.of(ctx).pop(true),
+                            tonal: false,
+                            danger: true,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final index = _calculateSelectedIndex(context);
 
     return PopScope(
       canPop: false,
@@ -88,43 +157,66 @@ class _ShellScreenState extends State<ShellScreen> {
       },
       child: Scaffold(
         body: widget.child,
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _calculateSelectedIndex(context),
-          onTap: (index) => _onTap(index, context),
-          backgroundColor: isDark ? AppTheme.surfaceDark : Colors.white,
-          selectedItemColor: AppTheme.primaryBlue,
-          unselectedItemColor: isDark ? Colors.white24 : AppTheme.textHint,
-          type: BottomNavigationBarType.fixed,
-          elevation: 15,
-          items: [
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.home_outlined),
-              activeIcon: const Icon(Icons.home_rounded),
-              label: context.l10n.navHome,
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.directions_bus_outlined),
-              activeIcon: const Icon(Icons.directions_bus_rounded),
-              label: context.l10n.navBuses,
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.schedule_outlined),
-              activeIcon: const Icon(Icons.schedule_rounded),
-              label: context.l10n.navSchedules,
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.notifications_outlined),
-              activeIcon: const Icon(Icons.notifications_rounded),
-              label: context.l10n.navNotices,
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.person_outline_rounded),
-              activeIcon: const Icon(Icons.person_rounded),
-              label: context.l10n.navProfile,
-            ),
-          ],
+        bottomNavigationBar: AppBottomNav(
+          currentIndex: index,
+          onTap: (i) => _onTap(i, context),
         ),
       ),
     );
   }
 }
+
+class _SheetButton extends StatelessWidget {
+  const _SheetButton({
+    required this.label,
+    required this.onTap,
+    required this.tonal,
+    this.danger = false,
+  });
+  final String label;
+  final VoidCallback onTap;
+  final bool tonal;
+  final bool danger;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final color = danger ? AppTheme.error : AppTheme.bluePrimary;
+    final bg = tonal
+        ? color.withValues(alpha: 0.10)
+        : (danger ? AppTheme.error : AppTheme.bluePrimary);
+    final fg = tonal ? color : Colors.white;
+
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(AppTheme.radiusMD),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMD),
+        child: Container(
+          height: 52,
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(AppTheme.radiusMD),
+            border: tonal
+                ? Border.all(color: color.withValues(alpha: 0.30))
+                : null,
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: TextStyle(
+              color: fg,
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.2,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Re-export AppPill so screens that import this file still get a clean API.
+export '../shared/widgets/app_pill.dart' show AppPill;
