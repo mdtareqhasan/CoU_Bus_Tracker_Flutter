@@ -1,0 +1,107 @@
+name: Build APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build type'
+        required: true
+        type: choice
+        default: release
+        options:
+          - release
+          - debug
+      track:
+        description: 'Internal release name (used as artifact suffix)'
+        required: false
+        type: string
+        default: ''
+
+concurrency:
+  group: build-apk-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.1'
+          channel: stable
+          cache: true
+
+      - name: Show toolchain versions
+        run: |
+          flutter --version
+          java -version
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate localization files
+        run: flutter gen-l10n
+
+      - name: Determine build type
+        id: build_type
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "type=${{ github.event.inputs.build_type }}" >> "$GITHUB_OUTPUT"
+            echo "track=${{ github.event.inputs.track }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "type=release" >> "$GITHUB_OUTPUT"
+            echo "track=ci-${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build APK (release)
+        if: steps.build_type.outputs.type == 'release'
+        run: flutter build apk --release
+
+      - name: Build APK (debug)
+        if: steps.build_type.outputs.type == 'debug'
+        run: flutter build apk --debug
+
+      - name: Build App Bundle (release)
+        if: steps.build_type.outputs.type == 'release'
+        run: flutter build appbundle --release
+
+      - name: List build artifacts
+        if: always()
+        run: |
+          echo "--- build/app/outputs/ ---"
+          ls -lhR build/app/outputs/ || true
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cou-bus-tracker-apk-${{ steps.build_type.outputs.type }}-${{ steps.build_type.outputs.track }}
+          path: build/app/outputs/flutter-apk/*.apk
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload AAB artifact
+        if: steps.build_type.outputs.type == 'release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cou-bus-tracker-aab-${{ steps.build_type.outputs.track }}
+          path: build/app/outputs/bundle/release/*.aab
+          if-no-files-found: warn
+          retention-days: 14
