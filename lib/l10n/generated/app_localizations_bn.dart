@@ -768,6 +768,13 @@ class AppLocalizationsBn extends AppLocalizations {
       'গুগল সাইন-ইন কনফিগারেশনে সমস্যা হয়েছে। যোগাযোগ করুন।';
 
   @override
+  String get googleGmailReminderTitle => 'এগিয়ে যাওয়ার আগে';
+
+  @override
+  String get googleGmailReminderMessage =>
+      'আপনার বিশ্ববিদ্যালয়ের ইমেইল অ্যাকাউন্টে প্রবেশাধিকার আছে এবং অ্যাকাউন্টটি Gmail অ্যাপে আগে থেকেই সাইন ইন করা আছে কিনা নিশ্চিত করুন। সাইন ইন করার সময় আপনার বিশ্ববিদ্যালয়ের ইমেইল অ্যাকাউন্টটি নির্বাচন করুন।';
+
+  @override
   String get uploadIdTitle => 'আইডি কার্ড আপলোড';
 
   @override

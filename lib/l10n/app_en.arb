@@ -265,6 +265,8 @@
   "googleSignInButton": "Continue with Google",
   "googleSignInCancelled": "Sign-in was cancelled.",
   "googleSignInConfigError": "Google sign-in configuration problem. Please contact us.",
+  "googleGmailReminderTitle": "Before you continue",
+  "googleGmailReminderMessage": "Make sure you have access to your university email and that it is already signed in to the Gmail app. When signing in, select your university email account.",
 
   "uploadIdTitle": "Upload ID card",
   "uploadIdSubtitle": "Upload your university ID card",

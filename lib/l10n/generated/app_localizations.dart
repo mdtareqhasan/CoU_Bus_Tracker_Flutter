@@ -1508,6 +1508,18 @@ abstract class AppLocalizations {
   /// **'গুগল সাইন-ইন কনফিগারেশনে সমস্যা হয়েছে। যোগাযোগ করুন।'**
   String get googleSignInConfigError;
 
+  /// No description provided for @googleGmailReminderTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'এগিয়ে যাওয়ার আগে'**
+  String get googleGmailReminderTitle;
+
+  /// No description provided for @googleGmailReminderMessage.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনার বিশ্ববিদ্যালয়ের ইমেইল অ্যাকাউন্টে প্রবেশাধিকার আছে এবং অ্যাকাউন্টটি Gmail অ্যাপে আগে থেকেই সাইন ইন করা আছে কিনা নিশ্চিত করুন। সাইন ইন করার সময় আপনার বিশ্ববিদ্যালয়ের ইমেইল অ্যাকাউন্টটি নির্বাচন করুন।'**
+  String get googleGmailReminderMessage;
+
   /// No description provided for @uploadIdTitle.
   ///
   /// In bn, this message translates to:

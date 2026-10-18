@@ -203,15 +203,9 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            context.l10n.googleInstitutionalPrompt,
-            style: const TextStyle(
-              fontSize: 13,
-              height: 1.5,
-              color: AppTheme.textPrimary,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          // Gmail reminder first — it must precede the required-format
+          // section. Replaces the old, redundant institutional prompt.
+          _buildGmailReminderCard(),
           const SizedBox(height: AppTheme.space16),
           Text(
             context.l10n.googleEmailFormatLabel,
@@ -261,6 +255,55 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
                       color: AppTheme.textSecondary.withValues(alpha: 0.95),
                       fontWeight: FontWeight.w500,
                     ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// "Before you continue" reminder at the top of the info card: the user must
+  /// already be signed in to their university account in the Gmail app before
+  /// tapping Continue. Uses the app's active language via `context.l10n`.
+  Widget _buildGmailReminderCard() {
+    return Container(
+      padding: const EdgeInsets.all(AppTheme.space12),
+      decoration: BoxDecoration(
+        color: AppTheme.primaryBlue.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        border: Border.all(color: AppTheme.primaryBlue.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.mark_email_read_outlined,
+            size: 18,
+            color: AppTheme.primaryBlue,
+          ),
+          const SizedBox(width: AppTheme.space8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.l10n.googleGmailReminderTitle,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.primaryBlue,
+                  ),
+                ),
+                const SizedBox(height: AppTheme.space4),
+                Text(
+                  context.l10n.googleGmailReminderMessage,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    height: 1.5,
+                    color: AppTheme.textSecondary,
                   ),
                 ),
               ],

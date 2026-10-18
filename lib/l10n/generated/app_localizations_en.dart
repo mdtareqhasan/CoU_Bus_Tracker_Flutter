@@ -775,6 +775,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Google sign-in configuration problem. Please contact us.';
 
   @override
+  String get googleGmailReminderTitle => 'Before you continue';
+
+  @override
+  String get googleGmailReminderMessage =>
+      'Make sure you have access to your university email and that it is already signed in to the Gmail app. When signing in, select your university email account.';
+
+  @override
   String get uploadIdTitle => 'Upload ID card';
 
   @override

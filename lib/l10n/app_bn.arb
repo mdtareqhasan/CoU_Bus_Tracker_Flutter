@@ -950,6 +950,8 @@
     "description": "Google sign-in is misconfigured (SHA-1 / client ID)."
   },
   "googleSignInConfigError": "গুগল সাইন-ইন কনফিগারেশনে সমস্যা হয়েছে। যোগাযোগ করুন।",
+  "googleGmailReminderTitle": "এগিয়ে যাওয়ার আগে",
+  "googleGmailReminderMessage": "আপনার বিশ্ববিদ্যালয়ের ইমেইল অ্যাকাউন্টে প্রবেশাধিকার আছে এবং অ্যাকাউন্টটি Gmail অ্যাপে আগে থেকেই সাইন ইন করা আছে কিনা নিশ্চিত করুন। সাইন ইন করার সময় আপনার বিশ্ববিদ্যালয়ের ইমেইল অ্যাকাউন্টটি নির্বাচন করুন।",
 
   "uploadIdTitle": "আইডি কার্ড আপলোড",
   "uploadIdSubtitle": "আপনার বিশ্ববিদ্যালয়ের পরিচয়পত্র আপলোড করুন",
