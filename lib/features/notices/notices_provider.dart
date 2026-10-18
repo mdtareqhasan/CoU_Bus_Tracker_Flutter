@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/result.dart';
+import '../../core/storage_service.dart';
 import '../../shared/models/notice.dart';
 import 'notice_repository.dart';
 import '../providers.dart';
@@ -30,8 +31,9 @@ class NoticeListState {
 
 class NoticeListNotifier extends StateNotifier<NoticeListState> {
   final NoticeRepository _repo;
+  final StorageService _storage;
 
-  NoticeListNotifier(this._repo) : super(const NoticeListState());
+  NoticeListNotifier(this._repo, this._storage) : super(const NoticeListState());
 
   Future<void> loadNotices() async {
     state = state.copyWith(isLoading: true, error: null);
@@ -40,7 +42,14 @@ class NoticeListNotifier extends StateNotifier<NoticeListState> {
 
     switch (result) {
       case Success(:final data):
-        state = state.copyWith(notices: data, isLoading: false);
+        // The backend already audience-filters /notices/active; this re-check
+        // only guards the stale-cache case, where the offline list was written
+        // by a different role on the same device (logout doesn't clear cache).
+        final role = _storage.getRole();
+        state = state.copyWith(
+          notices: data.where((n) => n.visibleToRole(role)).toList(),
+          isLoading: false,
+        );
       case Failure(:final message):
         state = state.copyWith(isLoading: false, error: message);
       default:
@@ -51,5 +60,8 @@ class NoticeListNotifier extends StateNotifier<NoticeListState> {
 
 final noticeListProvider =
     StateNotifierProvider<NoticeListNotifier, NoticeListState>((ref) {
-      return NoticeListNotifier(ref.watch(noticeRepositoryProvider));
+      return NoticeListNotifier(
+        ref.watch(noticeRepositoryProvider),
+        ref.watch(storageServiceProvider),
+      );
     });

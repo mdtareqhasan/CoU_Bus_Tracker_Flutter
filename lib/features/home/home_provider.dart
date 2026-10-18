@@ -123,6 +123,10 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     if (cachedNotices != null) {
       final List<dynamic> list = jsonDecode(cachedNotices);
       notices = list.map((e) => Notice.fromJson(e)).toList();
+      // The cache is shared across accounts on this device (logout doesn't
+      // clear it), so re-apply the audience filter before showing anything.
+      final role = _storage.getRole();
+      notices = notices.where((n) => n.visibleToRole(role)).toList();
     }
 
     if (buses != null || schedules != null || notices != null) {
@@ -170,8 +174,13 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
     if (noticeResult is Success) {
       final data = (noticeResult as Success<List<Notice>>).data;
-      await _storage.saveCache(StorageKeys.cachedNotices, jsonEncode(data));
-      state = state.copyWith(notices: AsyncValue.data(data));
+      // Filter before caching so the on-disk cache never holds notices meant
+      // for another role — logout leaves the cache in place, and the next
+      // account on this device would otherwise inherit them.
+      final role = _storage.getRole();
+      final visible = data.where((n) => n.visibleToRole(role)).toList();
+      await _storage.saveCache(StorageKeys.cachedNotices, jsonEncode(visible));
+      state = state.copyWith(notices: AsyncValue.data(visible));
     }
 
     state = state.copyWith(lastUpdated: DateTime.now());
