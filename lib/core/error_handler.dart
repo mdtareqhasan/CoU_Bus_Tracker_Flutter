@@ -185,6 +185,10 @@ class ErrorHandler {
         return l10n.errorGoogleTokenInvalid;
       case 'FACULTY_EMAIL_REQUIRED':
         return l10n.errorFacultyEmailRequired;
+      case 'EMAIL_REGISTERED_AS_TEACHER':
+        return l10n.errorEmailRegisteredAsTeacher;
+      case 'EMAIL_REGISTERED_AS_STUDENT':
+        return l10n.errorEmailRegisteredAsStudent;
 
       // ---- Profile completion -------------------------------------------
       case 'PROFILE_INCOMPLETE':

@@ -42,6 +42,8 @@
   "errorGoogleSignInFailed": "Could not verify the Google sign-in. Please try again.",
   "errorGoogleTokenInvalid": "The Google sign-in token is invalid or the email is not verified.",
   "errorFacultyEmailRequired": "To sign in as a teacher, use a staff email (name@cou.ac.bd).",
+  "errorEmailRegisteredAsTeacher": "This email is already registered as a teacher. Sign in as a teacher instead.",
+  "errorEmailRegisteredAsStudent": "This email is already registered as a student. Sign in as a student instead.",
   "errorCannotDeleteSelf": "You cannot delete your own account.",
   "errorOtpNotFound": "No OTP found. Please request a new one.",
   "errorRegistrationNotFound": "Registration not found. Please submit the registration form first.",
