@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../app/theme.dart';
 import '../../l10n/l10n.dart';
+import '../../shared/widgets/app_bar_language_switcher.dart';
 
 class RoleScreen extends StatelessWidget {
   const RoleScreen({super.key});
@@ -28,13 +29,26 @@ class RoleScreen extends StatelessWidget {
             child: Column(
               children: [
                 const SizedBox(height: 12),
-                Text(
-                  context.l10n.roleSelectTitle,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                  ),
+                // No app bar on this screen, so the BN/EN switcher floats over
+                // the gradient header (top-right) while the title stays
+                // centered — same placement as every other pre-login screen.
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Text(
+                      context.l10n.roleSelectTitle,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
+                    const PositionedDirectional(
+                      top: 0,
+                      end: 16,
+                      child: AppBarLanguageSwitcher(),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 24),
                 Expanded(

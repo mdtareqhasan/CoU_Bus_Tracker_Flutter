@@ -101,16 +101,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     } else if (authState.status == AuthStateStatus.needsProfileDetails) {
       final role = authState.role ?? 'student';
       context.go('/auth/academic-details?role=$role');
-    } else if (authState.status == AuthStateStatus.needsVerification) {
-      final phone = authState.phone ?? '';
-      final role = authState.pendingRole ?? authState.role ?? 'STUDENT';
-      if (phone.isEmpty) {
-        // No pending phone persisted (should not happen) → restart auth flow.
-        context.go('/auth/role');
-        return;
-      }
-      context.go('/auth/otp?phone=$phone&role=$role');
     } else {
+      // Everything else — including AuthStateStatus.needsVerification — lands
+      // back on the role picker. Sign-in is Google-only now, so a pending OTP
+      // session (a leftover from the removed phone/e-mail registration flows)
+      // has no screen to resume into; restart the flow instead of navigating
+      // to a route that no longer exists.
       context.go('/auth/role');
     }
   }

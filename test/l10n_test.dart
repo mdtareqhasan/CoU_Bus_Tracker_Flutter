@@ -199,7 +199,7 @@ void main() {
           .clearLocaleTestValue();
     });
 
-    test('first launch is Bengali only for a Bengali device, else English', () async {
+    test('first launch is Bengali regardless of the system language', () async {
       final dispatcher = TestWidgetsFlutterBinding.instance.platformDispatcher;
 
       Future<Locale> localeFor(String systemCode) async {
@@ -211,14 +211,15 @@ void main() {
         return container.read(localeProvider);
       }
 
-      // Bangla device → Bangla.
+      // No saved choice on any device — English, Hindi, French, Arabic or
+      // Bengali — always starts in Bangla: this is a Comilla University app,
+      // so the system locale must not decide the language. Only an explicit
+      // saved choice (covered below) can land on English.
       expect(await localeFor('bn'), const Locale('bn'));
-      // English device → English.
-      expect(await localeFor('en'), const Locale('en'));
-      // Every other system language falls back to English, not Bengali.
-      expect(await localeFor('hi'), const Locale('en'));
-      expect(await localeFor('fr'), const Locale('en'));
-      expect(await localeFor('ar'), const Locale('en'));
+      expect(await localeFor('en'), const Locale('bn'));
+      expect(await localeFor('hi'), const Locale('bn'));
+      expect(await localeFor('fr'), const Locale('bn'));
+      expect(await localeFor('ar'), const Locale('bn'));
       dispatcher.clearLocaleTestValue();
     });
 

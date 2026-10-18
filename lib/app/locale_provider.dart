@@ -15,21 +15,14 @@ import '../l10n/l10n.dart';
 class LocaleController extends Notifier<Locale> {
   @override
   Locale build() {
-    // First launch (no saved choice): Bengali only when the device itself is
-    // Bengali — every other system language falls back to English, so a
-    // Hindi/French/Japanese phone doesn't land on a language it doesn't read.
-    final code =
-        ref.read(storageServiceProvider).getStoredLanguageCode() ??
-        _systemLanguageCode();
+    // First launch (no saved choice): Bengali regardless of the system
+    // language — this is a Comilla University app, so the default experience
+    // is Bangla even on an English/Hindi/French phone. An explicit choice
+    // always wins: a user who tapped EN keeps English across restarts.
+    final code = ref.read(storageServiceProvider).getStoredLanguageCode() ?? 'bn';
     final locale = Locale(code);
     L10n.activate(locale);
     return locale;
-  }
-
-  static String _systemLanguageCode() {
-    final system =
-        WidgetsBinding.instance.platformDispatcher.locale.languageCode;
-    return system == 'bn' ? 'bn' : 'en';
   }
 
   /// Changes the active language and persists the choice.

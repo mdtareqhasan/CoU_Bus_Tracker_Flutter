@@ -10,6 +10,7 @@ import '../../core/services/google_signin_service.dart';
 import '../../l10n/l10n.dart';
 import 'auth_notification_permission.dart';
 import 'auth_provider.dart';
+import '../../shared/widgets/app_bar_language_switcher.dart';
 
 /// Google Sign-In entry screen.
 ///
@@ -147,6 +148,7 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
           fontSize: 18,
         ),
       ),
+      actions: const [AppBarLanguageSwitcher()],
       flexibleSpace: Container(
         decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
       ),

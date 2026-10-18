@@ -11,6 +11,7 @@ import 'auth_notification_permission.dart';
 import 'auth_provider.dart';
 import 'department_options.dart';
 import 'session_options.dart';
+import '../../shared/widgets/app_bar_language_switcher.dart';
 
 /// Forced profile-completion form.
 ///
@@ -826,6 +827,7 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
           fontSize: 18,
         ),
       ),
+      actions: const [AppBarLanguageSwitcher()],
       flexibleSpace: Container(
         decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
       ),

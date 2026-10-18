@@ -10,19 +10,8 @@ import '../features/buses/live_tracking_screen.dart';
 import '../features/schedules/schedule_screen.dart';
 import '../features/notices/notice_screen.dart';
 import '../features/auth/role_screen.dart';
-import '../features/auth/login_screen.dart';
-import '../features/auth/register_screen.dart';
-import '../features/auth/email_registration_screen.dart';
 import '../features/auth/academic_details_screen.dart';
-import '../features/auth/email_login_screen.dart';
 import '../features/auth/google_signin_screen.dart';
-import '../features/auth/email_otp_verification_screen.dart';
-import '../features/auth/phone_otp_verification_screen.dart';
-import '../features/auth/upload_id_screen.dart';
-import '../features/auth/forgot_password_screen.dart';
-import '../features/auth/forgot_password_email_screen.dart';
-import '../features/auth/forgot_password_otp_screen.dart';
-import '../features/auth/forgot_password_email_otp_screen.dart';
 import '../features/profile/profile_screen.dart';
 import '../features/about/about_screen.dart';
 
@@ -35,6 +24,14 @@ final GlobalKey<NavigatorState> _shellNavigatorKey =
 final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
+/// App navigation graph.
+///
+/// Sign-in is **Google-only**: the flow is `/auth/role` (pick student or
+/// teacher) → `/auth/google-signin` → `/home`, with a detour through
+/// `/auth/academic-details` when the freshly-created profile is still missing
+/// the write-once department/roll/session (or department/employee ID/
+/// designation) that product policy requires. Phone/SMS, e-mail and ID-card
+/// screens were removed — see the auth feature for the surviving trio.
 final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/splash',
@@ -98,45 +95,11 @@ final appRouter = GoRouter(
       builder: (context, state) => const RoleScreen(),
     ),
     GoRoute(
-      path: '/auth/login',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final role = state.uri.queryParameters['role'] ?? 'student';
-        return LoginScreen(role: role);
-      },
-    ),
-    GoRoute(
-      path: '/auth/register',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final role = state.uri.queryParameters['role'] ?? 'student';
-        return RegisterScreen(role: role);
-      },
-    ),
-    // Primary entry point from the role screen. The email/SMS sign-in and
-    // sign-up routes below are kept for now and remain reachable directly.
-    GoRoute(
       path: '/auth/google-signin',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
         final role = state.uri.queryParameters['role'] ?? 'student';
         return GoogleSigninScreen(role: role);
-      },
-    ),
-    GoRoute(
-      path: '/auth/email-login',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final role = state.uri.queryParameters['role'] ?? 'student';
-        return EmailLoginScreen(role: role);
-      },
-    ),
-    GoRoute(
-      path: '/auth/email-register',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final role = state.uri.queryParameters['role'] ?? 'student';
-        return EmailRegistrationScreen(role: role);
       },
     ),
     // Forced completion form: a signed-in user whose profile is still missing
@@ -147,57 +110,6 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final role = state.uri.queryParameters['role'] ?? 'student';
         return AcademicDetailsScreen(role: role);
-      },
-    ),
-    GoRoute(
-      path: '/auth/email-otp',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final email = state.uri.queryParameters['email'] ?? '';
-        final role = state.uri.queryParameters['role'] ?? 'student';
-        return EmailOtpVerificationScreen(email: email, role: role);
-      },
-    ),
-    GoRoute(
-      path: '/auth/otp',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final phone = state.uri.queryParameters['phone'] ?? '';
-        final role = state.uri.queryParameters['role'] ?? 'student';
-        return PhoneOtpVerificationScreen(phone: phone, role: role);
-      },
-    ),
-    GoRoute(
-      path: '/auth/upload-id',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const UploadIdScreen(),
-    ),
-    GoRoute(
-      path: '/auth/forgot-password-email',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const ForgotPasswordEmailScreen(),
-    ),
-    GoRoute(
-      path: '/auth/forgot-password-email-otp',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final email = state.uri.queryParameters['email'] ?? '';
-        final role = state.uri.queryParameters['role'] ?? 'STUDENT';
-        return ForgotPasswordEmailOtpScreen(email: email, role: role);
-      },
-    ),
-    GoRoute(
-      path: '/auth/forgot-password',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const ForgotPasswordScreen(),
-    ),
-    GoRoute(
-      path: '/auth/forgot-password-otp',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final phone = state.uri.queryParameters['phone'] ?? '';
-        final role = state.uri.queryParameters['role'] ?? 'STUDENT';
-        return ForgotPasswordOtpScreen(phone: phone, role: role);
       },
     ),
     GoRoute(
