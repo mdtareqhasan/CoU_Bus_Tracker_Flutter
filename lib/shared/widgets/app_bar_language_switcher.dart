@@ -8,7 +8,7 @@ import '../../app/theme.dart';
 /// screen's content, in the top-right corner — deliberately kept out of the
 /// app bar and off the gradient header ribbon.
 ///
-/// Styled for the light content background ([AppTheme.backgroundLight]): the
+/// Styled for the light content background ([AppTheme.bgLight]): the
 /// active segment is a filled blue pill with white text and the inactive one
 /// is plain gray text, so both options stay clearly legible. (It used to sit
 /// on the blue bar, where it needed white text for the inactive option — that
@@ -30,8 +30,9 @@ class AppBarLanguageSwitcher extends ConsumerWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLG),
         border: Border.all(color: AppTheme.textHint.withValues(alpha: 0.6)),
+        boxShadow: AppTheme.shadowXS,
       ),
       padding: const EdgeInsets.all(3),
       child: Row(
@@ -75,15 +76,15 @@ class _Segment extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+      borderRadius: BorderRadius.circular(AppTheme.radiusLG),
       child: Container(
         padding: const EdgeInsets.symmetric(
           horizontal: AppTheme.space12,
           vertical: AppTheme.space4,
         ),
         decoration: BoxDecoration(
-          color: selected ? AppTheme.primaryBlue : Colors.transparent,
-          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+          color: selected ? AppTheme.bluePrimary : Colors.transparent,
+          borderRadius: BorderRadius.circular(AppTheme.radiusLG),
         ),
         child: Text(
           label,

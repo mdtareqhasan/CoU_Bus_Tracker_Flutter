@@ -1,102 +1,112 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../app/theme.dart';
+import 'glass_card.dart';
 
+/// Stat card — full-bleed gradient tile with a monospace-style count and
+/// a tinted icon. Use [isHero] for the 2 large cards on the dashboard;
+/// otherwise the card tightens up for narrow grids.
 class StatCard extends StatelessWidget {
-  final String label;
-  final String value;
-  final IconData icon;
-  final Color color;
-  final VoidCallback onTap;
-
   const StatCard({
     super.key,
     required this.label,
     required this.value,
     required this.icon,
-    required this.color,
+    required this.gradient,
     required this.onTap,
+    this.isHero = false,
   });
 
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-            child: Container(
-              padding: const EdgeInsets.all(AppTheme.space16),
-              decoration: BoxDecoration(
-                color: isDark ? AppTheme.surfaceDark : AppTheme.surfaceLight,
-                borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                boxShadow: AppTheme.softShadow,
-                border: Border.all(color: color.withValues(alpha: 0.1), width: 1),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(AppTheme.space8),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [color, color.withValues(alpha: 0.7)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(
-                        AppTheme.radiusMedium,
-                      ),
-                    ),
-                    child: Icon(icon, color: Colors.white, size: 20),
-                  ),
-                  const Spacer(),
-                  _AnimatedCounter(
-                    value: value,
-                    style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                      color: color,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  Text(
-                    label,
-                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.textSecondary,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        )
-        .animate()
-        .fadeIn(duration: 400.ms)
-        .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad);
-  }
-}
-
-class _AnimatedCounter extends StatelessWidget {
+  final String label;
   final String value;
-  final TextStyle style;
-
-  const _AnimatedCounter({required this.value, required this.style});
+  final IconData icon;
+  final Gradient gradient;
+  final VoidCallback onTap;
+  final bool isHero;
 
   @override
   Widget build(BuildContext context) {
     final numValue = int.tryParse(value) ?? 0;
+    final height = isHero ? 130.0 : 96.0;
 
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: numValue.toDouble()),
-      duration: 1000.ms,
-      curve: Curves.easeOutExpo,
-      builder: (context, val, child) {
-        return Text(val.toInt().toString(), style: style);
-      },
-    );
+    return SizedBox(
+      height: height,
+      child: GlassCard(
+        padding: const EdgeInsets.all(AppTheme.space16),
+        elevation: GlassCardElevation.soft,
+        glowColor: AppTheme.blueVivid,
+        onTap: onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  width: isHero ? 40 : 36,
+                  height: isHero ? 40 : 36,
+                  decoration: BoxDecoration(
+                    gradient: gradient,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSM),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.blueVivid.withValues(alpha: 0.30),
+                        blurRadius: 14,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: Icon(icon, color: Colors.white, size: isHero ? 20 : 18),
+                ),
+                AnimatedSwitcher(
+                  duration: Motion.durMed,
+                  transitionBuilder: (c, a) =>
+                      ScaleTransition(scale: a, child: c),
+                  child: Icon(
+                    Icons.arrow_upward_rounded,
+                    key: ValueKey(numValue),
+                    size: 14,
+                    color: AppTheme.success,
+                  ),
+                ),
+              ],
+            ),
+            const Spacer(),
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: numValue.toDouble()),
+              duration: const Duration(milliseconds: 900),
+              curve: Curves.easeOutExpo,
+              builder: (context, val, child) {
+                return Text(
+                  val.toInt().toString(),
+                  style: TextStyle(
+                    fontSize: isHero ? 34 : 28,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.textPrimary,
+                    letterSpacing: -0.6,
+                    height: 1.0,
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.4,
+                color: AppTheme.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    )
+        .animate()
+        .fadeIn(duration: 400.ms)
+        .slideY(begin: 0.1, end: 0, curve: Motion.enter);
   }
 }

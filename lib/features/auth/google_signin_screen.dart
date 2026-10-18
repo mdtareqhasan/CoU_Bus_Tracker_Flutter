@@ -11,6 +11,9 @@ import '../../l10n/l10n.dart';
 import 'auth_notification_permission.dart';
 import 'auth_provider.dart';
 import '../../shared/widgets/app_bar_language_switcher.dart';
+import '../../shared/widgets/glass_card.dart';
+import '../../shared/widgets/app_pill.dart';
+import '../../shared/widgets/primary_button.dart';
 
 /// Google Sign-In entry screen.
 ///
@@ -38,7 +41,6 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
         requestPostAuthNotificationPermissionAfterNavigation(context);
         context.go('/home');
       } else if (next.status == AuthStateStatus.needsProfileDetails) {
-        // Google Sign-In creates the row with department/roll/session NULL.
         context.go('/auth/academic-details?role=${next.role ?? widget.role}');
       } else if (next.status == AuthStateStatus.error && next.error != null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -59,18 +61,18 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
       child: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light,
         child: Scaffold(
-          backgroundColor: AppTheme.backgroundLight,
+          backgroundColor: AppTheme.bgLight,
           resizeToAvoidBottomInset: false,
           body: GestureDetector(
             onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
             child: Container(
               height: double.infinity,
               width: double.infinity,
-              color: AppTheme.backgroundLight,
+              color: AppTheme.bgLight,
               child: CustomScrollView(
                 physics: const BouncingScrollPhysics(),
                 slivers: [
-                  _buildSliverAppBar(context, roleTitle),
+                  _buildSliverAppBar(roleTitle),
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(
@@ -82,22 +84,21 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // BN/EN switcher, deliberately kept out of the app
-                          // bar: it sits with the content, top-right.
                           Align(
                             alignment: AlignmentDirectional.centerEnd,
                             child: AppBarLanguageSwitcher(),
                           ),
                           const SizedBox(height: AppTheme.space24),
                           Text(
-                                roleTitle,
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context).textTheme.headlineSmall
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: AppTheme.textPrimary,
-                                    ),
-                              )
+                            roleTitle,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: AppTheme.textPrimary,
+                              fontSize: 22,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -0.4,
+                            ),
+                          )
                               .animate()
                               .fadeIn(delay: 200.ms)
                               .slideY(begin: 0.2, end: 0),
@@ -107,18 +108,27 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               color: AppTheme.textSecondary,
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w500,
+                              height: 1.5,
                             ),
                           ).animate().fadeIn(delay: 300.ms),
-                          const SizedBox(height: AppTheme.space32),
+                          const SizedBox(height: AppTheme.space24),
                           _buildInfoCard()
                               .animate()
                               .fadeIn(delay: 400.ms)
                               .slideY(begin: 0.1, end: 0),
-                          const SizedBox(height: AppTheme.space32),
-                          _buildGoogleButton(authState)
-                              .animate()
-                              .fadeIn(delay: 500.ms)
-                              .scale(begin: const Offset(0.95, 0.95)),
+                          const SizedBox(height: AppTheme.space24),
+                          PrimaryButton(
+                            label: context.l10n.googleSignInButton,
+                            icon: Icons.login_rounded,
+                            isLoading: _isSigningIn ||
+                                authState.status == AuthStateStatus.loading,
+                            onPressed: _signInWithGoogle,
+                          ).animate().fadeIn(delay: 500.ms).slideY(
+                                begin: 0.15,
+                                end: 0,
+                              ),
                         ],
                       ),
                     ),
@@ -132,10 +142,10 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
     );
   }
 
-  Widget _buildSliverAppBar(BuildContext context, String title) {
+  Widget _buildSliverAppBar(String title) {
     return SliverAppBar(
       pinned: true,
-      backgroundColor: AppTheme.primaryBlue,
+      backgroundColor: AppTheme.blueVivid,
       leading: IconButton(
         icon: const Icon(
           Icons.arrow_back_ios_new_rounded,
@@ -148,38 +158,55 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
         title,
         style: const TextStyle(
           color: Colors.white,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w800,
           fontSize: 18,
+          letterSpacing: 0.2,
         ),
       ),
-      flexibleSpace: Container(
-        decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
+      flexibleSpace: Stack(
+        fit: StackFit.expand,
+        children: [
+          const DecoratedBox(
+            decoration: BoxDecoration(gradient: AppTheme.auroraHeaderGradient),
+          ),
+          Positioned(
+            top: -40,
+            right: -30,
+            child: IgnorePointer(
+              child: Container(
+                width: 200,
+                height: 200,
+                decoration: BoxDecoration(
+                  color: AppTheme.cyanBright.withValues(alpha: 0.30),
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+          ),
+          const DecoratedBox(
+            decoration: BoxDecoration(gradient: AppTheme.glassOverlay),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildInfoCard() {
-    return Container(
+    return GlassCard(
       padding: const EdgeInsets.all(AppTheme.space16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        border: Border.all(color: AppTheme.primaryBlue.withValues(alpha: 0.15)),
-        boxShadow: AppTheme.softShadow,
-      ),
+      elevation: GlassCardElevation.soft,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Gmail reminder first — it must precede the required-format
-          // section. Replaces the old, redundant institutional prompt.
           _buildGmailReminderCard(),
           const SizedBox(height: AppTheme.space16),
           Text(
             context.l10n.googleEmailFormatLabel,
             style: const TextStyle(
-              fontSize: 12.5,
-              color: AppTheme.textSecondary,
-              fontWeight: FontWeight.bold,
+              fontSize: 12,
+              color: AppTheme.textHint,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.5,
             ),
           ),
           const SizedBox(height: AppTheme.space8),
@@ -199,9 +226,10 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
             padding: const EdgeInsets.all(AppTheme.space12),
             decoration: BoxDecoration(
               color: AppTheme.warning.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMD),
               border: Border.all(
-                color: AppTheme.warning.withValues(alpha: 0.2),
+                color: AppTheme.warning.withValues(alpha: 0.30),
+                width: 1,
               ),
             ),
             child: Row(
@@ -216,10 +244,10 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
                 Expanded(
                   child: Text(
                     context.l10n.googleIctHelp,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 12,
                       height: 1.5,
-                      color: AppTheme.textSecondary.withValues(alpha: 0.95),
+                      color: AppTheme.textSecondary,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -232,16 +260,16 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
     );
   }
 
-  /// "Before you continue" reminder at the top of the info card: the user must
-  /// already be signed in to their university account in the Gmail app before
-  /// tapping Continue. Uses the app's active language via `context.l10n`.
   Widget _buildGmailReminderCard() {
     return Container(
       padding: const EdgeInsets.all(AppTheme.space12),
       decoration: BoxDecoration(
-        color: AppTheme.primaryBlue.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        border: Border.all(color: AppTheme.primaryBlue.withValues(alpha: 0.25)),
+        color: AppTheme.bluePrimary.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMD),
+        border: Border.all(
+          color: AppTheme.bluePrimary.withValues(alpha: 0.30),
+          width: 1,
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,7 +277,7 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
           const Icon(
             Icons.mark_email_read_outlined,
             size: 18,
-            color: AppTheme.primaryBlue,
+            color: AppTheme.bluePrimary,
           ),
           const SizedBox(width: AppTheme.space8),
           Expanded(
@@ -260,8 +288,8 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
                   context.l10n.googleGmailReminderTitle,
                   style: const TextStyle(
                     fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryBlue,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.bluePrimary,
                   ),
                 ),
                 const SizedBox(height: AppTheme.space4),
@@ -271,6 +299,7 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
                     fontSize: 12,
                     height: 1.5,
                     color: AppTheme.textSecondary,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -282,73 +311,11 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
   }
 
   Widget _buildFormatChip(String value) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppTheme.space12,
-        vertical: AppTheme.space8,
-      ),
-      decoration: BoxDecoration(
-        color: AppTheme.primaryBlue.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-        border: Border.all(color: AppTheme.primaryBlue.withValues(alpha: 0.15)),
-      ),
-      child: Text(
-        value,
-        style: const TextStyle(
-          fontSize: 12.5,
-          color: AppTheme.primaryBlue,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 0.2,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGoogleButton(AuthState authState) {
-    final isLoading =
-        _isSigningIn || authState.status == AuthStateStatus.loading;
-
-    return Container(
-      width: double.infinity,
-      height: 56,
-      decoration: BoxDecoration(
-        gradient: AppTheme.primaryGradient,
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: ElevatedButton(
-        onPressed: isLoading ? null : _signInWithGoogle,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-          ),
-        ),
-        child: isLoading
-            ? const SizedBox(
-                height: 24,
-                width: 24,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2,
-                ),
-              )
-            : Text(
-                context.l10n.googleSignInButton,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-      ),
+    return AppPill(
+      label: value,
+      icon: Icons.alternate_email_rounded,
+      color: AppTheme.bluePrimary,
+      dense: true,
     );
   }
 
@@ -358,8 +325,6 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
 
     try {
       final idToken = await GoogleSignInService.instance.signIn();
-
-      // null means the user dismissed the account picker — nothing to do.
       if (idToken == null || !mounted) return;
 
       await ref

@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../app/theme.dart';
@@ -72,15 +73,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   }
 
   Future<void> _handleAuthNavigation() async {
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(milliseconds: 2200));
     if (!mounted) return;
 
     var authState = ref.read(authProvider);
     if (authState.status == AuthStateStatus.initial) {
-      // Session restore is still in flight. Wait for it instead of walking
-      // into the app shell optimistically, otherwise a profile that is still
-      // missing department/roll/session (or department/employee
-      // ID/designation) would slip past the gate.
       final restored = await _waitForSessionRestore();
       if (!mounted || restored == null) return;
       authState = restored;
@@ -102,23 +99,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       final role = authState.role ?? 'student';
       context.go('/auth/academic-details?role=$role');
     } else {
-      // Everything else — including AuthStateStatus.needsVerification — lands
-      // back on the role picker. Sign-in is Google-only now, so a pending OTP
-      // session (a leftover from the removed phone/e-mail registration flows)
-      // has no screen to resume into; restart the flow instead of navigating
-      // to a route that no longer exists.
       context.go('/auth/role');
     }
   }
 
-  /// Waits (bounded) for `_checkExistingSession` to leave
-  /// `AuthStateStatus.initial`. Returns `null` on timeout or if this screen
-  /// was disposed while waiting.
   Future<AuthState?> _waitForSessionRestore({
     Duration timeout = const Duration(seconds: 20),
   }) async {
     if (!mounted) return null;
-
     final completer = Completer<AuthState?>();
     final subscription = ref.listenManual<AuthState>(
       authProvider,
@@ -128,7 +116,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       },
       fireImmediately: true,
     );
-
     try {
       return await completer.future.timeout(timeout);
     } on TimeoutException {
@@ -170,10 +157,155 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
-        backgroundColor: AppTheme.primaryBlue,
-        body: SizedBox.expand(
-          child: Image.asset('assets/images/splashpage.jpeg', fit: BoxFit.cover),
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: AppTheme.auroraHeaderGradient,
+          ),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Aurora glow blobs
+              Positioned(
+                top: -120,
+                right: -90,
+                child: _Glow(
+                  size: 320,
+                  color: AppTheme.cyanBright.withValues(alpha: 0.35),
+                ),
+              ),
+              Positioned(
+                bottom: -140,
+                left: -90,
+                child: _Glow(
+                  size: 360,
+                  color: AppTheme.indigoDeep.withValues(alpha: 0.55),
+                ),
+              ),
+              // Subtle sheen
+              const DecoratedBox(
+                decoration: BoxDecoration(gradient: AppTheme.glassOverlay),
+              ),
+              Center(child: _buildHero()),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildHero() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Soft rotating halo
+        Container(
+              width: 220,
+              height: 220,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    Colors.white.withValues(alpha: 0.20),
+                    Colors.white.withValues(alpha: 0.0),
+                  ],
+                ),
+              ),
+            )
+            .animate(onPlay: (c) => c.repeat(reverse: true))
+            .scale(
+              duration: 1800.ms,
+              begin: const Offset(0.92, 0.92),
+              end: const Offset(1.05, 1.05),
+              curve: Curves.easeInOut,
+            ),
+        // Logo
+        Container(
+              width: 140,
+              height: 140,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.30),
+                    blurRadius: 36,
+                    offset: const Offset(0, 16),
+                  ),
+                  BoxShadow(
+                    color: AppTheme.cyanBright.withValues(alpha: 0.45),
+                    blurRadius: 50,
+                    offset: const Offset(0, 0),
+                    spreadRadius: 1,
+                  ),
+                ],
+              ),
+              child: ClipOval(
+                child: Padding(
+                  padding: const EdgeInsets.all(18),
+                  child: Image.asset(
+                    'assets/images/buslogo.jpeg',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            )
+            .animate()
+            .scale(
+              duration: 700.ms,
+              curve: Curves.easeOutBack,
+              begin: const Offset(0.7, 0.7),
+              end: const Offset(1, 1),
+            )
+            .fadeIn(duration: 600.ms),
+        const SizedBox(height: AppTheme.space32),
+        Text(
+          'CoU Bus Tracker',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.4,
+          ),
+        )
+            .animate()
+            .fadeIn(delay: 300.ms, duration: 600.ms)
+            .slideY(begin: 0.2, end: 0, curve: Curves.easeOutCubic),
+        const SizedBox(height: AppTheme.space8),
+        Text(
+          'Real-time for Comilla University',
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.85),
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.2,
+          ),
+        ).animate().fadeIn(delay: 450.ms, duration: 600.ms),
+        const SizedBox(height: AppTheme.space48),
+        SizedBox(
+          width: 160,
+          child: LinearProgressIndicator(
+            backgroundColor: Colors.white.withValues(alpha: 0.18),
+            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.cyanBright),
+            borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+            minHeight: 3,
+          ),
+        ).animate().fadeIn(delay: 600.ms, duration: 400.ms),
+      ],
+    );
+  }
+}
+
+class _Glow extends StatelessWidget {
+  const _Glow({required this.size, required this.color});
+  final double size;
+  final Color color;
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
       ),
     );
   }

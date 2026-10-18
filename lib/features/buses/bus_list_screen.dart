@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../app/theme.dart';
@@ -10,6 +8,11 @@ import '../../l10n/l10n.dart';
 import 'buses_provider.dart';
 import '../auth/auth_provider.dart';
 import '../../shared/widgets/bus_card.dart';
+import '../../shared/widgets/empty_state.dart';
+import '../../shared/widgets/error_state.dart';
+import '../../shared/widgets/loading_shimmer.dart';
+import '../../shared/widgets/glass_card.dart';
+import '../../shared/widgets/app_pill.dart';
 
 class BusListScreen extends ConsumerStatefulWidget {
   const BusListScreen({super.key});
@@ -40,6 +43,7 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(busListProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
@@ -54,7 +58,7 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
             children: [
               _buildSearchBar(state),
               _buildCategoryChips(state),
-              Expanded(child: _buildBusList(state)),
+              Expanded(child: _buildBusList(state, isDark)),
             ],
           ),
         ),
@@ -71,56 +75,111 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
         bottom: AppTheme.space16,
       ),
       decoration: const BoxDecoration(
-        gradient: AppTheme.primaryGradient,
+        gradient: AppTheme.auroraHeaderGradient,
         borderRadius: BorderRadius.vertical(
-          bottom: Radius.circular(AppTheme.radiusExtraLarge),
+          bottom: Radius.circular(AppTheme.radius2XL),
         ),
       ),
-      child: Row(
+      child: Stack(
         children: [
-          IconButton(
-            onPressed: () => context.go('/home'),
-            icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                color: Colors.white, size: 20),
-          ),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: AppTheme.space16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: TextField(
-                controller: _searchController,
-                onChanged: (v) =>
-                    ref.read(busListProvider.notifier).setSearchQuery(v),
-                style: const TextStyle(color: AppTheme.textPrimary),
-                decoration: InputDecoration(
-                  hintText: context.l10n.busSearchHint,
-                  hintStyle: const TextStyle(color: AppTheme.textHint),
-                  border: InputBorder.none,
-                  icon: const Icon(
-                    Icons.search_rounded,
-                    color: AppTheme.primaryBlue,
-                  ),
+          Positioned(
+            top: -40,
+            right: -30,
+            child: IgnorePointer(
+              child: Container(
+                width: 180,
+                height: 180,
+                decoration: BoxDecoration(
+                  color: AppTheme.cyanBright.withValues(alpha: 0.30),
+                  shape: BoxShape.circle,
                 ),
               ),
             ),
           ),
+          const DecoratedBox(
+            decoration: BoxDecoration(gradient: AppTheme.glassOverlay),
+          ),
+          Row(
+            children: [
+              IconButton(
+                onPressed: () => context.go('/home'),
+                icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                    color: Colors.white, size: 20),
+              ),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppTheme.space16,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMD),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.10),
+                        blurRadius: 14,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.search_rounded,
+                        color: AppTheme.bluePrimary,
+                      ),
+                      const SizedBox(width: AppTheme.space8),
+                      Expanded(
+                        child: TextField(
+                          controller: _searchController,
+                          onChanged: (v) => ref
+                              .read(busListProvider.notifier)
+                              .setSearchQuery(v),
+                          style: const TextStyle(
+                            color: AppTheme.textPrimary,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: context.l10n.busSearchHint,
+                            hintStyle: const TextStyle(
+                              color: AppTheme.textHint,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: AppTheme.space12,
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (_searchController.text.isNotEmpty)
+                        GestureDetector(
+                          onTap: () {
+                            _searchController.clear();
+                            ref
+                                .read(busListProvider.notifier)
+                                .setSearchQuery('');
+                          },
+                          child: const Icon(
+                            Icons.close_rounded,
+                            color: AppTheme.textHint,
+                            size: 18,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
-    ).animate().fadeIn().slideY(begin: -0.2);
+    ).animate().fadeIn(duration: 350.ms).slideY(begin: -0.15, end: 0);
   }
 
   Widget _buildCategoryChips(BusListState state) {
-    final allCategories = {
+    final allCategories = <String?, String>{
       null: context.l10n.filterAll,
       'BLUE': context.l10n.busCategoryBlue,
       'RED': context.l10n.busCategoryRed,
@@ -139,76 +198,83 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
 
     return Container(
       height: 64,
-      padding: const EdgeInsets.symmetric(vertical: AppTheme.space8),
+      padding: const EdgeInsets.symmetric(vertical: AppTheme.space12),
       child: ListView(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: AppTheme.space24),
         physics: const BouncingScrollPhysics(),
         children: categories.entries.map((entry) {
           final isSelected = state.selectedCategory == entry.key;
+          final color = AppTheme.colorForCategory(entry.key);
           return Padding(
             padding: const EdgeInsets.only(right: AppTheme.space8),
-            child:
-                ChoiceChip(
-                      label: Text(entry.value),
-                      selected: isSelected,
-                      onSelected: (_) => ref
-                          .read(busListProvider.notifier)
-                          .setCategory(entry.key),
-                      selectedColor: AppTheme.primaryBlue,
-                      backgroundColor:
-                          Theme.of(context).brightness == Brightness.dark
-                          ? AppTheme.surfaceDark
-                          : Colors.white,
-                      labelStyle: TextStyle(
-                        color: isSelected
-                            ? Colors.white
-                            : AppTheme.textSecondary,
-                        fontWeight: isSelected
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                      ),
-                      showCheckmark: false,
-                      elevation: isSelected ? 4 : 0,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                    )
-                    .animate(target: isSelected ? 1 : 0)
-                    .scale(
-                      begin: const Offset(1, 1),
-                      end: const Offset(1.05, 1.05),
-                      duration: 200.ms,
-                    ),
+            child: AnimatedScale(
+              duration: Motion.durFast,
+              curve: Motion.press,
+              scale: isSelected ? 1.04 : 1.0,
+              child: AppPill(
+                label: entry.value,
+                color: color,
+                tonal: !isSelected,
+                outline: false,
+                selected: isSelected,
+                onTap: () => ref
+                    .read(busListProvider.notifier)
+                    .setCategory(entry.key),
+              ),
+            ),
           );
         }).toList(),
       ),
     );
   }
 
-  Widget _buildBusList(BusListState state) {
+  Widget _buildBusList(BusListState state, bool isDark) {
     if (state.isLoading) {
-      return _buildLoadingSkeleton();
+      return ListView.builder(
+        padding: const EdgeInsets.fromLTRB(
+          AppTheme.space24,
+          AppTheme.space8,
+          AppTheme.space24,
+          AppTheme.space24,
+        ),
+        itemCount: 6,
+        itemBuilder: (_, __) => const Padding(
+          padding: EdgeInsets.only(bottom: AppTheme.space12),
+          child: LoadingShimmer(height: 96),
+        ),
+      );
     }
 
     if (state.error != null && state.buses.isEmpty) {
-      return _buildErrorState(state.error!);
+      return ErrorState(
+        title: context.l10n.commonError,
+        body: state.error,
+        ctaLabel: context.l10n.commonRetry,
+        onCtaPressed: () =>
+            ref.read(busListProvider.notifier).loadBuses(),
+      );
     }
 
     final buses = state.filteredBuses;
 
     if (buses.isEmpty) {
-      return _buildEmptyState();
+      return EmptyState(
+        icon: Icons.directions_bus_outlined,
+        title: context.l10n.busListEmpty,
+      );
     }
 
     return RefreshIndicator(
+      color: AppTheme.bluePrimary,
       onRefresh: () => ref.read(busListProvider.notifier).loadBuses(),
       child: AnimationLimiter(
         child: ListView.builder(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppTheme.space24,
-            vertical: AppTheme.space8,
+          padding: const EdgeInsets.fromLTRB(
+            AppTheme.space24,
+            AppTheme.space8,
+            AppTheme.space24,
+            AppTheme.space40,
           ),
           physics: const BouncingScrollPhysics(),
           itemCount: buses.length,
@@ -223,94 +289,23 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
 
             return AnimationConfiguration.staggeredList(
               position: index,
-              duration: const Duration(milliseconds: 375),
+              duration: const Duration(milliseconds: 320),
               child: SlideAnimation(
-                verticalOffset: 50.0,
+                verticalOffset: 18,
                 child: FadeInAnimation(
-                  child: BusCard(
-                    bus: bus,
-                    route: route,
-                    onTap: () => context.push('/bus/${bus.id}'),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: AppTheme.space12),
+                    child: BusCard(
+                      bus: bus,
+                      route: route,
+                      onTap: () => context.push('/bus/${bus.id}'),
+                    ),
                   ),
                 ),
               ),
             );
           },
         ),
-      ),
-    );
-  }
-
-  Widget _buildLoadingSkeleton() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(AppTheme.space24),
-      itemCount: 6,
-      itemBuilder: (context, index) => Shimmer.fromColors(
-        baseColor: Colors.grey[300]!,
-        highlightColor: Colors.grey[100]!,
-        child: Container(
-          height: 100,
-          margin: const EdgeInsets.only(bottom: AppTheme.space12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildErrorState(String message) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppTheme.space32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.error_outline_rounded,
-              size: 64,
-              color: AppTheme.error,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: () => ref.read(busListProvider.notifier).loadBuses(),
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(context.l10n.commonRetry),
-              style: ElevatedButton.styleFrom(minimumSize: const Size(200, 50)),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.directions_bus_rounded,
-            size: 80,
-            color: AppTheme.textHint.withValues(alpha: 0.3),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            context.l10n.busListEmpty,
-            style: TextStyle(
-              fontSize: 16,
-              color: AppTheme.textSecondary,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
       ),
     );
   }

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../app/locale_provider.dart';
 import '../../app/theme.dart';
 import '../../l10n/l10n.dart';
+import '../../shared/widgets/glass_card.dart';
+import '../../shared/widgets/app_pill.dart';
 
 /// Language selection card shown on the Profile screen (both logged-in and
 /// logged-out).
@@ -23,102 +26,66 @@ class LanguageSettingsCard extends ConsumerWidget {
         AppTheme.space24,
         AppTheme.space32,
       ),
-      child: Container(
-        padding: const EdgeInsets.all(AppTheme.space12),
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-          boxShadow: AppTheme.softShadow,
-        ),
+      child: GlassCard(
+        padding: const EdgeInsets.all(AppTheme.space16),
+        elevation: GlassCardElevation.soft,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  width: 32,
+                  height: 32,
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryBlue.withValues(alpha: 0.05),
-                    shape: BoxShape.circle,
+                    color: AppTheme.bluePrimary.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSM),
                   ),
                   child: const Icon(
                     Icons.translate_rounded,
-                    size: 20,
-                    color: AppTheme.primaryBlue,
+                    size: 18,
+                    color: AppTheme.bluePrimary,
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: AppTheme.space12),
                 Text(
                   context.l10n.profileLanguage,
                   style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
                     color: AppTheme.textPrimary,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16,
+                    letterSpacing: -0.1,
                   ),
                 ),
               ],
             ),
-            const Divider(indent: 48, height: 1),
-            _LanguageOption(
-              icon: Icons.translate_rounded,
-              title: context.l10n.languageBengali,
-              selected: currentCode == 'bn',
-              onTap: () =>
-                  ref.read(localeProvider.notifier).setLanguageCode('bn'),
-            ),
-            const Divider(indent: 48, height: 1),
-            _LanguageOption(
-              icon: Icons.language_rounded,
-              title: context.l10n.languageEnglish,
-              selected: currentCode == 'en',
-              onTap: () =>
-                  ref.read(localeProvider.notifier).setLanguageCode('en'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _LanguageOption extends StatelessWidget {
-  const _LanguageOption({
-    required this.icon,
-    required this.title,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String title;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppTheme.space16),
-        child: Row(
-          children: [
-            Icon(icon, size: 20, color: AppTheme.primaryBlue),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                title,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleSmall?.copyWith(fontSize: 14),
-              ),
-            ),
-            Icon(
-              selected
-                  ? Icons.check_circle_rounded
-                  : Icons.radio_button_unchecked,
-              size: 20,
-              color: selected ? AppTheme.primaryBlue : AppTheme.textHint,
-            ),
+            const SizedBox(height: AppTheme.space12),
+            Wrap(
+              spacing: AppTheme.space8,
+              runSpacing: AppTheme.space8,
+              children: [
+                AppPill(
+                  label: context.l10n.languageBengali,
+                  icon: Icons.translate_rounded,
+                  color: AppTheme.bluePrimary,
+                  selected: currentCode == 'bn',
+                  dense: false,
+                  onTap: () => ref
+                      .read(localeProvider.notifier)
+                      .setLanguageCode('bn'),
+                ),
+                AppPill(
+                  label: context.l10n.languageEnglish,
+                  icon: Icons.language_rounded,
+                  color: AppTheme.cyanBright,
+                  selected: currentCode == 'en',
+                  dense: false,
+                  onTap: () => ref
+                      .read(localeProvider.notifier)
+                      .setLanguageCode('en'),
+                ),
+              ],
+            ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1, end: 0),
           ],
         ),
       ),

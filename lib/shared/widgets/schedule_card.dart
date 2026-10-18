@@ -1,217 +1,178 @@
 import 'package:flutter/material.dart';
 import '../../app/theme.dart';
 import '../models/schedule.dart';
+import 'glass_card.dart';
+import 'live_dot.dart';
+import 'app_pill.dart';
 
 class ScheduleCard extends StatelessWidget {
   final Schedule schedule;
   final VoidCallback onTap;
+  final bool compact;
 
-  const ScheduleCard({super.key, required this.schedule, required this.onTap});
+  const ScheduleCard({
+    super.key,
+    required this.schedule,
+    required this.onTap,
+    this.compact = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isUp = schedule.direction?.toUpperCase() == 'UP';
-    final directionColor = isUp ? AppTheme.success : AppTheme.warning;
+    final directionColor =
+        isUp ? AppTheme.success : AppTheme.warning;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppTheme.space12),
-      decoration: BoxDecoration(
-        color: isDark ? AppTheme.surfaceDark : AppTheme.surfaceLight,
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        boxShadow: AppTheme.softShadow,
+    return GlassCard(
+      padding: EdgeInsets.symmetric(
+        horizontal: AppTheme.space12,
+        vertical: compact ? AppTheme.space12 : AppTheme.space14,
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-          child: Padding(
-            padding: const EdgeInsets.all(AppTheme.space16),
+      elevation: GlassCardElevation.soft,
+      onTap: onTap,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Left timeline rail: filled dot → dashed line
+          SizedBox(
+            width: 16,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: AppTheme.bluePrimary,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: AppTheme.space8),
+          // Bus number block
+          Container(
+            width: compact ? 48 : 56,
+            height: compact ? 48 : 56,
+            decoration: BoxDecoration(
+              color: AppTheme.bluePrimary.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(AppTheme.radiusSM),
+            ),
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  schedule.busNumber ?? '—',
+                  style: const TextStyle(
+                    color: AppTheme.bluePrimary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.2,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (!compact && schedule.busName != null)
+                  Text(
+                    schedule.busName!,
+                    style: const TextStyle(
+                      color: AppTheme.textHint,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.4,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: AppTheme.space12),
+          // Route + meta
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryBlue.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(
-                          AppTheme.radiusSmall,
-                        ),
-                      ),
-                      child: Text(
-                        schedule.busNumber ?? 'N/A',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.primaryBlue,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    if (schedule.busName != null)
-                      Text(
-                        schedule.busName!,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: directionColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(
-                          AppTheme.radiusSmall,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            isUp
-                                ? Icons.arrow_upward_rounded
-                                : Icons.arrow_downward_rounded,
-                            size: 12,
-                            color: directionColor,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            schedule.directionLabel,
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: directionColor,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppTheme.space12),
                 Row(
                   children: [
                     const Icon(
                       Icons.route_rounded,
-                      size: 16,
+                      size: 13,
                       color: AppTheme.textHint,
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         schedule.routeDisplay,
-                        style: Theme.of(context).textTheme.bodyMedium,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.92)
+                              : AppTheme.textPrimary,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.1,
+                        ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: AppTheme.space12),
+                const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.calendar_today_rounded,
-                      size: 14,
-                      color: AppTheme.textHint,
+                      size: 11,
+                      color: AppTheme.textHint.withValues(alpha: 0.85),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 4),
                     Text(
                       schedule.days ?? 'All Days',
-                      style: Theme.of(context).textTheme.bodySmall,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppTheme.textHint,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.2,
+                      ),
                     ),
                     const Spacer(),
-                    Text(
-                      schedule.displayDeparture,
-                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                        color: AppTheme.primaryBlue,
-                      ),
+                    AppPill(
+                      label: schedule.directionLabel,
+                      icon: isUp
+                          ? Icons.arrow_upward_rounded
+                          : Icons.arrow_downward_rounded,
+                      color: directionColor,
+                      dense: true,
                     ),
                   ],
                 ),
               ],
             ),
           ),
-        ),
+          const SizedBox(width: AppTheme.space8),
+          // Time
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                schedule.displayDeparture,
+                style: TextStyle(
+                  fontSize: compact ? 16 : 17,
+                  fontWeight: FontWeight.w800,
+                  color: AppTheme.bluePrimary,
+                  letterSpacing: -0.2,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
-
-  Widget _buildRouteTimeline(BuildContext context) {
-    return Row(
-      children: [
-        _TimelinePoint(label: schedule.startPoint ?? 'Start', isActive: true),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: CustomPaint(
-              painter: _DashedLinePainter(
-                color: AppTheme.textHint.withValues(alpha: 0.3),
-              ),
-            ),
-          ),
-        ),
-        _TimelinePoint(label: schedule.endPoint ?? 'End', isActive: true),
-      ],
-    );
-  }
-}
-
-class _TimelinePoint extends StatelessWidget {
-  final String label;
-  final bool isActive;
-
-  const _TimelinePoint({required this.label, required this.isActive});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: 12,
-          height: 12,
-          decoration: BoxDecoration(
-            color: isActive ? AppTheme.primaryBlue : Colors.transparent,
-            shape: BoxShape.circle,
-            border: Border.all(color: AppTheme.primaryBlue, width: 2),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall!.copyWith(fontSize: 10),
-        ),
-      ],
-    );
-  }
-}
-
-class _DashedLinePainter extends CustomPainter {
-  final Color color;
-
-  _DashedLinePainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    var paint = Paint()
-      ..color = color
-      ..strokeWidth = 1;
-    var max = size.width;
-    var dashWidth = 5;
-    var dashSpace = 3;
-    double startX = 0;
-    while (startX < max) {
-      canvas.drawLine(Offset(startX, 0), Offset(startX + dashWidth, 0), paint);
-      startX += dashWidth + dashSpace;
-    }
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
