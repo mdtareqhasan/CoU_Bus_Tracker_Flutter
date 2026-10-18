@@ -89,8 +89,6 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
                             child: AppBarLanguageSwitcher(),
                           ),
                           const SizedBox(height: AppTheme.space24),
-                          _buildHeaderIllustration(),
-                          const SizedBox(height: AppTheme.space32),
                           Text(
                                 roleTitle,
                                 textAlign: TextAlign.center,
@@ -158,37 +156,6 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
         decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
       ),
     );
-  }
-
-  Widget _buildHeaderIllustration() {
-    return Container(
-      width: 100,
-      height: 100,
-      decoration: BoxDecoration(
-        color: AppTheme.primaryBlue.withValues(alpha: 0.1),
-        shape: BoxShape.circle,
-      ),
-      child: Center(
-        child: Container(
-          width: 64,
-          height: 64,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-          ),
-          child: const Center(
-            child: Text(
-              'G',
-              style: TextStyle(
-                fontSize: 34,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.primaryBlue,
-              ),
-            ),
-          ),
-        ),
-      ),
-    ).animate().scale(duration: 500.ms, curve: Curves.easeOutBack);
   }
 
   Widget _buildInfoCard() {
