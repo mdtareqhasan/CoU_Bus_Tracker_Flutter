@@ -67,7 +67,7 @@ void main() {
 
   testWidgets(
     'pre-login role screen defaults to Bangla on an English device, and its '
-    'switcher sits under the header and toggles/persists',
+    'switcher sits with the content (top-right) and toggles/persists',
     (tester) async {
       // Simulate an *English* device with no saved choice — the app must still
       // come up in Bangla (this is a Comilla University app), proving the
@@ -92,17 +92,17 @@ void main() {
       expect(find.text('বাং'), findsOneWidget);
       expect(find.text('EN'), findsOneWidget);
 
-      // Placement: it must sit BELOW the header title (this screen has no app
-      // bar — the title header plays that role) and toward the top-LEFT of the
-      // screen, not on the right where it used to float.
+      // Placement: it must sit WITH the content — BELOW the "Your role"
+      // ribbon title (this screen has no app bar; the title ribbon plays that
+      // role) and on the top-RIGHT of the screen.
       final titleTop =
           tester.getTopLeft(find.text('আপনার ভূমিকা')).dy;
       final switcherTopLeft = tester.getTopLeft(find.byType(AppBarLanguageSwitcher));
       final screenWidth = tester.getSize(find.byType(_RoleHarness)).width;
       expect(switcherTopLeft.dy, greaterThan(titleTop),
-          reason: 'switcher must be under the header, not beside/above it');
-      expect(switcherTopLeft.dx, lessThan(screenWidth / 2),
-          reason: 'switcher must be on the left side of the screen');
+          reason: 'switcher must be with the content, below the title ribbon');
+      expect(switcherTopLeft.dx, greaterThan(screenWidth / 2),
+          reason: 'switcher must be on the right side of the screen');
 
       // Tap EN → the whole screen re-renders in English without a restart.
       await tester.tap(find.text('EN'));

@@ -30,9 +30,6 @@ class RoleScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 12),
-                // This screen has no app bar — the title header plays that
-                // role — so the BN/EN switcher sits directly under it,
-                // top-left, matching the other pre-login screens.
                 Text(
                   context.l10n.roleSelectTitle,
                   textAlign: TextAlign.center,
@@ -41,11 +38,6 @@ class RoleScreen extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
                   ),
-                ),
-                const SizedBox(height: 12),
-                Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: AppBarLanguageSwitcher(),
                 ),
                 const SizedBox(height: 24),
                 Expanded(
@@ -62,6 +54,12 @@ class RoleScreen extends StatelessWidget {
                       padding: const EdgeInsets.all(AppTheme.space32),
                       child: Column(
                         children: [
+                          // BN/EN switcher lives with the screen content
+                          // (top-right), not on the "Your role" ribbon above.
+                          Align(
+                            alignment: AlignmentDirectional.centerEnd,
+                            child: AppBarLanguageSwitcher(),
+                          ),
                           const SizedBox(height: 16),
                           _buildIllustration(),
                           const SizedBox(height: AppTheme.space32),

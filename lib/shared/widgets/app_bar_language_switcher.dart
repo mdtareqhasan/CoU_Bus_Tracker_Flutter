@@ -4,14 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/locale_provider.dart';
 import '../../app/theme.dart';
 
-/// Compact বাং/EN language toggle for the top-left of a pre-login screen,
-/// placed just under the app bar (or under the title header on screens
-/// without one).
+/// Compact বাং/EN language toggle shown as the first element of a pre-login
+/// screen's content, in the top-right corner — deliberately kept out of the
+/// app bar and off the gradient header ribbon.
 ///
-/// Designed for the pre-login screens, whose bars sit on the blue
-/// [AppTheme.primaryGradient]: the inactive segment is plain white text and
-/// the active one is a filled white pill with blue text, so it stays legible
-/// on that background.
+/// Styled for the light content background ([AppTheme.backgroundLight]): the
+/// active segment is a filled blue pill with white text and the inactive one
+/// is plain gray text, so both options stay clearly legible. (It used to sit
+/// on the blue bar, where it needed white text for the inactive option — that
+/// would be near-invisible on the light content.)
 ///
 /// Tapping a segment calls [LocaleController.setLanguageCode], which re-renders
 /// the whole app immediately (no restart) and persists the choice — so a user
@@ -28,9 +29,9 @@ class AppBarLanguageSwitcher extends ConsumerWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.35)),
+        border: Border.all(color: AppTheme.textHint.withValues(alpha: 0.6)),
       ),
       padding: const EdgeInsets.all(3),
       child: Row(
@@ -81,7 +82,7 @@ class _Segment extends StatelessWidget {
           vertical: AppTheme.space4,
         ),
         decoration: BoxDecoration(
-          color: selected ? Colors.white : Colors.transparent,
+          color: selected ? AppTheme.primaryBlue : Colors.transparent,
           borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
         ),
         child: Text(
@@ -89,7 +90,7 @@ class _Segment extends StatelessWidget {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.bold,
-            color: selected ? AppTheme.primaryBlue : Colors.white,
+            color: selected ? Colors.white : AppTheme.textSecondary,
           ),
         ),
       ),

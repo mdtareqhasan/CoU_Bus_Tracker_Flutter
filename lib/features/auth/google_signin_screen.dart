@@ -83,9 +83,9 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           // BN/EN switcher, deliberately kept out of the app
-                          // bar: it sits just below it, top-left.
+                          // bar: it sits with the content, top-right.
                           Align(
-                            alignment: AlignmentDirectional.centerStart,
+                            alignment: AlignmentDirectional.centerEnd,
                             child: AppBarLanguageSwitcher(),
                           ),
                           const SizedBox(height: AppTheme.space24),
