@@ -27,28 +27,25 @@ class RoleScreen extends StatelessWidget {
           child: SafeArea(
             bottom: false,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 12),
-                // No app bar on this screen, so the BN/EN switcher floats over
-                // the gradient header (top-right) while the title stays
-                // centered — same placement as every other pre-login screen.
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Text(
-                      context.l10n.roleSelectTitle,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                    ),
-                    const PositionedDirectional(
-                      top: 0,
-                      end: 16,
-                      child: AppBarLanguageSwitcher(),
-                    ),
-                  ],
+                // This screen has no app bar — the title header plays that
+                // role — so the BN/EN switcher sits directly under it,
+                // top-left, matching the other pre-login screens.
+                Text(
+                  context.l10n.roleSelectTitle,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: AppBarLanguageSwitcher(),
                 ),
                 const SizedBox(height: 24),
                 Expanded(

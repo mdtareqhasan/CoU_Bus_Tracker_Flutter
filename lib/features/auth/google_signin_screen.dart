@@ -82,6 +82,12 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                          // BN/EN switcher, deliberately kept out of the app
+                          // bar: it sits just below it, top-left.
+                          Align(
+                            alignment: AlignmentDirectional.centerStart,
+                            child: AppBarLanguageSwitcher(),
+                          ),
                           const SizedBox(height: AppTheme.space24),
                           _buildHeaderIllustration(),
                           const SizedBox(height: AppTheme.space32),
@@ -148,7 +154,6 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
           fontSize: 18,
         ),
       ),
-      actions: const [AppBarLanguageSwitcher()],
       flexibleSpace: Container(
         decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
       ),

@@ -9,6 +9,7 @@ import 'package:cou_bus_tracker/features/auth/role_screen.dart';
 import 'package:cou_bus_tracker/features/profile/language_settings_card.dart';
 import 'package:cou_bus_tracker/features/providers.dart';
 import 'package:cou_bus_tracker/l10n/l10n.dart';
+import 'package:cou_bus_tracker/shared/widgets/app_bar_language_switcher.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -66,7 +67,7 @@ void main() {
 
   testWidgets(
     'pre-login role screen defaults to Bangla on an English device, and its '
-    'app-bar switcher toggles and persists',
+    'switcher sits under the header and toggles/persists',
     (tester) async {
       // Simulate an *English* device with no saved choice — the app must still
       // come up in Bangla (this is a Comilla University app), proving the
@@ -87,10 +88,21 @@ void main() {
       expect(find.text('আপনার ভূমিকা'), findsOneWidget);
       expect(find.text('Your role'), findsNothing);
 
-      // The compact app-bar switcher is present top-right on this pre-login
-      // screen, offering both languages.
+      // The compact switcher is present, offering both languages.
       expect(find.text('বাং'), findsOneWidget);
       expect(find.text('EN'), findsOneWidget);
+
+      // Placement: it must sit BELOW the header title (this screen has no app
+      // bar — the title header plays that role) and toward the top-LEFT of the
+      // screen, not on the right where it used to float.
+      final titleTop =
+          tester.getTopLeft(find.text('আপনার ভূমিকা')).dy;
+      final switcherTopLeft = tester.getTopLeft(find.byType(AppBarLanguageSwitcher));
+      final screenWidth = tester.getSize(find.byType(_RoleHarness)).width;
+      expect(switcherTopLeft.dy, greaterThan(titleTop),
+          reason: 'switcher must be under the header, not beside/above it');
+      expect(switcherTopLeft.dx, lessThan(screenWidth / 2),
+          reason: 'switcher must be on the left side of the screen');
 
       // Tap EN → the whole screen re-renders in English without a restart.
       await tester.tap(find.text('EN'));

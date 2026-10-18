@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/locale_provider.dart';
 import '../../app/theme.dart';
 
-/// Compact বাং/EN language toggle for the top-right of an app bar.
+/// Compact বাং/EN language toggle for the top-left of a pre-login screen,
+/// placed just under the app bar (or under the title header on screens
+/// without one).
 ///
 /// Designed for the pre-login screens, whose bars sit on the blue
 /// [AppTheme.primaryGradient]: the inactive segment is plain white text and
