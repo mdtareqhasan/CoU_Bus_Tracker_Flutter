@@ -386,5 +386,21 @@
   "session2022": "2022-2023",
   "session2023": "2023-2024",
   "session2024": "2024-2025",
-  "session2025": "2025-2026"
+  "session2025": "2025-2026",
+
+  "aboutUsTitle": "About Us",
+  "aboutScrollTooltip": "Scroll down to see more",
+  "aboutAppDescription": "An Android app to track Comilla University buses in real-time with bus schedules",
+  "aboutDeptName": "Computer Science and Engineering",
+  "aboutDeptNote": "The initiative to make this app has been taken from the CSE dept.",
+
+  "aboutRoleLeadDeveloper": "Lead Developer",
+  "aboutRoleMaintainer": "Current Maintainer & Core Contributor",
+  "aboutRoleConsultant": "Project Consultant",
+  "aboutRoleAdvisor": "Advisor",
+
+  "aboutInfoLeadDeveloper": "Dept. of CSE, Batch: 16, Comilla University",
+  "aboutInfoMaintainer": "Dept. of CSE, Batch: 17, Comilla University",
+  "aboutInfoConsultant": "Senior Platform Engineer at Makro Pro,Thailand\nCSE 10 Batch, Comilla University",
+  "aboutInfoAdvisor": "Lecturer, Dept. of CSE, Comilla University"
 }

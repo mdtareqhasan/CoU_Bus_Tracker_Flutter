@@ -2191,6 +2191,84 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'২০২৫-২০২৬'**
   String get session2025;
+
+  /// About Us screen title — also the entry in the home hamburger menu.
+  ///
+  /// In bn, this message translates to:
+  /// **'আমাদের সম্পর্কে'**
+  String get aboutUsTitle;
+
+  /// About Us — accessibility tooltip on the floating scroll-down button.
+  ///
+  /// In bn, this message translates to:
+  /// **'আরও দেখতে নিচে স্ক্রল করুন'**
+  String get aboutScrollTooltip;
+
+  /// About Us — one-line app description under the logo.
+  ///
+  /// In bn, this message translates to:
+  /// **'কমিলা বিশ্ববিদ্যালয়ের বাস রিয়েল-টাইমে ট্র্যাক করার অ্যাপ, সাথে বাস সময়সূচি'**
+  String get aboutAppDescription;
+
+  /// About Us — heading of the department credit card.
+  ///
+  /// In bn, this message translates to:
+  /// **'কম্পিউটার সায়েন্স অ্যান্ড ইঞ্জিনিয়ারিং'**
+  String get aboutDeptName;
+
+  /// About Us — note crediting the CSE department for the initiative.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই অ্যাপটি তৈরির উদ্যোগ নেওয়া হয়েছে সিএসই বিভাগ কর্তৃক।'**
+  String get aboutDeptNote;
+
+  /// About Us — role line of the lead developer card.
+  ///
+  /// In bn, this message translates to:
+  /// **'লিড ডেভেলপার'**
+  String get aboutRoleLeadDeveloper;
+
+  /// About Us — role line of the current maintainer card.
+  ///
+  /// In bn, this message translates to:
+  /// **'বর্তমান রক্ষণাবেক্ষক ও কোর কন্ট্রিবিউটর'**
+  String get aboutRoleMaintainer;
+
+  /// About Us — role line of the project consultant card.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রজেক্ট কনসালট্যান্ট'**
+  String get aboutRoleConsultant;
+
+  /// About Us — role line of the advisor card.
+  ///
+  /// In bn, this message translates to:
+  /// **'উপদেষ্টা'**
+  String get aboutRoleAdvisor;
+
+  /// About Us — affiliation line of the lead developer card (batch 16).
+  ///
+  /// In bn, this message translates to:
+  /// **'সিএসই বিভাগ, ব্যাচ: ১৬, কমিলা বিশ্ববিদ্যালয়'**
+  String get aboutInfoLeadDeveloper;
+
+  /// About Us — affiliation line of the current maintainer card (batch 17).
+  ///
+  /// In bn, this message translates to:
+  /// **'সিএসই বিভাগ, ব্যাচ: ১৭, কমিলা বিশ্ববিদ্যালয়'**
+  String get aboutInfoMaintainer;
+
+  /// About Us — two-line affiliation of the project consultant card.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাক্রো প্রো, থাইল্যান্ডে সিনিয়র প্ল্যাটফর্ম ইঞ্জিনিয়ার\nসিএসই ১০ ব্যাচ, কমিলা বিশ্ববিদ্যালয়'**
+  String get aboutInfoConsultant;
+
+  /// About Us — affiliation line of the advisor card.
+  ///
+  /// In bn, this message translates to:
+  /// **'কমিলা বিশ্ববিদ্যালয়, সিএসই বিভাগে লেকচারার'**
+  String get aboutInfoAdvisor;
 }
 
 class _AppLocalizationsDelegate

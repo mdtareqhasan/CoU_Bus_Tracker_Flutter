@@ -1146,4 +1146,48 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get session2025 => '2025-2026';
+
+  @override
+  String get aboutUsTitle => 'About Us';
+
+  @override
+  String get aboutScrollTooltip => 'Scroll down to see more';
+
+  @override
+  String get aboutAppDescription =>
+      'An Android app to track Comilla University buses in real-time with bus schedules';
+
+  @override
+  String get aboutDeptName => 'Computer Science and Engineering';
+
+  @override
+  String get aboutDeptNote =>
+      'The initiative to make this app has been taken from the CSE dept.';
+
+  @override
+  String get aboutRoleLeadDeveloper => 'Lead Developer';
+
+  @override
+  String get aboutRoleMaintainer => 'Current Maintainer & Core Contributor';
+
+  @override
+  String get aboutRoleConsultant => 'Project Consultant';
+
+  @override
+  String get aboutRoleAdvisor => 'Advisor';
+
+  @override
+  String get aboutInfoLeadDeveloper =>
+      'Dept. of CSE, Batch: 16, Comilla University';
+
+  @override
+  String get aboutInfoMaintainer =>
+      'Dept. of CSE, Batch: 17, Comilla University';
+
+  @override
+  String get aboutInfoConsultant =>
+      'Senior Platform Engineer at Makro Pro,Thailand\nCSE 10 Batch, Comilla University';
+
+  @override
+  String get aboutInfoAdvisor => 'Lecturer, Dept. of CSE, Comilla University';
 }

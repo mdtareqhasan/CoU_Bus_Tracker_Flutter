@@ -2,59 +2,147 @@ import 'package:flutter/material.dart';
 import '../../app/theme.dart';
 import '../../l10n/l10n.dart';
 
-class AboutScreen extends StatelessWidget {
+class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
+
+  @override
+  State<AboutScreen> createState() => _AboutScreenState();
+}
+
+class _AboutScreenState extends State<AboutScreen> {
+  final ScrollController _scrollController = ScrollController();
+  bool _showScrollButton = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_updateScrollButton);
+
+    // Check whether the page is scrollable after the first layout.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateScrollButton();
+    });
+  }
+
+  void _updateScrollButton() {
+    if (!_scrollController.hasClients) return;
+
+    final shouldShow = _scrollController.position.extentAfter > 40;
+
+    if (shouldShow != _showScrollButton && mounted) {
+      setState(() {
+        _showScrollButton = shouldShow;
+      });
+    }
+  }
+
+  void _scrollDown() {
+    if (!_scrollController.hasClients) return;
+
+    final position = _scrollController.position;
+    final target = (position.pixels + position.viewportDimension * 0.75)
+        .clamp(position.minScrollExtent, position.maxScrollExtent)
+        .toDouble();
+
+    _scrollController.animateTo(
+      target,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOutCubic,
+    );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_updateScrollButton);
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          _buildSliverAppBar(context),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(AppTheme.space24),
-              child: Column(
-                children: [
-                  _buildAppSection(context),
-                  const SizedBox(height: AppTheme.space32),
-                  _buildDeptSection(context),
-                  const SizedBox(height: AppTheme.space32),
-                  _buildDeveloperCard(
-                    context,
-                    name: 'Md. Tareq Hasan',
-                    role: 'Lead Developer',
-                    info: 'Dept. of CSE, Batch: 16, Comilla University',
-                    imagePath: 'assets/images/tareq.jpeg',
+      body: Stack(
+        children: [
+          CustomScrollView(
+            controller: _scrollController,
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              _buildSliverAppBar(context),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppTheme.space24),
+                  child: Column(
+                    children: [
+                      _buildAppSection(context),
+                      const SizedBox(height: AppTheme.space32),
+                      _buildDeptSection(context),
+                      const SizedBox(height: AppTheme.space32),
+                      _buildDeveloperCard(
+                        context,
+                        name: 'Md. Tareq Hasan',
+                        role: context.l10n.aboutRoleLeadDeveloper,
+                        info: context.l10n.aboutInfoLeadDeveloper,
+                        imagePath: 'assets/images/tareq.jpeg',
+                      ),
+                      const SizedBox(height: AppTheme.space24),
+                      _buildDeveloperCard(
+                        context,
+                        name: 'MD. Kawsar Amin',
+                        role: context.l10n.aboutRoleMaintainer,
+                        info: context.l10n.aboutInfoMaintainer,
+                        imagePath: '',
+                      ),
+
+                      const SizedBox(height: AppTheme.space24),
+                      _buildDeveloperCard(
+                        context,
+                        name: 'Raihan Khan',
+                        role: context.l10n.aboutRoleConsultant,
+                        info: context.l10n.aboutInfoConsultant,
+                        imagePath: 'assets/images/raihan.jpeg',
+                      ),
+                      const SizedBox(height: AppTheme.space24),
+                      _buildDeveloperCard(
+                        context,
+                        name: 'Md. Atikur Rahman',
+                        role: context.l10n.aboutRoleAdvisor,
+                        info: context.l10n.aboutInfoAdvisor,
+                        imagePath: 'assets/images/atik_sir.jpg',
+                      ),
+
+                      const SizedBox(height: AppTheme.space48),
+                    ],
                   ),
-                  const SizedBox(height: AppTheme.space24),
-                  _buildDeveloperCard(
-                    context,
-                    name: 'Raihan Khan',
-                    role: 'Project Consultant',
-                    info:
-                        'Senior Platform Engineer at Makro Pro,Thailand\nCSE 10 Batch, Comilla University',
-                    imagePath: 'assets/images/raihan.jpeg',
+                ),
+              ),
+            ],
+          ),
+
+          // Floating scroll button.
+          Positioned(
+            right: AppTheme.space16,
+            bottom: MediaQuery.of(context).padding.bottom + AppTheme.space24,
+            child: AnimatedSlide(
+              offset: _showScrollButton ? Offset.zero : const Offset(0, 0.5),
+              duration: const Duration(milliseconds: 200),
+              child: AnimatedOpacity(
+                opacity: _showScrollButton ? 1 : 0,
+                duration: const Duration(milliseconds: 200),
+                child: IgnorePointer(
+                  ignoring: !_showScrollButton,
+                  child: FloatingActionButton(
+                    heroTag: 'aboutScrollButton',
+                    onPressed: _scrollDown,
+                    backgroundColor: AppTheme.primaryBlue,
+                    foregroundColor: Colors.white,
+                    elevation: 4,
+                    tooltip: context.l10n.aboutScrollTooltip,
+                    child: const Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      size: 32,
+                    ),
                   ),
-                  const SizedBox(height: AppTheme.space24),
-                  _buildDeveloperCard(
-                    context,
-                    name: 'Md. Atikur Rahman',
-                    role: 'Advisor',
-                    info: 'Lecturer, Dept. of CSE, Comilla University',
-                    imagePath: 'assets/images/atik_sir.jpg',
-                  ),
-                  const SizedBox(height: AppTheme.space24),
-                  _buildDeveloperCard(
-                    context,
-                    name: 'MD. Kawsar Amin',
-                    role: 'Current Maintainer & Core Contributor',
-                    info: 'Dept. of CSE, Batch: 17, Comilla University',
-                    imagePath: '',
-                  ),
-                  const SizedBox(height: AppTheme.space48),
-                ],
+                ),
               ),
             ),
           ),
@@ -71,9 +159,9 @@ class AboutScreen extends StatelessWidget {
         icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
         onPressed: () => Navigator.of(context).pop(),
       ),
-      title: const Text(
-        'About Us',
-        style: TextStyle(
+      title: Text(
+        context.l10n.aboutUsTitle,
+        style: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
           fontSize: 18,
@@ -114,7 +202,7 @@ class AboutScreen extends StatelessWidget {
         ),
         const SizedBox(height: AppTheme.space8),
         Text(
-          'An Android app to track Comilla University buses in real-time with bus schedules',
+          context.l10n.aboutAppDescription,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyMedium,
         ),
@@ -143,13 +231,13 @@ class AboutScreen extends StatelessWidget {
           ),
           const SizedBox(height: AppTheme.space16),
           Text(
-            'Computer Science and Engineering',
+            context.l10n.aboutDeptName,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: AppTheme.space4),
           Text(
-            'The initiative to make this app has been taken from the CSE dept.',
+            context.l10n.aboutDeptNote,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall,
           ),

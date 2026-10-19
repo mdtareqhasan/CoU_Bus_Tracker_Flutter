@@ -1134,4 +1134,48 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get session2025 => '২০২৫-২০২৬';
+
+  @override
+  String get aboutUsTitle => 'আমাদের সম্পর্কে';
+
+  @override
+  String get aboutScrollTooltip => 'আরও দেখতে নিচে স্ক্রল করুন';
+
+  @override
+  String get aboutAppDescription =>
+      'কমিলা বিশ্ববিদ্যালয়ের বাস রিয়েল-টাইমে ট্র্যাক করার অ্যাপ, সাথে বাস সময়সূচি';
+
+  @override
+  String get aboutDeptName => 'কম্পিউটার সায়েন্স অ্যান্ড ইঞ্জিনিয়ারিং';
+
+  @override
+  String get aboutDeptNote =>
+      'এই অ্যাপটি তৈরির উদ্যোগ নেওয়া হয়েছে সিএসই বিভাগ কর্তৃক।';
+
+  @override
+  String get aboutRoleLeadDeveloper => 'লিড ডেভেলপার';
+
+  @override
+  String get aboutRoleMaintainer => 'বর্তমান রক্ষণাবেক্ষক ও কোর কন্ট্রিবিউটর';
+
+  @override
+  String get aboutRoleConsultant => 'প্রজেক্ট কনসালট্যান্ট';
+
+  @override
+  String get aboutRoleAdvisor => 'উপদেষ্টা';
+
+  @override
+  String get aboutInfoLeadDeveloper =>
+      'সিএসই বিভাগ, ব্যাচ: ১৬, কমিলা বিশ্ববিদ্যালয়';
+
+  @override
+  String get aboutInfoMaintainer =>
+      'সিএসই বিভাগ, ব্যাচ: ১৭, কমিলা বিশ্ববিদ্যালয়';
+
+  @override
+  String get aboutInfoConsultant =>
+      'মাক্রো প্রো, থাইল্যান্ডে সিনিয়র প্ল্যাটফর্ম ইঞ্জিনিয়ার\nসিএসই ১০ ব্যাচ, কমিলা বিশ্ববিদ্যালয়';
+
+  @override
+  String get aboutInfoAdvisor => 'কমিলা বিশ্ববিদ্যালয়, সিএসই বিভাগে লেকচারার';
 }

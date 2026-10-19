@@ -290,17 +290,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         }
       },
       itemBuilder: (context) => [
-        const PopupMenuItem(
+        PopupMenuItem(
           value: 'about',
           child: Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.info_outline_rounded,
                 size: 20,
                 color: AppTheme.primaryBlue,
               ),
-              SizedBox(width: 12),
-              Text('About Us', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(width: 12),
+              Text(
+                context.l10n.aboutUsTitle,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
             ],
           ),
         ),
