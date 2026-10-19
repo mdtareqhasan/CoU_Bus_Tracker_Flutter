@@ -14,14 +14,14 @@ class RoleScreen extends StatelessWidget {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
-        backgroundColor: AppTheme.backgroundLight,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               stops: [0.0, 0.3],
-              colors: [AppTheme.primaryBlue, AppTheme.backgroundLight],
+              colors: [AppTheme.primaryBlue, Theme.of(context).scaffoldBackgroundColor],
             ),
           ),
           child: SafeArea(
@@ -43,7 +43,7 @@ class RoleScreen extends StatelessWidget {
                 Expanded(
                   child: Container(
                     decoration: const BoxDecoration(
-                      color: AppTheme.backgroundLight,
+                      color: Theme.of(context).scaffoldBackgroundColor,
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(32),
                         topRight: Radius.circular(32),
@@ -75,8 +75,8 @@ class RoleScreen extends StatelessWidget {
                           Text(
                             context.l10n.roleLoginRegisterHint,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: AppTheme.textSecondary,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                           ).animate().fadeIn(delay: 300.ms),
                           const SizedBox(height: AppTheme.space48),
@@ -157,7 +157,7 @@ class RoleScreen extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
         boxShadow: AppTheme.softShadow,
       ),
@@ -188,7 +188,7 @@ class RoleScreen extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: AppTheme.textPrimary,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -196,7 +196,7 @@ class RoleScreen extends StatelessWidget {
                         subtitle,
                         style: const TextStyle(
                           fontSize: 13,
-                          color: AppTheme.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],

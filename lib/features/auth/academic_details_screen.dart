@@ -451,7 +451,7 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
       child: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light,
         child: Scaffold(
-          backgroundColor: AppTheme.backgroundLight,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           resizeToAvoidBottomInset: false,
           body: GestureDetector(
             onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -488,7 +488,7 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
                                 style: Theme.of(context).textTheme.headlineSmall
                                     ?.copyWith(
                                       fontWeight: FontWeight.bold,
-                                      color: AppTheme.textPrimary,
+                                      color: Theme.of(context).colorScheme.onSurface,
                                     ),
                               )
                               .animate()
@@ -498,8 +498,8 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
                           Text(
                             context.l10n.academicSubtitle,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: AppTheme.textSecondary,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                           ).animate().fadeIn(delay: 200.ms),
                           const SizedBox(height: AppTheme.space16),
@@ -648,6 +648,7 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
 
     return DropdownButtonFormField<int>(
       decoration: _inputDecoration(
+        context: context,
         labelText: label,
         icon: Icons.business_outlined,
       ),
@@ -688,9 +689,10 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
     }
     return TextFormField(
       controller: _rollNumberController,
-      style: _fieldStyle,
+      style: _fieldStyle(context),
       keyboardType: TextInputType.text,
       decoration: _inputDecoration(
+        context: context,
         labelText: context.l10n.fieldRollNumber,
         icon: Icons.badge_outlined,
         hintText: context.l10n.hintExampleRoll,
@@ -741,6 +743,7 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
 
     return DropdownButtonFormField<int>(
       decoration: _inputDecoration(
+        context: context,
         labelText: l10n.fieldSession,
         icon: Icons.class_outlined,
       ),
@@ -769,7 +772,11 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
   /// field with a spinner instead of a dropdown that would flash empty.
   Widget _pickerLoading({required String labelText, required IconData icon}) {
     return InputDecorator(
-      decoration: _inputDecoration(labelText: labelText, icon: icon),
+      decoration: _inputDecoration(
+        context: context,
+        labelText: labelText,
+        icon: icon,
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -825,7 +832,7 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
                   style: const TextStyle(
                     fontSize: 12.5,
                     height: 1.5,
-                    color: AppTheme.textPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -861,10 +868,11 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
     }
     return TextFormField(
       controller: _employeeIdController,
-      style: _fieldStyle,
+      style: _fieldStyle(context),
       keyboardType: TextInputType.text,
       textCapitalization: TextCapitalization.characters,
       decoration: _inputDecoration(
+        context: context,
         labelText: context.l10n.fieldEmployeeId,
         icon: Icons.badge_outlined,
         hintText: context.l10n.hintExampleEmployeeId,
@@ -885,9 +893,10 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
     }
     return TextFormField(
       controller: _designationController,
-      style: _fieldStyle,
+      style: _fieldStyle(context),
       keyboardType: TextInputType.text,
       decoration: _inputDecoration(
+        context: context,
         labelText: context.l10n.fieldDesignation,
         icon: Icons.work_outline_rounded,
         hintText: context.l10n.hintExampleDesignation,
@@ -920,8 +929,9 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
       controller: displayText == null ? controller : null,
       initialValue: displayText,
       enabled: false,
-      style: _fieldStyle,
+      style: _fieldStyle(context),
       decoration: _inputDecoration(
+        context: context,
         labelText: label,
         icon: icon,
         suffixIcon: const Icon(
@@ -958,7 +968,7 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
               style: const TextStyle(
                 fontSize: 12.5,
                 height: 1.5,
-                color: AppTheme.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -1074,12 +1084,13 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
     ).animate().scale(duration: 500.ms, curve: Curves.easeOutBack);
   }
 
-  static const _fieldStyle = TextStyle(
-    color: AppTheme.textPrimary,
-    fontWeight: FontWeight.w500,
-  );
+  TextStyle _fieldStyle(BuildContext context) => TextStyle(
+        color: Theme.of(context).colorScheme.onSurface,
+        fontWeight: FontWeight.w500,
+      );
 
   InputDecoration _inputDecoration({
+    required BuildContext context,
     required String labelText,
     required IconData icon,
     String? hintText,
@@ -1096,7 +1107,7 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
       prefixIcon: Icon(icon, color: AppTheme.primaryBlue, size: 20),
       suffixIcon: suffixIcon,
       filled: true,
-      fillColor: Colors.white,
+      fillColor: Theme.of(context).colorScheme.surface,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
         borderSide: BorderSide(

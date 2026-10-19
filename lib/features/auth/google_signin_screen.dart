@@ -59,14 +59,14 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
       child: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light,
         child: Scaffold(
-          backgroundColor: AppTheme.backgroundLight,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           resizeToAvoidBottomInset: false,
           body: GestureDetector(
             onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
             child: Container(
               height: double.infinity,
               width: double.infinity,
-              color: AppTheme.backgroundLight,
+              color: Theme.of(context).scaffoldBackgroundColor,
               child: CustomScrollView(
                 physics: const BouncingScrollPhysics(),
                 slivers: [
@@ -95,7 +95,7 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
                                 style: Theme.of(context).textTheme.headlineSmall
                                     ?.copyWith(
                                       fontWeight: FontWeight.bold,
-                                      color: AppTheme.textPrimary,
+                                      color: Theme.of(context).colorScheme.onSurface,
                                     ),
                               )
                               .animate()
@@ -105,8 +105,8 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
                           Text(
                             context.l10n.googleSignInSubtitle,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: AppTheme.textSecondary,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                           ).animate().fadeIn(delay: 300.ms),
                           const SizedBox(height: AppTheme.space32),
@@ -162,7 +162,7 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
     return Container(
       padding: const EdgeInsets.all(AppTheme.space16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
         border: Border.all(color: AppTheme.primaryBlue.withValues(alpha: 0.15)),
         boxShadow: AppTheme.softShadow,
@@ -178,7 +178,7 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
             context.l10n.googleEmailFormatLabel,
             style: const TextStyle(
               fontSize: 12.5,
-              color: AppTheme.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -219,7 +219,7 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
                     style: TextStyle(
                       fontSize: 12,
                       height: 1.5,
-                      color: AppTheme.textSecondary.withValues(alpha: 0.95),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.95),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -270,7 +270,7 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
                   style: const TextStyle(
                     fontSize: 12,
                     height: 1.5,
-                    color: AppTheme.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
