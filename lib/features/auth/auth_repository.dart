@@ -79,17 +79,21 @@ class AuthRepository {
   /// Writes the write-once academic details a profile is missing (Google
   /// Sign-In creates the row with all of them NULL).
   ///
-  /// * `student` → `department` / `rollNumber` / `session`
-  /// * `teacher` → `department` / `employeeId` / `designation`
+  /// * `student` → `departmentId` / `rollNumber` / `sessionId`
+  /// * `teacher` → `departmentId` / `employeeId` / `designation`
+  ///
+  /// The academic fields are row ids fetched from the public `/academic/**`
+  /// reference endpoints, not free-text names — the backend resolves them to
+  /// the `academic_units` / `academic_sessions` rows.
   ///
   /// Returns the refreshed profile (200 body) on success. On failure the
   /// `Failure` carries `statusCode` plus the raw error body in `error` so the
   /// completion screen can show field-level 400 messages (`errors`) inline.
   Future<Result<Map<String, dynamic>>> updateAcademicDetails({
     required String role,
-    required String department,
+    required int departmentId,
     String? rollNumber,
-    String? session,
+    int? sessionId,
     String? employeeId,
     String? designation,
   }) async {
@@ -99,13 +103,13 @@ class AuthRepository {
         : ApiEndpoints.studentAcademic;
 
     // Only field *names* are ever logged — never the values.
-    final fields = <String, dynamic>{'department': department};
+    final fields = <String, dynamic>{'departmentId': departmentId};
     if (isTeacher) {
       fields['employeeId'] = employeeId;
       fields['designation'] = designation;
     } else {
       fields['rollNumber'] = rollNumber;
-      fields['session'] = session;
+      fields['sessionId'] = sessionId;
     }
 
     debugPrint(
@@ -375,14 +379,17 @@ class AuthRepository {
   /// Step 1 of email OTP-first registration. Sends the full Student/Employee
   /// payload to /auth/email-verification/init as JSON. The backend creates the
   /// user only after the email OTP is verified.
+  ///
+  /// `departmentId` / `sessionId` are row ids from the public `/academic/**`
+  /// reference endpoints (the backend resolves them to their entities).
   Future<Result<String>> initEmailRegistration({
     required String role,
     required String name,
     required String email,
     required String password,
-    required String department,
+    required int departmentId,
     String? rollNumber,
-    String? session,
+    int? sessionId,
     String? employeeId,
     String? designation,
   }) async {
@@ -391,18 +398,18 @@ class AuthRepository {
       'name': name,
       'email': email,
       'password': password,
-      'department': department,
+      'departmentId': departmentId,
     };
 
     if (role.toUpperCase() == 'STUDENT') {
       if (rollNumber == null || rollNumber.isEmpty) {
         return Failure(message: 'Roll number is required');
       }
-      if (session == null || session.isEmpty) {
+      if (sessionId == null) {
         return Failure(message: 'Session is required');
       }
       fields['rollNumber'] = rollNumber;
-      fields['session'] = session;
+      fields['sessionId'] = sessionId;
     } else {
       if (employeeId == null || employeeId.isEmpty) {
         return Failure(message: 'Employee ID is required');

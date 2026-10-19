@@ -952,6 +952,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get academicHelperOnce => 'একবার দেওয়ার পর পরিবর্তন করা যাবে না';
 
   @override
+  String get academicOptionsLoading => 'তালিকা লোড হচ্ছে…';
+
+  @override
   String get academicSave => 'সংরক্ষণ করুন';
 
   @override

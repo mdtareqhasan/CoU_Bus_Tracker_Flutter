@@ -58,8 +58,19 @@ class ApiEndpoints {
   // row with these columns NULL, so the app sends them once afterwards.
   // Re-submitting an identical payload for an already-complete profile is a
   // safe no-op; changing a populated value is rejected with 400.
+  // The payload references the option *ids* fetched from /academic/** below.
   static const String studentAcademic = '/auth/student/academic';
   static const String teacherAcademic = '/auth/teacher/academic';
+
+  // Public academic reference data behind the registration pickers — the
+  // department/office/session lists that used to be hardcoded in this app now
+  // live in the database. Unauthenticated, and exempt from the backend's
+  // PROFILE_INCOMPLETE gate because the completion screen needs them before
+  // the profile exists.
+  static const String academicDepartments = '/academic/departments';
+  static const String academicOffices = '/academic/offices';
+  static const String academicUnits = '/academic/units';
+  static const String academicSessions = '/academic/sessions';
 
   static const String studentUploadIdCard = '/auth/student/upload-id-card';
   static const String teacherUploadIdCard = '/auth/teacher/upload-id-card';

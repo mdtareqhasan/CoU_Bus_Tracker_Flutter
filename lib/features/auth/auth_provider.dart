@@ -56,6 +56,10 @@ String? _profileText(Object? value) {
   return trimmed.isEmpty ? null : trimmed;
 }
 
+/// Reads an academic option id (`departmentId` / `sessionId`) from a backend
+/// response body, treating anything non-numeric as missing.
+int? _profileId(Object? value) => value is num ? value.toInt() : null;
+
 /// Uppercase role (STUDENT / TEACHER) pending OTP verification.
 class AuthState {
   final AuthStateStatus status;
@@ -72,9 +76,13 @@ class AuthState {
 
   // Write-once academic details from the last fetched/saved profile. They are
   // what the completion screen prefills (read-only) and what the gate checks.
+  // The ids are the FKs the screen submits (and the labels are the resolved
+  // names the gate and the profile display use).
   final String? department;
+  final int? departmentId;
   final String? rollNumber;
   final String? session;
+  final int? sessionId;
   final String? employeeId;
   final String? designation;
 
@@ -91,8 +99,10 @@ class AuthState {
     this.pendingRole,
     this.idCardImageUrl,
     this.department,
+    this.departmentId,
     this.rollNumber,
     this.session,
+    this.sessionId,
     this.employeeId,
     this.designation,
   });
@@ -110,8 +120,10 @@ class AuthState {
     String? pendingRole,
     String? idCardImageUrl,
     String? department,
+    int? departmentId,
     String? rollNumber,
     String? session,
+    int? sessionId,
     String? employeeId,
     String? designation,
   }) {
@@ -128,8 +140,10 @@ class AuthState {
       pendingRole: pendingRole ?? this.pendingRole,
       idCardImageUrl: idCardImageUrl ?? this.idCardImageUrl,
       department: department ?? this.department,
+      departmentId: departmentId ?? this.departmentId,
       rollNumber: rollNumber ?? this.rollNumber,
       session: session ?? this.session,
+      sessionId: sessionId ?? this.sessionId,
       employeeId: employeeId ?? this.employeeId,
       designation: designation ?? this.designation,
     );
@@ -225,8 +239,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
     // product gate checks.
     String? idCardImageUrl;
     String? department;
+    int? departmentId;
     String? rollNumber;
     String? session;
+    int? sessionId;
     String? employeeId;
     String? designation;
     var profileLoaded = false;
@@ -236,8 +252,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
         profileLoaded = true;
         idCardImageUrl = _profileText(profile['idCardImageUrl']);
         department = _profileText(profile['department']);
+        departmentId = _profileId(profile['departmentId']);
         rollNumber = _profileText(profile['rollNumber']);
         session = _profileText(profile['session']);
+        sessionId = _profileId(profile['sessionId']);
         employeeId =
             _profileText(profile['teacherId']) ??
             _profileText(profile['employeeId']);
@@ -274,8 +292,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
       isEduMail: _storage.isEduMail(),
       idCardImageUrl: idCardImageUrl,
       department: department,
+      departmentId: departmentId,
       rollNumber: rollNumber,
       session: session,
+      sessionId: sessionId,
       employeeId: employeeId,
       designation: designation,
     );
@@ -500,14 +520,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
   /// Email OTP-first registration: submits the form to /auth/email-verification/init.
   /// The backend sends the email OTP. After this returns, we put the user in
   /// `needsVerification` until they verify the email OTP.
+  ///
+  /// [departmentId] and [sessionId] are option row ids from the public
+  /// `/academic/**` reference endpoints.
   Future<void> initEmailRegistration({
     required String role,
     required String name,
     required String email,
     required String password,
-    required String department,
+    required int departmentId,
     String? rollNumber,
-    String? session,
+    int? sessionId,
     String? employeeId,
     String? designation,
   }) async {
@@ -519,9 +542,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
         name: name,
         email: email,
         password: password,
-        department: department,
+        departmentId: departmentId,
         rollNumber: rollNumber,
-        session: session,
+        sessionId: sessionId,
         employeeId: employeeId,
         designation: designation,
       );
@@ -771,8 +794,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final profileRole = data.role?.toLowerCase() ?? role;
     String? idCardImageUrl;
     String? department;
+    int? departmentId;
     String? rollNumber;
     String? session;
+    int? sessionId;
     String? employeeId;
     String? designation;
     var profileLoaded = false;
@@ -782,8 +807,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
         profileLoaded = true;
         idCardImageUrl = _profileText(profile['idCardImageUrl']);
         department = _profileText(profile['department']);
+        departmentId = _profileId(profile['departmentId']);
         rollNumber = _profileText(profile['rollNumber']);
         session = _profileText(profile['session']);
+        sessionId = _profileId(profile['sessionId']);
         employeeId =
             _profileText(profile['teacherId']) ??
             _profileText(profile['employeeId']);
@@ -823,8 +850,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
       pendingRole: null,
       idCardImageUrl: idCardImageUrl,
       department: department,
+      departmentId: departmentId,
       rollNumber: rollNumber,
       session: session,
+      sessionId: sessionId,
       employeeId: employeeId,
       designation: designation,
     );
@@ -845,10 +874,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
   /// Saves the write-once academic details. On success the refreshed profile
   /// is stored on the state and the status moves to `authenticated`, so the
   /// completion screen can go straight to `/home`.
+  ///
+  /// [departmentId] and [sessionId] are the option row ids the pickers
+  /// selected from the public `/academic/**` reference endpoints.
   Future<Result<Map<String, dynamic>>> updateAcademicDetails({
-    required String department,
+    required int departmentId,
     String? rollNumber,
-    String? session,
+    int? sessionId,
     String? employeeId,
     String? designation,
   }) async {
@@ -857,9 +889,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     final result = await _authRepo.updateAcademicDetails(
       role: role,
-      department: department,
+      departmentId: departmentId,
       rollNumber: rollNumber,
-      session: session,
+      sessionId: sessionId,
       employeeId: employeeId,
       designation: designation,
     );
@@ -867,9 +899,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
     if (result case Success(data: final profile)) {
       state = state.copyWith(
         status: AuthStateStatus.authenticated,
-        department: _profileText(profile['department']) ?? department,
+        department: _profileText(profile['department']) ?? state.department,
+        departmentId: _profileId(profile['departmentId']) ?? departmentId,
         rollNumber: _profileText(profile['rollNumber']) ?? rollNumber,
-        session: _profileText(profile['session']) ?? session,
+        session: _profileText(profile['session']) ?? state.session,
+        sessionId: _profileId(profile['sessionId']) ?? sessionId,
         employeeId:
             _profileText(profile['teacherId']) ??
             _profileText(profile['employeeId']) ??

@@ -1138,6 +1138,11 @@
   },
   "academicHelperOnce": "একবার দেওয়ার পর পরিবর্তন করা যাবে না",
 
+  "@academicOptionsLoading": {
+    "description": "Placeholder inside a registration picker while its option list is being fetched."
+  },
+  "academicOptionsLoading": "তালিকা লোড হচ্ছে…",
+
   "academicSave": "সংরক্ষণ করুন",
 
   "@academicLogoutTitle": {

@@ -1,10 +1,13 @@
 import '../../l10n/generated/app_localizations.dart';
 
-/// One academic session offered in the registration pickers.
+/// One session in the bundled label table.
 ///
-/// [value] is what gets submitted and stored — the English form
-/// (`2020-2021`), which is what the backend's session regex expects and what
-/// earlier app versions already sent. [label] renders it in the app's
+/// The registration pickers themselves are filled from the public
+/// `/api/academic/sessions` endpoint and submit row ids; this table only maps
+/// a *stored* value (the English form — `2020-2021`, what the backend expects
+/// and what earlier app versions sent) to its localized label. It is used to
+/// render already-saved profiles and the completion form's locked field while
+/// the fetched list is still in flight. [label] renders it in the app's
 /// language (Bengali uses Bengali digits: ২০২০-২০২১).
 class SessionOption {
   const SessionOption(this.value, this.label);
@@ -25,9 +28,6 @@ final List<SessionOption> sessionOptions = [
   SessionOption('2024-2025', (l10n) => l10n.session2024),
   SessionOption('2025-2026', (l10n) => l10n.session2025),
 ];
-
-/// Every canonical session value, for membership checks.
-final Set<String> sessionValues = {for (final o in sessionOptions) o.value};
 
 /// The localized label for a stored session value. An unknown value (e.g. one
 /// stored outside this list) is shown as-is.

@@ -7,6 +7,7 @@ import './buses/bus_repository.dart';
 import './schedules/schedule_repository.dart';
 import './notices/notice_repository.dart';
 import './auth/auth_repository.dart';
+import './auth/academic_reference_repository.dart';
 import './notifications/notification_repository.dart';
 
 final storageServiceProvider = Provider<StorageService>((ref) {
@@ -39,6 +40,11 @@ final noticeRepositoryProvider = Provider<NoticeRepository>((ref) {
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepository(ref.watch(apiClientProvider));
+});
+
+final academicReferenceRepositoryProvider =
+    Provider<AcademicReferenceRepository>((ref) {
+  return AcademicReferenceRepository(ref.watch(apiClientProvider));
 });
 
 final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {

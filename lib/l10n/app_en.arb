@@ -323,6 +323,7 @@
   "academicSubtitle": "Provide the details below to use your account.",
   "academicOnceOnlyNote": "This information cannot be changed once submitted. Enter it correctly.",
   "academicHelperOnce": "Cannot be changed once submitted",
+  "academicOptionsLoading": "Loading list…",
   "academicSave": "Save",
   "academicLogoutTitle": "Log out?",
   "academicLogoutBody": "You can''t use the account without this information. You can log in again later to complete it.",

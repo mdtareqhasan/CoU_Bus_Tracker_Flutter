@@ -963,6 +963,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get academicHelperOnce => 'Cannot be changed once submitted';
 
   @override
+  String get academicOptionsLoading => 'Loading list…';
+
+  @override
   String get academicSave => 'Save';
 
   @override

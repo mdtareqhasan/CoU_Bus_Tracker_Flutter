@@ -1,13 +1,14 @@
 import '../../l10n/generated/app_localizations.dart';
 
-/// One dropdown option in the registration academic-details pickers.
+/// One department/office in the bundled label table.
 ///
-/// [value] is the canonical string that gets submitted to the backend and
-/// stored (the Bengali department/office name, byte-identical to what earlier
-/// app versions sent — the backend stores it verbatim and treats it as
-/// write-once). [label] renders that option in the app's current language, so
-/// an English-locale user picks "Mathematics" while the database keeps
-/// 'গণিত' — existing rows and admin tooling never see a difference.
+/// The registration pickers are filled from the public `/api/academic/units`
+/// endpoint and submit row ids; this table only maps a *stored* value (the
+/// Bengali name, byte-identical to what earlier app versions sent) to a
+/// localized label — for already-saved profiles, and for the completion
+/// form's locked field while the fetched list is still in flight. An
+/// English-locale user sees "Mathematics" while the database keeps 'গণিত', so
+/// existing rows and admin tooling never see a difference.
 class AcademicOption {
   const AcademicOption(this.value, this.label);
 

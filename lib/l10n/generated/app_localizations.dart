@@ -1832,6 +1832,12 @@ abstract class AppLocalizations {
   /// **'একবার দেওয়ার পর পরিবর্তন করা যাবে না'**
   String get academicHelperOnce;
 
+  /// Placeholder inside a registration picker while its option list is being fetched.
+  ///
+  /// In bn, this message translates to:
+  /// **'তালিকা লোড হচ্ছে…'**
+  String get academicOptionsLoading;
+
   /// No description provided for @academicSave.
   ///
   /// In bn, this message translates to:
