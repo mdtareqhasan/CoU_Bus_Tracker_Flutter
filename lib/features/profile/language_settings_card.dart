@@ -59,7 +59,7 @@ class LanguageSettingsCard extends ConsumerWidget {
             ),
             const Divider(indent: 48, height: 1),
             _LanguageOption(
-              icon: Icons.translate_rounded,
+              badge: 'বাং',
               title: context.l10n.languageBengali,
               selected: currentCode == 'bn',
               onTap: () =>
@@ -67,7 +67,7 @@ class LanguageSettingsCard extends ConsumerWidget {
             ),
             const Divider(indent: 48, height: 1),
             _LanguageOption(
-              icon: Icons.language_rounded,
+              badge: 'EN',
               title: context.l10n.languageEnglish,
               selected: currentCode == 'en',
               onTap: () =>
@@ -82,13 +82,14 @@ class LanguageSettingsCard extends ConsumerWidget {
 
 class _LanguageOption extends StatelessWidget {
   const _LanguageOption({
-    required this.icon,
+    required this.badge,
     required this.title,
     required this.selected,
     required this.onTap,
   });
 
-  final IconData icon;
+  /// Short label rendered inside the circular chip — `বাং` or `EN`.
+  final String badge;
   final String title;
   final bool selected;
   final VoidCallback onTap;
@@ -102,7 +103,26 @@ class _LanguageOption extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: AppTheme.space16),
         child: Row(
           children: [
-            Icon(icon, size: 20, color: AppTheme.primaryBlue),
+            // 36x36 chip so these rows line up with the info rows above,
+            // which use a padded icon container of the same size.
+            Container(
+              width: 36,
+              height: 36,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: AppTheme.primaryBlue.withValues(alpha: 0.05),
+                shape: BoxShape.circle,
+              ),
+              child: Text(
+                badge,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: AppTheme.primaryBlue,
+                  height: 1,
+                ),
+              ),
+            ),
             const SizedBox(width: 16),
             Expanded(
               child: Text(
