@@ -2271,9 +2271,15 @@ abstract class AppLocalizations {
   String get aboutInfoAdvisor;
 
   /// Label for the profile dark mode setting.
+  ///
+  /// In bn, this message translates to:
+  /// **'ডার্ক মোড'**
   String get profileDarkMode;
 
   /// Description for the profile dark mode setting.
+  ///
+  /// In bn, this message translates to:
+  /// **'গাঢ় রঙের থিম ব্যবহার করুন'**
   String get profileDarkModeDescription;
 }
 
