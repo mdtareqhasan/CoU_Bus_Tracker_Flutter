@@ -32,7 +32,7 @@ class ProfileScreen extends ConsumerWidget {
         body: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
-            _buildSliverAppBar(),
+            _buildSliverAppBar(context),
             SliverToBoxAdapter(
               child: authState.isLoggedIn
                   ? _buildLoggedInProfile(context, authState)
@@ -57,7 +57,7 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSliverAppBar() {
+  Widget _buildSliverAppBar(BuildContext context) {
     return SliverAppBar(
       pinned: true,
       backgroundColor: AppTheme.blueVivid,

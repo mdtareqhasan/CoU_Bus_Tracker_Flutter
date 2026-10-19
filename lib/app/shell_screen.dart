@@ -4,7 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../l10n/l10n.dart';
 import 'theme.dart';
 import '../shared/widgets/animated_bottom_nav.dart';
-import '../shared/widgets/app_pill.dart';
+
+export '../shared/widgets/app_pill.dart' show AppPill;
 
 class ShellScreen extends StatefulWidget {
   final Widget child;
@@ -217,6 +218,3 @@ class _SheetButton extends StatelessWidget {
     );
   }
 }
-
-// Re-export AppPill so screens that import this file still get a clean API.
-export '../shared/widgets/app_pill.dart' show AppPill;

@@ -10,12 +10,12 @@ extension RespectMotion on Widget {
   /// Animate a widget only if motion is allowed. When reduced motion is on
   /// the widget is returned untouched.
   Widget animateIfAllowed({
-    bool reducedMotion(BuildContext context) => false,
+    bool Function(BuildContext context)? reducedMotion,
   }) {
     return Builder(
       builder: (context) {
         final disable = MediaQuery.of(context).disableAnimations;
-        if (disable) return this;
+        if (disable || (reducedMotion?.call(context) ?? false)) return this;
         return animate();
       },
     );

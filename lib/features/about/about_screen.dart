@@ -15,7 +15,7 @@ class AboutScreen extends StatelessWidget {
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          _buildSliverAppBar(),
+          _buildSliverAppBar(context),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(
@@ -26,7 +26,7 @@ class AboutScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  _buildAppSection(),
+                  _buildAppSection(context),
                   const SizedBox(height: AppTheme.space24),
                   _buildDeptSection(),
                   const SizedBox(height: AppTheme.space24),
@@ -73,7 +73,7 @@ class AboutScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSliverAppBar() {
+  Widget _buildSliverAppBar(BuildContext context) {
     return SliverAppBar(
       pinned: true,
       backgroundColor: AppTheme.blueVivid,
@@ -135,7 +135,7 @@ class AboutScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAppSection() {
+  Widget _buildAppSection(BuildContext context) {
     return Column(
       children: [
         SizedBox(
