@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'locale_provider.dart';
+import 'theme_mode_provider.dart';
 import 'router.dart';
 import 'theme.dart';
 import '../core/api_client.dart';
@@ -112,7 +113,7 @@ class _CoUBusTrackerAppState extends ConsumerState<CoUBusTrackerApp> {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.light,
+      themeMode: ref.watch(themeModeProvider),
       routerConfig: appRouter,
       scaffoldMessengerKey: rootScaffoldMessengerKey,
       // User-selected language; switching this at runtime re-renders the app

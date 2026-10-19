@@ -1178,4 +1178,10 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get aboutInfoAdvisor => 'কমিলা বিশ্ববিদ্যালয়, সিএসই বিভাগে লেকচারার';
+
+  @override
+  String get profileDarkMode => 'ডার্ক মোড';
+
+  @override
+  String get profileDarkModeDescription => 'গাঢ় রঙের থিম ব্যবহার করুন';
 }

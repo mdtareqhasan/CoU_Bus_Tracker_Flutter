@@ -1293,5 +1293,7 @@
   "@aboutInfoAdvisor": {
     "description": "About Us — affiliation line of the advisor card."
   },
-  "aboutInfoAdvisor": "কমিলা বিশ্ববিদ্যালয়, সিএসই বিভাগে লেকচারার"
+  "aboutInfoAdvisor": "কমিলা বিশ্ববিদ্যালয়, সিএসই বিভাগে লেকচারার",
+  "profileDarkMode": "ডার্ক মোড",
+  "profileDarkModeDescription": "গাঢ় রঙের থিম ব্যবহার করুন"
 }

@@ -402,5 +402,7 @@
   "aboutInfoLeadDeveloper": "Dept. of CSE, Batch: 16, Comilla University",
   "aboutInfoMaintainer": "Dept. of CSE, Batch: 17, Comilla University",
   "aboutInfoConsultant": "Senior Platform Engineer at Makro Pro,Thailand\nCSE 10 Batch, Comilla University",
-  "aboutInfoAdvisor": "Lecturer, Dept. of CSE, Comilla University"
+  "aboutInfoAdvisor": "Lecturer, Dept. of CSE, Comilla University",
+  "profileDarkMode": "Dark mode",
+  "profileDarkModeDescription": "Use a darker color scheme"
 }

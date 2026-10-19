@@ -1190,4 +1190,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutInfoAdvisor => 'Lecturer, Dept. of CSE, Comilla University';
+
+  @override
+  String get profileDarkMode => 'Dark mode';
+
+  @override
+  String get profileDarkModeDescription => 'Use a darker color scheme';
 }

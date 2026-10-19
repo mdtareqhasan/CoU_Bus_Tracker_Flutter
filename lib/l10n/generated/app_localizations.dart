@@ -2269,6 +2269,12 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'কমিলা বিশ্ববিদ্যালয়, সিএসই বিভাগে লেকচারার'**
   String get aboutInfoAdvisor;
+
+  /// Label for the profile dark mode setting.
+  String get profileDarkMode;
+
+  /// Description for the profile dark mode setting.
+  String get profileDarkModeDescription;
 }
 
 class _AppLocalizationsDelegate

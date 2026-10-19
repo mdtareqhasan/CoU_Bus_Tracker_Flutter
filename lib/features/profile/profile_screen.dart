@@ -9,6 +9,7 @@ import '../auth/auth_provider.dart';
 import '../auth/department_options.dart';
 import '../auth/session_options.dart';
 import 'language_settings_card.dart';
+import 'theme_settings_card.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -36,6 +37,7 @@ class ProfileScreen extends ConsumerWidget {
             // Shown logged-in and logged-out alike: language is an app
             // setting, not an account one.
             const SliverToBoxAdapter(child: LanguageSettingsCard()),
+            const SliverToBoxAdapter(child: ThemeSettingsCard()),
             if (authState.isLoggedIn)
               SliverToBoxAdapter(
                 child: Padding(
