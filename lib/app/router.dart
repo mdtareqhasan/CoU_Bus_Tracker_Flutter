@@ -16,8 +16,6 @@ import '../features/profile/profile_screen.dart';
 import '../features/about/about_screen.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
-final GlobalKey<NavigatorState> _shellNavigatorKey =
-    GlobalKey<NavigatorState>();
 
 /// Used by the app (and the session-expiry handler) to show SnackBars from
 /// anywhere, including non-widget Dio interceptor callbacks.
@@ -37,34 +35,60 @@ final appRouter = GoRouter(
   initialLocation: '/splash',
   routes: [
     GoRoute(path: '/splash', builder: (context, state) => const SplashScreen()),
-    ShellRoute(
-      navigatorKey: _shellNavigatorKey,
-      builder: (context, state, child) => ShellScreen(child: child),
-      routes: [
-        GoRoute(
-          path: '/home',
-          pageBuilder: (context, state) =>
-              const NoTransitionPage(child: HomeScreen()),
+    // One branch per tab: each keeps its own navigation stack and state, and
+    // `goBranch` (used by the tab bar, the pager and the back button) is what
+    // switches between them. The branch navigators are laid out by
+    // `buildShellNavigatorContainer` — a PageView, so the tabs can be swiped
+    // left/right as well as tapped.
+    StatefulShellRoute(
+      navigatorContainerBuilder: buildShellNavigatorContainer,
+      builder: (context, state, navigationShell) =>
+          ShellScreen(navigationShell: navigationShell),
+      branches: [
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/home',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: HomeScreen()),
+            ),
+          ],
         ),
-        GoRoute(
-          path: '/buses',
-          pageBuilder: (context, state) =>
-              const NoTransitionPage(child: BusListScreen()),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/buses',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: BusListScreen()),
+            ),
+          ],
         ),
-        GoRoute(
-          path: '/schedules',
-          pageBuilder: (context, state) =>
-              const NoTransitionPage(child: ScheduleScreen()),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/schedules',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: ScheduleScreen()),
+            ),
+          ],
         ),
-        GoRoute(
-          path: '/notices',
-          pageBuilder: (context, state) =>
-              const NoTransitionPage(child: NoticeScreen()),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/notices',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: NoticeScreen()),
+            ),
+          ],
         ),
-        GoRoute(
-          path: '/profile',
-          pageBuilder: (context, state) =>
-              const NoTransitionPage(child: ProfileScreen()),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/profile',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: ProfileScreen()),
+            ),
+          ],
         ),
       ],
     ),

@@ -192,7 +192,7 @@ lib/
 ├── main.dart                    # Entry point; initializes StorageService in ProviderScope
 ├── app/
 │   ├── app.dart                 # MaterialApp.router; session-expiry handling; in-app update check
-│   ├── shell_screen.dart        # Bottom navigation shell (4 tabs)
+│   ├── shell_screen.dart        # Bottom navigation shell (5 tabs; swipe or tap to switch)
 │   ├── router.dart              # GoRouter configuration with all routes
 │   └── theme.dart               # Full design system (colors, spacing, typography, dark theme)
 ├── core/
