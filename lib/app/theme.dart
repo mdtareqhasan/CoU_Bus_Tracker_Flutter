@@ -61,7 +61,10 @@ class AppTheme {
               Colors.white.withValues(alpha: 0.8),
               Colors.white.withValues(alpha: 0.4),
             ]
-          : [surfaceDark.withValues(alpha: 0.8), surfaceDark.withValues(alpha: 0.4)],
+          : [
+              surfaceDark.withValues(alpha: 0.8),
+              surfaceDark.withValues(alpha: 0.4),
+            ],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     );

@@ -44,8 +44,8 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 
 final academicReferenceRepositoryProvider =
     Provider<AcademicReferenceRepository>((ref) {
-  return AcademicReferenceRepository(ref.watch(apiClientProvider));
-});
+      return AcademicReferenceRepository(ref.watch(apiClientProvider));
+    });
 
 final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {
   return NotificationRepository(ref.watch(apiClientProvider));

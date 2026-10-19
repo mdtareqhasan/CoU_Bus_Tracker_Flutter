@@ -46,9 +46,7 @@ class MaintenanceScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    message.isNotEmpty
-                        ? message
-                        : context.l10n.maintenanceBody,
+                    message.isNotEmpty ? message : context.l10n.maintenanceBody,
                     style: const TextStyle(
                       fontSize: 16,
                       color: Colors.white70,

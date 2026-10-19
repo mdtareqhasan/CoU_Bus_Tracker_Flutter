@@ -128,8 +128,11 @@ void main() {
           l10n.errorAccountNotFound,
         ];
         expect(messages, isNot(contains(anyOf(isEmpty, isNull))));
-        expect(messages.toSet(), hasLength(messages.length),
-            reason: 'duplicate error copy in $locale');
+        expect(
+          messages.toSet(),
+          hasLength(messages.length),
+          reason: 'duplicate error copy in $locale',
+        );
       }
     });
 
@@ -143,12 +146,16 @@ void main() {
       expect(ErrorHandler.isOtpExpired(bnText), isTrue);
       expect(ErrorHandler.isOtpExpired(enText), isTrue);
 
-      final invalidOtp =
-          lookupAppLocalizations(const Locale('en')).errorInvalidOtp;
+      final invalidOtp = lookupAppLocalizations(
+        const Locale('en'),
+      ).errorInvalidOtp;
       expect(ErrorHandler.isOtpExpired(invalidOtp), isFalse);
-      expect(ErrorHandler.isVerifyPhoneFirst(
-        lookupAppLocalizations(const Locale('bn')).errorVerifyPhoneFirst,
-      ), isTrue);
+      expect(
+        ErrorHandler.isVerifyPhoneFirst(
+          lookupAppLocalizations(const Locale('bn')).errorVerifyPhoneFirst,
+        ),
+        isTrue,
+      );
     });
 
     test('friendly() maps backend English into the active locale', () {
@@ -235,28 +242,31 @@ void main() {
       expect(container.read(localeProvider), const Locale('bn'));
     });
 
-    test('defaults to bn on a Bengali device, persists a change, and drives L10n.current', () async {
-      final container = ProviderContainer(
-        overrides: [storageServiceProvider.overrideWithValue(storage)],
-      );
-      addTearDown(container.dispose);
+    test(
+      'defaults to bn on a Bengali device, persists a change, and drives L10n.current',
+      () async {
+        final container = ProviderContainer(
+          overrides: [storageServiceProvider.overrideWithValue(storage)],
+        );
+        addTearDown(container.dispose);
 
-      expect(storage.getLanguageCode(), 'bn');
-      expect(container.read(localeProvider), const Locale('bn'));
-      expect(L10n.current.sessionExpiredMessage, contains('সেশন'));
+        expect(storage.getLanguageCode(), 'bn');
+        expect(container.read(localeProvider), const Locale('bn'));
+        expect(L10n.current.sessionExpiredMessage, contains('সেশন'));
 
-      await container.read(localeProvider.notifier).setLanguageCode('en');
-      expect(container.read(localeProvider), const Locale('en'));
-      expect(storage.getLanguageCode(), 'en');
-      expect(
-        L10n.current.sessionExpiredMessage,
-        'Your session has expired. Please log in again.',
-      );
+        await container.read(localeProvider.notifier).setLanguageCode('en');
+        expect(container.read(localeProvider), const Locale('en'));
+        expect(storage.getLanguageCode(), 'en');
+        expect(
+          L10n.current.sessionExpiredMessage,
+          'Your session has expired. Please log in again.',
+        );
 
-      await container.read(localeProvider.notifier).setLanguageCode('bn');
-      expect(container.read(localeProvider), const Locale('bn'));
-      expect(L10n.current.sessionExpiredMessage, contains('সেশন'));
-    });
+        await container.read(localeProvider.notifier).setLanguageCode('bn');
+        expect(container.read(localeProvider), const Locale('bn'));
+        expect(L10n.current.sessionExpiredMessage, contains('সেশন'));
+      },
+    );
 
     testWidgets('changing language re-renders the app at runtime', (
       tester,

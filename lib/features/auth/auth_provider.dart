@@ -21,6 +21,7 @@ enum AuthStateStatus {
   error,
   needsRegistration,
   needsVerification,
+
   /// Signed in, but the write-once academic details required by product
   /// policy are still missing. The user must be sent to
   /// `/auth/academic-details` and may not enter the app shell.
@@ -155,13 +156,13 @@ class AuthState {
   /// `true` when every academic detail product policy requires is populated.
   /// Only meaningful once a profile has actually been fetched or saved.
   bool get isProfileComplete => isAcademicProfileComplete(
-        role: role,
-        department: department,
-        rollNumber: rollNumber,
-        session: session,
-        employeeId: employeeId,
-        designation: designation,
-      );
+    role: role,
+    department: department,
+    rollNumber: rollNumber,
+    session: session,
+    employeeId: employeeId,
+    designation: designation,
+  );
 }
 
 class AuthNotifier extends StateNotifier<AuthState> {
@@ -170,7 +171,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final FcmTokenService _fcmTokenService;
 
   AuthNotifier(this._authRepo, this._storage, this._fcmTokenService)
-      : super(const AuthState()) {
+    : super(const AuthState()) {
     _checkExistingSession();
   }
 
@@ -208,11 +209,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final role = _storage.getRole() ?? 'student';
     final result = await _authRepo.validateToken(role);
 
-    if (result case Failure(
-      :final statusCode,
-      :final message,
-      :final error,
-    )) {
+    if (result case Failure(:final statusCode, :final message, :final error)) {
       // PROFILE_INCOMPLETE is NOT a dead session — the user is still signed
       // in and only needs the completion form. `/me` is exempt server-side
       // so this should never fire, but never wipe the session over it.
@@ -434,10 +431,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         case Success(:final data):
           await _handleAuthSuccess(data, role.toLowerCase());
         case Failure(:final message):
-          state = state.copyWith(
-            status: AuthStateStatus.error,
-            error: message,
-          );
+          state = state.copyWith(status: AuthStateStatus.error, error: message);
         default:
           state = state.copyWith(
             status: AuthStateStatus.error,
@@ -478,8 +472,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
           if (data.accessToken == null || data.accessToken!.isEmpty) {
             state = state.copyWith(
               status: AuthStateStatus.error,
-              error:
-                  L10n.current.errorVerifyOtpNoToken,
+              error: L10n.current.errorVerifyOtpNoToken,
             );
             return;
           }
@@ -551,10 +544,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       switch (result) {
         case Success():
-          await _storage.setPendingVerificationEmail(
-            email,
-            _toEmailRole(role),
-          );
+          await _storage.setPendingVerificationEmail(email, _toEmailRole(role));
           state = state.copyWith(
             status: AuthStateStatus.needsVerification,
             role: role.toLowerCase(),
@@ -564,10 +554,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
             error: null,
           );
         case Failure(:final message):
-          state = state.copyWith(
-            status: AuthStateStatus.error,
-            error: message,
-          );
+          state = state.copyWith(status: AuthStateStatus.error, error: message);
         case Loading():
           break;
         case Empty():
@@ -605,8 +592,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
           if (data.accessToken == null || data.accessToken!.isEmpty) {
             state = state.copyWith(
               status: AuthStateStatus.error,
-              error:
-                  L10n.current.errorVerifyOtpNoToken,
+              error: L10n.current.errorVerifyOtpNoToken,
             );
             return;
           }
@@ -636,10 +622,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     required String email,
     required String role,
   }) async {
-    return _authRepo.resendEmailOtp(
-      email: email,
-      role: _toEmailRole(role),
-    );
+    return _authRepo.resendEmailOtp(email: email, role: _toEmailRole(role));
   }
 
   String _toEmailRole(String role) {
@@ -746,10 +729,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
             error: null,
           );
         case Failure(:final message):
-          state = state.copyWith(
-            status: AuthStateStatus.error,
-            error: message,
-          );
+          state = state.copyWith(status: AuthStateStatus.error, error: message);
         case Loading():
           // No-op; shouldn't reach here in practice but keeps the switch exhaustive.
           break;
@@ -768,6 +748,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       }
     }
   }
+
   Future<void> _handleAuthSuccess(AuthResponse data, String role) async {
     // Clear pending verification as we are now logged in
     await _storage.setPendingVerification(null, null);

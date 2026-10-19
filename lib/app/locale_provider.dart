@@ -19,7 +19,8 @@ class LocaleController extends Notifier<Locale> {
     // language — this is a Comilla University app, so the default experience
     // is Bangla even on an English/Hindi/French phone. An explicit choice
     // always wins: a user who tapped EN keeps English across restarts.
-    final code = ref.read(storageServiceProvider).getStoredLanguageCode() ?? 'bn';
+    final code =
+        ref.read(storageServiceProvider).getStoredLanguageCode() ?? 'bn';
     final locale = Locale(code);
     L10n.activate(locale);
     return locale;

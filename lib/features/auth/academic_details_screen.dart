@@ -237,15 +237,13 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
     AcademicOptions? options,
     int? id,
     String? text,
-  ) =>
-      _find(options?.units, id, text);
+  ) => _find(options?.units, id, text);
 
   static AcademicReferenceOption? _findSession(
     AcademicOptions? options,
     int? id,
     String? text,
-  ) =>
-      _find(options?.sessions, id, text);
+  ) => _find(options?.sessions, id, text);
 
   static AcademicReferenceOption? _find(
     List<AcademicReferenceOption>? options,
@@ -289,8 +287,8 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
   /// The already-localized failure message of [academicOptionsProvider].
   static String _optionsErrorMessage(Object error) =>
       error is AcademicOptionsException
-          ? error.message
-          : ErrorHandler.defaultError;
+      ? error.message
+      : ErrorHandler.defaultError;
 
   /// The failure [academicOptionsProvider] carries, if its list failed to
   /// load (null while it is loading or once it succeeded).
@@ -342,8 +340,9 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
       final fieldErrors = _extractFieldErrors(error);
       setState(() {
         _fieldErrors = fieldErrors;
-        _serverError =
-            fieldErrors.isNotEmpty ? null : _extractServerMessage(error, message);
+        _serverError = fieldErrors.isNotEmpty
+            ? null
+            : _extractServerMessage(error, message);
       });
       // Re-run validation so the field-level messages appear in place.
       _formKey.currentState?.validate();
@@ -538,27 +537,24 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
 
     if (isStudent) {
       return [
-        _buildDepartmentField(options)
-            .animate()
-            .fadeIn(delay: 400.ms)
-            .slideX(begin: 0.1, end: 0),
+        _buildDepartmentField(
+          options,
+        ).animate().fadeIn(delay: 400.ms).slideX(begin: 0.1, end: 0),
         const SizedBox(height: AppTheme.space12),
         _buildRollNumberField()
             .animate()
             .fadeIn(delay: 500.ms)
             .slideX(begin: 0.1, end: 0),
         const SizedBox(height: AppTheme.space12),
-        _buildSessionField(options)
-            .animate()
-            .fadeIn(delay: 600.ms)
-            .slideX(begin: 0.1, end: 0),
+        _buildSessionField(
+          options,
+        ).animate().fadeIn(delay: 600.ms).slideX(begin: 0.1, end: 0),
       ];
     }
     return [
-      _buildDepartmentField(options)
-          .animate()
-          .fadeIn(delay: 400.ms)
-          .slideX(begin: 0.1, end: 0),
+      _buildDepartmentField(
+        options,
+      ).animate().fadeIn(delay: 400.ms).slideX(begin: 0.1, end: 0),
       const SizedBox(height: AppTheme.space12),
       _buildEmployeeIdField()
           .animate()
@@ -634,14 +630,10 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
       // The list arrives a moment after the first frame; a refresh (retry)
       // shows the spinner again rather than the stale failure.
       skipLoadingOnRefresh: false,
-      loading: () => _pickerLoading(
-        labelText: label,
-        icon: Icons.business_outlined,
-      ),
-      error: (error, _) => _pickerError(
-        labelText: label,
-        message: _optionsErrorMessage(error),
-      ),
+      loading: () =>
+          _pickerLoading(labelText: label, icon: Icons.business_outlined),
+      error: (error, _) =>
+          _pickerError(labelText: label, message: _optionsErrorMessage(error)),
       data: (loaded) => _unitDropdown(loaded, label: label),
     );
   }
@@ -650,10 +642,15 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
   /// from the fetched rows with the row id as the selectable value.
   Widget _unitDropdown(AcademicOptions loaded, {required String label}) {
     final l10n = context.l10n;
-    final hint = isStudent ? l10n.selectDepartment : l10n.selectDepartmentOffice;
+    final hint = isStudent
+        ? l10n.selectDepartment
+        : l10n.selectDepartmentOffice;
 
     return DropdownButtonFormField<int>(
-      decoration: _inputDecoration(labelText: label, icon: Icons.business_outlined),
+      decoration: _inputDecoration(
+        labelText: label,
+        icon: Icons.business_outlined,
+      ),
       hint: Text(hint),
       initialValue: _selectedDepartmentId,
       items: [
@@ -919,9 +916,7 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
       // a changed label rebuild it: the fetched option arriving after the
       // first frame, a locale switch, or an admin renaming the row. Without
       // it the field would keep the first (possibly fallback) text forever.
-      key: displayText != null
-          ? ValueKey('locked-$label-$displayText')
-          : null,
+      key: displayText != null ? ValueKey('locked-$label-$displayText') : null,
       controller: displayText == null ? controller : null,
       initialValue: displayText,
       enabled: false,
@@ -1120,9 +1115,7 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
       ),
       disabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        borderSide: BorderSide(
-          color: AppTheme.textHint.withValues(alpha: 0.3),
-        ),
+        borderSide: BorderSide(color: AppTheme.textHint.withValues(alpha: 0.3)),
       ),
     );
   }

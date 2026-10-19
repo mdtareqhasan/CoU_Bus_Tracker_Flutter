@@ -150,8 +150,7 @@ class StorageService {
 
   /// The persisted language choice, or `null` when the user has never picked
   /// one — i.e. first launch, when the device language decides.
-  String? getStoredLanguageCode() =>
-      _prefs.getString(StorageKeys.languageCode);
+  String? getStoredLanguageCode() => _prefs.getString(StorageKeys.languageCode);
 
   String getLanguageCode() =>
       _prefs.getString(StorageKeys.languageCode) ?? 'bn';
@@ -210,7 +209,8 @@ class StorageService {
     final existing = _prefs.getString(_fcmDeviceIdKey);
     if (existing != null && existing.isNotEmpty) return existing;
 
-    final newId = 'dev-${DateTime.now().microsecondsSinceEpoch}-'
+    final newId =
+        'dev-${DateTime.now().microsecondsSinceEpoch}-'
         '${_randomHex(8)}';
     await _prefs.setString(_fcmDeviceIdKey, newId);
     return newId;
@@ -219,7 +219,10 @@ class StorageService {
   static String _randomHex(int length) {
     final rng = _secureRandom();
     const chars = '0123456789abcdef';
-    return List.generate(length, (_) => chars[rng.nextInt(chars.length)]).join();
+    return List.generate(
+      length,
+      (_) => chars[rng.nextInt(chars.length)],
+    ).join();
   }
 
   static math.Random? _rng;
@@ -251,14 +254,25 @@ class StorageService {
   Future<void> saveRegistrationDraft(Map<String, String> draft) async {
     // store as simple string map; image File path is saved separately
     for (final e in draft.entries) {
-      await _prefs.setString('${StorageKeys.registrationDraft}_${e.key}', e.value);
+      await _prefs.setString(
+        '${StorageKeys.registrationDraft}_${e.key}',
+        e.value,
+      );
     }
   }
 
   Map<String, String> getRegistrationDraft() {
     const keys = [
-      'name', 'phone', 'studentId', 'teacherId',
-      'department', 'batch', 'designation', 'password', 'confirmPassword', 'role',
+      'name',
+      'phone',
+      'studentId',
+      'teacherId',
+      'department',
+      'batch',
+      'designation',
+      'password',
+      'confirmPassword',
+      'role',
     ];
     final out = <String, String>{};
     for (final k in keys) {
@@ -270,8 +284,17 @@ class StorageService {
 
   Future<void> clearRegistrationDraft() async {
     const keys = [
-      'name', 'phone', 'studentId', 'teacherId',
-      'department', 'batch', 'designation', 'password', 'confirmPassword', 'role', 'imagePath',
+      'name',
+      'phone',
+      'studentId',
+      'teacherId',
+      'department',
+      'batch',
+      'designation',
+      'password',
+      'confirmPassword',
+      'role',
+      'imagePath',
     ];
     for (final k in keys) {
       await _prefs.remove('${StorageKeys.registrationDraft}_$k');

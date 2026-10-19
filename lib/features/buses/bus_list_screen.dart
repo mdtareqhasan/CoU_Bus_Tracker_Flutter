@@ -80,8 +80,11 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
         children: [
           IconButton(
             onPressed: () => context.go('/home'),
-            icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                color: Colors.white, size: 20),
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
           ),
           Expanded(
             child: Container(

@@ -342,8 +342,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           Expanded(
             child: Text(
               state.hasData
-                  ? context.l10n
-                      .homeActiveBusCount(state.activeBusCount)
+                  ? context.l10n.homeActiveBusCount(state.activeBusCount)
                   : context.l10n.homeBrandTagline,
               style: const TextStyle(
                 color: Colors.white,

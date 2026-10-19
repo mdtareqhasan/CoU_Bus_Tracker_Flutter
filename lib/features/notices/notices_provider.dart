@@ -33,7 +33,8 @@ class NoticeListNotifier extends StateNotifier<NoticeListState> {
   final NoticeRepository _repo;
   final StorageService _storage;
 
-  NoticeListNotifier(this._repo, this._storage) : super(const NoticeListState());
+  NoticeListNotifier(this._repo, this._storage)
+    : super(const NoticeListState());
 
   Future<void> loadNotices() async {
     state = state.copyWith(isLoading: true, error: null);

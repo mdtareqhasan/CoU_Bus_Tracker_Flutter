@@ -62,7 +62,11 @@ class _NoticeScreenState extends ConsumerState<NoticeScreen> {
       expandedHeight: 120,
       backgroundColor: AppTheme.primaryBlue,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
+        icon: const Icon(
+          Icons.arrow_back_ios_new_rounded,
+          color: Colors.white,
+          size: 20,
+        ),
         onPressed: () => context.go('/home'),
       ),
       flexibleSpace: FlexibleSpaceBar(
@@ -102,7 +106,8 @@ class _NoticeScreenState extends ConsumerState<NoticeScreen> {
         physics: const NeverScrollableScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         itemCount: state.notices.length,
-        itemBuilder: (context, index) => _buildNoticeCard(state.notices[index], index, isDark),
+        itemBuilder: (context, index) =>
+            _buildNoticeCard(state.notices[index], index, isDark),
       ),
     );
   }
@@ -149,18 +154,22 @@ class _NoticeScreenState extends ConsumerState<NoticeScreen> {
                         children: [
                           Text(
                             notice.title ?? '',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              height: 1.2,
-                            ),
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  height: 1.2,
+                                ),
                           ),
                           const SizedBox(height: 8),
                           Text(
                             notice.body ?? '',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: isDark ? Colors.white70 : AppTheme.textSecondary,
-                              height: 1.5,
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: isDark
+                                      ? Colors.white70
+                                      : AppTheme.textSecondary,
+                                  height: 1.5,
+                                ),
                           ),
                         ],
                       ),
@@ -188,17 +197,28 @@ class _NoticeScreenState extends ConsumerState<NoticeScreen> {
                     const Spacer(),
                     if (notice.expiresAt != null)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
-                          color: (notice.isExpired ? AppTheme.error : AppTheme.success).withValues(alpha: 0.1),
+                          color:
+                              (notice.isExpired
+                                      ? AppTheme.error
+                                      : AppTheme.success)
+                                  .withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Row(
                           children: [
                             Icon(
-                              notice.isExpired ? Icons.timer_off_rounded : Icons.timer_rounded,
+                              notice.isExpired
+                                  ? Icons.timer_off_rounded
+                                  : Icons.timer_rounded,
                               size: 14,
-                              color: notice.isExpired ? AppTheme.error : AppTheme.success,
+                              color: notice.isExpired
+                                  ? AppTheme.error
+                                  : AppTheme.success,
                             ),
                             const SizedBox(width: 4),
                             Text(
@@ -207,7 +227,9 @@ class _NoticeScreenState extends ConsumerState<NoticeScreen> {
                                   : context.l10n.noticeActive,
                               style: TextStyle(
                                 fontSize: 11,
-                                color: notice.isExpired ? AppTheme.error : AppTheme.success,
+                                color: notice.isExpired
+                                    ? AppTheme.error
+                                    : AppTheme.success,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -252,7 +274,11 @@ class _NoticeScreenState extends ConsumerState<NoticeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline_rounded, size: 80, color: AppTheme.error),
+            const Icon(
+              Icons.error_outline_rounded,
+              size: 80,
+              color: AppTheme.error,
+            ),
             const SizedBox(height: 24),
             Text(
               message,

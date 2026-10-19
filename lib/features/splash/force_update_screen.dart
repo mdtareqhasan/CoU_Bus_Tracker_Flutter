@@ -70,9 +70,7 @@ class ForceUpdateScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    message.isNotEmpty
-                        ? message
-                        : context.l10n.newVersionBody,
+                    message.isNotEmpty ? message : context.l10n.newVersionBody,
                     style: const TextStyle(
                       fontSize: 16,
                       color: Colors.white70,

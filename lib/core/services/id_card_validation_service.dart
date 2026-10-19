@@ -28,9 +28,14 @@ class IdCardValidationResult {
 }
 
 class IdCardValidationService {
-  static final _textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
+  static final _textRecognizer = TextRecognizer(
+    script: TextRecognitionScript.latin,
+  );
 
-  static Future<IdCardValidationResult> validateIdCard(File imageFile, {String role = 'student'}) async {
+  static Future<IdCardValidationResult> validateIdCard(
+    File imageFile, {
+    String role = 'student',
+  }) async {
     try {
       final inputImage = InputImage.fromFile(imageFile);
       final recognizedText = await _textRecognizer.processImage(inputImage);
@@ -51,7 +56,8 @@ class IdCardValidationService {
 
       final lowerText = text.toLowerCase();
 
-      final hasUniversity = lowerText.contains('comilla university') ||
+      final hasUniversity =
+          lowerText.contains('comilla university') ||
           lowerText.contains('cumilla university') ||
           lowerText.contains('comilla uni');
 
@@ -67,21 +73,25 @@ class IdCardValidationService {
       }
 
       if (role == 'teacher') {
-        final hasEmployeeId = lowerText.contains('employee id') ||
+        final hasEmployeeId =
+            lowerText.contains('employee id') ||
             lowerText.contains('employee no') ||
             RegExp(r'employee\s*id\s*:\s*\d+').hasMatch(lowerText) ||
             RegExp(r'employee\s*i\.d\.?\s*:?\s*\d+').hasMatch(lowerText);
 
-        final hasDesignation = lowerText.contains('designation') ||
+        final hasDesignation =
+            lowerText.contains('designation') ||
             lowerText.contains('lecturer') ||
             lowerText.contains('professor') ||
             lowerText.contains('associate professor') ||
             lowerText.contains('assistant professor');
 
-        final hasStudentOnlyMarkers = lowerText.contains('roll no') ||
-            lowerText.contains('roll no.');
+        final hasStudentOnlyMarkers =
+            lowerText.contains('roll no') || lowerText.contains('roll no.');
 
-        debugPrint('Teacher: hasEmployeeId=$hasEmployeeId, hasDesignation=$hasDesignation, hasStudentOnly=$hasStudentOnlyMarkers');
+        debugPrint(
+          'Teacher: hasEmployeeId=$hasEmployeeId, hasDesignation=$hasDesignation, hasStudentOnly=$hasStudentOnlyMarkers',
+        );
 
         if (hasStudentOnlyMarkers) {
           debugPrint('FAIL: Student card for teacher');
@@ -113,12 +123,18 @@ class IdCardValidationService {
       }
 
       // STUDENT - ONLY ID card accepted
-      final hasRollNo = lowerText.contains('roll no') || lowerText.contains('roll no.');
-      final hasBloodGroup = lowerText.contains('blood gr') || lowerText.contains('blood group');
-      final hasIdNo = lowerText.contains('id no') || lowerText.contains('id no.');
-      final hasHonors = lowerText.contains("hon's") || lowerText.contains('hons');
+      final hasRollNo =
+          lowerText.contains('roll no') || lowerText.contains('roll no.');
+      final hasBloodGroup =
+          lowerText.contains('blood gr') || lowerText.contains('blood group');
+      final hasIdNo =
+          lowerText.contains('id no') || lowerText.contains('id no.');
+      final hasHonors =
+          lowerText.contains("hon's") || lowerText.contains('hons');
 
-      debugPrint('Student: hasRollNo=$hasRollNo, hasBloodGroup=$hasBloodGroup, hasIdNo=$hasIdNo, hasHonors=$hasHonors');
+      debugPrint(
+        'Student: hasRollNo=$hasRollNo, hasBloodGroup=$hasBloodGroup, hasIdNo=$hasIdNo, hasHonors=$hasHonors',
+      );
 
       int markers = 0;
       if (hasRollNo) markers++;
@@ -146,7 +162,6 @@ class IdCardValidationService {
         errorMessage: L10n.current.idCardOnlyAccepted,
         rawText: '',
       );
-
     } catch (e) {
       debugPrint('VALIDATION ERROR: $e');
       return IdCardValidationResult(
@@ -161,7 +176,9 @@ class IdCardValidationService {
     for (final line in text.split('\n')) {
       final lowerLine = line.toLowerCase().trim();
       if (lowerLine.contains('roll no')) {
-        final match = RegExp(r'roll\s*no\.?\s*:?\s*(\d+)').firstMatch(lowerLine);
+        final match = RegExp(
+          r'roll\s*no\.?\s*:?\s*(\d+)',
+        ).firstMatch(lowerLine);
         if (match != null) return match.group(1);
       }
     }
@@ -180,9 +197,20 @@ class IdCardValidationService {
 
   static String? _extractDepartment(String text) {
     final knownDepartments = [
-      'CSE', 'EEE', 'ECE', 'BBA', 'MBA', 'LLB',
-      'Economics', 'English', 'Bangla', 'Mathematics', 'Physics',
-      'Chemistry', 'Sociology', 'Computer Science and Engineering',
+      'CSE',
+      'EEE',
+      'ECE',
+      'BBA',
+      'MBA',
+      'LLB',
+      'Economics',
+      'English',
+      'Bangla',
+      'Mathematics',
+      'Physics',
+      'Chemistry',
+      'Sociology',
+      'Computer Science and Engineering',
     ];
 
     final match = RegExp(
@@ -204,8 +232,11 @@ class IdCardValidationService {
 
   static String? _extractDesignation(String text) {
     final designations = [
-      'Professor', 'Associate Professor', 'Assistant Professor',
-      'Lecturer', 'Senior Lecturer',
+      'Professor',
+      'Associate Professor',
+      'Assistant Professor',
+      'Lecturer',
+      'Senior Lecturer',
     ];
     for (final desig in designations) {
       if (text.toLowerCase().contains(desig.toLowerCase())) return desig;

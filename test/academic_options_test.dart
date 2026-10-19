@@ -313,7 +313,8 @@ void main() {
       expect(find.byType(DropdownButtonFormField<int>), findsNWidgets(2));
       expect(find.text('Loading list…'), findsNothing);
 
-      final departmentDropdown = find.byType(DropdownButtonFormField<int>)
+      final departmentDropdown = find
+          .byType(DropdownButtonFormField<int>)
           .first;
       await tester.ensureVisible(departmentDropdown);
       await tester.pumpAndSettle();
@@ -365,7 +366,10 @@ void main() {
     await pumpScreen(tester, role: 'student', repository: repository);
 
     // Both pickers explain themselves instead of vanishing silently…
-    expect(find.textContaining('Check your internet connection.'), findsNWidgets(2));
+    expect(
+      find.textContaining('Check your internet connection.'),
+      findsNWidgets(2),
+    );
     expect(find.text('Try again'), findsNWidgets(2));
     expect(find.byType(DropdownButtonFormField<int>), findsNothing);
 

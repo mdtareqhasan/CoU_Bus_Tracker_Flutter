@@ -120,14 +120,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     if (!mounted) return null;
 
     final completer = Completer<AuthState?>();
-    final subscription = ref.listenManual<AuthState>(
-      authProvider,
-      (_, next) {
-        if (next.status == AuthStateStatus.initial) return;
-        if (!completer.isCompleted) completer.complete(next);
-      },
-      fireImmediately: true,
-    );
+    final subscription = ref.listenManual<AuthState>(authProvider, (_, next) {
+      if (next.status == AuthStateStatus.initial) return;
+      if (!completer.isCompleted) completer.complete(next);
+    }, fireImmediately: true);
 
     try {
       return await completer.future.timeout(timeout);
@@ -172,7 +168,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       child: Scaffold(
         backgroundColor: AppTheme.primaryBlue,
         body: SizedBox.expand(
-          child: Image.asset('assets/images/splashpage.jpeg', fit: BoxFit.cover),
+          child: Image.asset(
+            'assets/images/splashpage.jpeg',
+            fit: BoxFit.cover,
+          ),
         ),
       ),
     );

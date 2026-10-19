@@ -93,7 +93,8 @@ class NotificationService {
   static Future<void> _ensureAndroidChannel() async {
     final android = _localNotifications
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
+          AndroidFlutterLocalNotificationsPlugin
+        >();
     if (android == null) return;
 
     const channel = AndroidNotificationChannel(
@@ -228,7 +229,9 @@ class NotificationService {
       id: message.hashCode,
       title: title,
       body: body,
-      route: message.data['route']?.toString() ?? message.data['screen']?.toString(),
+      route:
+          message.data['route']?.toString() ??
+          message.data['screen']?.toString(),
     );
   }
 

@@ -143,6 +143,8 @@ class ScheduleCard extends StatelessWidget {
     );
   }
 
+  // WIP: start/end timeline for the route — not wired into the card yet.
+  // ignore: unused_element
   Widget _buildRouteTimeline(BuildContext context) {
     return Row(
       children: [

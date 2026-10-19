@@ -112,7 +112,8 @@ void main() {
         expect(
           resolved.values.toSet().length,
           greaterThanOrEqualTo(30),
-          reason: 'codes collapsed onto too few messages in $locale — '
+          reason:
+              'codes collapsed onto too few messages in $locale — '
               'distinct failures should read distinctly',
         );
       }
@@ -132,7 +133,8 @@ void main() {
       expect(
         same,
         isEmpty,
-        reason: 'these codes show identical text in both locales: $same '
+        reason:
+            'these codes show identical text in both locales: $same '
             '(bn=${bn.errorValidation}, en=${en.errorValidation})',
       );
     });
@@ -223,19 +225,30 @@ void main() {
 
   group('ErrorHandler.isCodeIn', () {
     test('matches the OTP-lifecycle codes', () {
-      expect(ErrorHandler.isCodeIn('OTP_EXPIRED', ErrorHandler.otpExpiredCodes),
-          isTrue);
       expect(
-          ErrorHandler.isCodeIn('OTP_NOT_FOUND', ErrorHandler.otpExpiredCodes),
-          isTrue);
+        ErrorHandler.isCodeIn('OTP_EXPIRED', ErrorHandler.otpExpiredCodes),
+        isTrue,
+      );
       expect(
-          ErrorHandler.isCodeIn('otp_expired', ErrorHandler.otpExpiredCodes),
-          isTrue,
-          reason: 'must be case-insensitive');
+        ErrorHandler.isCodeIn('OTP_NOT_FOUND', ErrorHandler.otpExpiredCodes),
+        isTrue,
+      );
       expect(
-          ErrorHandler.isCodeIn('INVALID_CREDENTIALS', ErrorHandler.otpExpiredCodes),
-          isFalse);
-      expect(ErrorHandler.isCodeIn(null, ErrorHandler.otpExpiredCodes), isFalse);
+        ErrorHandler.isCodeIn('otp_expired', ErrorHandler.otpExpiredCodes),
+        isTrue,
+        reason: 'must be case-insensitive',
+      );
+      expect(
+        ErrorHandler.isCodeIn(
+          'INVALID_CREDENTIALS',
+          ErrorHandler.otpExpiredCodes,
+        ),
+        isFalse,
+      );
+      expect(
+        ErrorHandler.isCodeIn(null, ErrorHandler.otpExpiredCodes),
+        isFalse,
+      );
       expect(ErrorHandler.isCodeIn('', ErrorHandler.otpExpiredCodes), isFalse);
     });
 
@@ -243,8 +256,9 @@ void main() {
       expect(ErrorHandler.sessionExpiredCodes, isNotEmpty);
       expect(ErrorHandler.verifyEmailFirstCodes, isNotEmpty);
       expect(ErrorHandler.verifyPhoneFirstCodes, isNotEmpty);
-      final overlap = ErrorHandler.verifyEmailFirstCodes
-          .intersection(ErrorHandler.verifyPhoneFirstCodes);
+      final overlap = ErrorHandler.verifyEmailFirstCodes.intersection(
+        ErrorHandler.verifyPhoneFirstCodes,
+      );
       expect(overlap, isEmpty);
     });
   });
@@ -257,16 +271,15 @@ void main() {
       // These are the exact strings ErrorCode.java ships; the flow checks must
       // fire on them without depending on the app's own phrasing.
       expect(
-        ErrorHandler.isOtpExpired('The OTP has expired. Please request a new one'),
+        ErrorHandler.isOtpExpired(
+          'The OTP has expired. Please request a new one',
+        ),
         isTrue,
       );
       expect(ErrorHandler.isSessionExpired('Unauthorized'), isTrue);
 
       // Negative cases stay negative.
-      expect(
-        ErrorHandler.isOtpExpired('Wrong OTP. Please try again'),
-        isFalse,
-      );
+      expect(ErrorHandler.isOtpExpired('Wrong OTP. Please try again'), isFalse);
       expect(ErrorHandler.isSessionExpired('Permission denied'), isFalse);
     });
   });

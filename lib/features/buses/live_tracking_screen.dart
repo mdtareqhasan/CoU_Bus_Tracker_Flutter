@@ -46,7 +46,9 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
     }
     if (finalUrl.contains('userMapType=open_streets')) {
       finalUrl = finalUrl.replaceAll(
-          'userMapType=open_streets', 'userMapType=google_streets');
+        'userMapType=open_streets',
+        'userMapType=google_streets',
+      );
     }
 
     if (kIsWeb) {
@@ -117,9 +119,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
           if (mounted) {
-            setState(
-              () => _distance = L10n.current.trackingPermissionDenied,
-            );
+            setState(() => _distance = L10n.current.trackingPermissionDenied);
           }
           return;
         }
@@ -127,9 +127,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
 
       if (permission == LocationPermission.deniedForever) {
         if (mounted) {
-          setState(
-            () => _distance = L10n.current.trackingPermissionBlocked,
-          );
+          setState(() => _distance = L10n.current.trackingPermissionBlocked);
         }
         return;
       }
@@ -137,12 +135,15 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
       final pos = await Geolocator.getCurrentPosition();
       if (mounted) setState(() => _userPosition = pos);
 
-      _positionStream = Geolocator.getPositionStream(
-        locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.high, distanceFilter: 10),
-      ).listen((Position position) {
-        if (mounted) setState(() => _userPosition = position);
-      });
+      _positionStream =
+          Geolocator.getPositionStream(
+            locationSettings: const LocationSettings(
+              accuracy: LocationAccuracy.high,
+              distanceFilter: 10,
+            ),
+          ).listen((Position position) {
+            if (mounted) setState(() => _userPosition = position);
+          });
     } catch (e) {
       debugPrint('Location Error: $e');
     }
@@ -173,7 +174,11 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
           latVal != 0 &&
           lngVal != 0) {
         double dist = Geolocator.distanceBetween(
-            _userPosition!.latitude, _userPosition!.longitude, latVal, lngVal);
+          _userPosition!.latitude,
+          _userPosition!.longitude,
+          latVal,
+          lngVal,
+        );
         if (dist < 1000) {
           distanceStr = '${dist.toStringAsFixed(0)} m';
         } else {
@@ -318,9 +323,11 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
               canPop: false,
               onPopInvokedWithResult: (didPop, result) async {
                 if (didPop) return;
-                if (!kIsWeb && _controller != null && await _controller!.canGoBack()) {
+                if (!kIsWeb &&
+                    _controller != null &&
+                    await _controller!.canGoBack()) {
                   _controller!.goBack();
-                } else if (mounted) {
+                } else if (context.mounted) {
                   Navigator.of(context).pop();
                 }
               },
@@ -334,17 +341,20 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                       child: _hasNetworkError
                           ? _buildNoInternetOverlay()
                           : kIsWeb
-                              ? _buildWebMapCenteringContainer()
-                              : WebViewWidget(controller: _controller!),
+                          ? _buildWebMapCenteringContainer()
+                          : WebViewWidget(controller: _controller!),
                     ),
                   ),
                   if (!_hasNetworkError)
                     PointerInterceptor(child: _buildStatusOverlay()),
                   if (_isLoading && !_hasNetworkError)
                     const Center(
-                        child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                                AppTheme.primaryBlue))),
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          AppTheme.primaryBlue,
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -388,22 +398,30 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
       expandedHeight: 120,
       leading: PointerInterceptor(
         child: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                color: Colors.white),
-            onPressed: () => Navigator.of(context).pop()),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.white,
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(children: [
-            Text(widget.busName,
+          Row(
+            children: [
+              Text(
+                widget.busName,
                 style: const TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold)),
-            const SizedBox(width: 8),
-            _buildStatusBadge(isMoving),
-          ]),
+                  fontSize: 18,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(width: 8),
+              _buildStatusBadge(isMoving),
+            ],
+          ),
         ],
       ),
       flexibleSpace: FlexibleSpaceBar(
@@ -413,18 +431,25 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
           child: Center(
             child: PointerInterceptor(
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.25),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.15),
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.tips_and_updates_rounded,
-                        color: Colors.yellowAccent, size: 14),
+                    const Icon(
+                      Icons.tips_and_updates_rounded,
+                      color: Colors.yellowAccent,
+                      size: 14,
+                    ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
@@ -448,9 +473,10 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
       actions: [
         PointerInterceptor(
           child: IconButton(
-              icon: const Icon(Icons.refresh_rounded, color: Colors.white),
-              onPressed: () => kIsWeb ? null : _controller?.reload()),
-        )
+            icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+            onPressed: () => kIsWeb ? null : _controller?.reload(),
+          ),
+        ),
       ],
     );
   }
@@ -460,21 +486,30 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withValues(alpha: 0.5), width: 0.5)),
-      child: Row(children: [
-        Container(
+        color: color.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.5), width: 0.5),
+      ),
+      child: Row(
+        children: [
+          Container(
                 width: 6,
                 height: 6,
-                decoration: BoxDecoration(color: color, shape: BoxShape.circle))
-            .animate(onPlay: (c) => c.repeat())
-            .fade(duration: 800.ms, begin: 0.4, end: 1),
-        const SizedBox(width: 6),
-        Text(isMoving ? 'RUNNING' : 'STOPPED',
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              )
+              .animate(onPlay: (c) => c.repeat())
+              .fade(duration: 800.ms, begin: 0.4, end: 1),
+          const SizedBox(width: 6),
+          Text(
+            isMoving ? 'RUNNING' : 'STOPPED',
             style: const TextStyle(
-                color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
-      ]),
+              color: Colors.white,
+              fontSize: 9,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -494,13 +529,16 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
             decoration: BoxDecoration(
               color: const Color(0xFF1A1F2E).withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(20),
-              border:
-                  Border.all(color: Colors.white.withValues(alpha: 0.1), width: 1.5),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.1),
+                width: 1.5,
+              ),
               boxShadow: [
                 BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.3),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5))
+                  color: Colors.black.withValues(alpha: 0.3),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
               ],
             ),
             child: Column(
@@ -510,33 +548,45 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                 Row(
                   children: [
                     Icon(
-                        isMoving
-                            ? Icons.directions_bus_rounded
-                            : Icons.pause_circle_rounded,
-                        color: statusColor,
-                        size: 22),
+                      isMoving
+                          ? Icons.directions_bus_rounded
+                          : Icons.pause_circle_rounded,
+                      color: statusColor,
+                      size: 22,
+                    ),
                     const SizedBox(width: 10),
-                    Text(_status.toUpperCase(),
-                        style: TextStyle(
-                            color: statusColor,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 18,
-                            letterSpacing: 0.5)),
+                    Text(
+                      _status.toUpperCase(),
+                      style: TextStyle(
+                        color: statusColor,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 18,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    const Icon(Icons.near_me_rounded,
-                        color: Colors.white54, size: 14),
+                    const Icon(
+                      Icons.near_me_rounded,
+                      color: Colors.white54,
+                      size: 14,
+                    ),
                     const SizedBox(width: 6),
-                    const Text('Distance: ',
-                        style: TextStyle(color: Colors.white70, fontSize: 12)),
-                    Text(_distance,
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Distance: ',
+                      style: TextStyle(color: Colors.white70, fontSize: 12),
+                    ),
+                    Text(
+                      _distance,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -548,49 +598,55 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
         Positioned(
           bottom: 32 + MediaQuery.of(context).padding.bottom,
           right: 16,
-          child: Container(
-            width: 95,
-            height: 95,
-            decoration: BoxDecoration(
-              gradient: AppTheme.primaryGradient,
-              shape: BoxShape.circle,
-              border:
-                  Border.all(color: Colors.white.withValues(alpha: 0.2), width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.primaryBlue.withValues(alpha: 0.3),
-                  blurRadius: 15,
-                  offset: const Offset(0, 5),
-                )
-              ],
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  _speed.replaceAll(RegExp(r'[^0-9]'), ''),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 28,
-                    fontWeight: FontWeight.w900,
-                    height: 1.1,
+          child:
+              Container(
+                    width: 95,
+                    height: 95,
+                    decoration: BoxDecoration(
+                      gradient: AppTheme.primaryGradient,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        width: 2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.primaryBlue.withValues(alpha: 0.3),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          _speed.replaceAll(RegExp(r'[^0-9]'), ''),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 28,
+                            fontWeight: FontWeight.w900,
+                            height: 1.1,
+                          ),
+                        ),
+                        const Text(
+                          'km/h',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                  .animate(target: isMoving ? 1 : 0)
+                  .scale(
+                    begin: const Offset(0.9, 0.9),
+                    end: const Offset(1, 1),
+                    curve: Curves.elasticOut,
                   ),
-                ),
-                const Text(
-                  'km/h',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ],
-            ),
-          ).animate(target: isMoving ? 1 : 0).scale(
-              begin: const Offset(0.9, 0.9),
-              end: const Offset(1, 1),
-              curve: Curves.elasticOut),
         ),
 
         // Refresh selector for web (re-implemented since we can't show it from iframe)
@@ -600,14 +656,20 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
             left: 20,
             child: PointerInterceptor(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: AppTheme.primaryBlue, width: 2),
                   boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10)],
                 ),
-                child: const Text('Refresh: 5s', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                child: const Text(
+                  'Refresh: 5s',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                ),
               ),
             ),
           ),
@@ -654,13 +716,18 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                   _controller?.reload();
                 },
                 icon: const Icon(Icons.refresh_rounded),
-                label: Text(context.l10n.commonRetry,
-                    style:
-                        const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                label: Text(
+                  context.l10n.commonRetry,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(220, 52),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14)),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
               ),
             ],

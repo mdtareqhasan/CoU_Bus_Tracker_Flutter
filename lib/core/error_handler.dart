@@ -54,8 +54,7 @@ class ErrorHandler {
   static String get verifyPhoneFirst => L10n.current.errorVerifyPhoneFirst;
   static String get verifyEmailFirst => L10n.current.errorVerifyEmailFirst;
   static String get phoneNotFound => L10n.current.errorPhoneNotFound;
-  static String get accountDeactivated =>
-      L10n.current.errorAccountDeactivated;
+  static String get accountDeactivated => L10n.current.errorAccountDeactivated;
   static String get phoneAlreadyUsed => L10n.current.errorPhoneAlreadyUsed;
   static String get accountNotFound => L10n.current.errorAccountNotFound;
 
@@ -202,11 +201,7 @@ class ErrorHandler {
   /// [code] is the machine-readable `code` field (may be absent on older
   /// responses), [message] the backend's English text, [statusCode] the HTTP
   /// status used as the last-resort mapping.
-  static String resolve({
-    String? code,
-    String? message,
-    int? statusCode,
-  }) {
+  static String resolve({String? code, String? message, int? statusCode}) {
     final byCode = fromCode(code);
     if (byCode != null) return byCode;
     if (message != null && message.trim().isNotEmpty) {
@@ -446,7 +441,9 @@ class ErrorHandler {
         m.contains('phone number not verified')) {
       return verifyPhoneFirst;
     }
-    if (m.contains('not found with this email') || m.contains('email not found') || m.contains('user not found')) {
+    if (m.contains('not found with this email') ||
+        m.contains('email not found') ||
+        m.contains('user not found')) {
       return invalidLogin;
     }
     if (m.contains('not found with this phone') ||

@@ -95,14 +95,21 @@ void main() {
       // Placement: it must sit WITH the content — BELOW the "Your role"
       // ribbon title (this screen has no app bar; the title ribbon plays that
       // role) and on the top-RIGHT of the screen.
-      final titleTop =
-          tester.getTopLeft(find.text('আপনার ভূমিকা')).dy;
-      final switcherTopLeft = tester.getTopLeft(find.byType(AppBarLanguageSwitcher));
+      final titleTop = tester.getTopLeft(find.text('আপনার ভূমিকা')).dy;
+      final switcherTopLeft = tester.getTopLeft(
+        find.byType(AppBarLanguageSwitcher),
+      );
       final screenWidth = tester.getSize(find.byType(_RoleHarness)).width;
-      expect(switcherTopLeft.dy, greaterThan(titleTop),
-          reason: 'switcher must be with the content, below the title ribbon');
-      expect(switcherTopLeft.dx, greaterThan(screenWidth / 2),
-          reason: 'switcher must be on the right side of the screen');
+      expect(
+        switcherTopLeft.dy,
+        greaterThan(titleTop),
+        reason: 'switcher must be with the content, below the title ribbon',
+      );
+      expect(
+        switcherTopLeft.dx,
+        greaterThan(screenWidth / 2),
+        reason: 'switcher must be on the right side of the screen',
+      );
 
       // Tap EN → the whole screen re-renders in English without a restart.
       await tester.tap(find.text('EN'));

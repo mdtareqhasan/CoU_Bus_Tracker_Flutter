@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 /// Backend API base URL — debug builds hit the local Docker backend,
 /// release/profile builds hit the production API.
 // const String kBaseUrl = kDebugMode

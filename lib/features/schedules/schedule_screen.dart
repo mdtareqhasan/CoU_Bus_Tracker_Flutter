@@ -269,7 +269,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
               selectedColor: chipColor,
               backgroundColor: chipColor.withValues(alpha: 0.15),
               side: BorderSide(
-                color: isSelected ? chipColor : chipColor.withValues(alpha: 0.4),
+                color: isSelected
+                    ? chipColor
+                    : chipColor.withValues(alpha: 0.4),
                 width: 1.5,
               ),
               showCheckmark: false,

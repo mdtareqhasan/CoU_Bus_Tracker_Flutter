@@ -31,10 +31,14 @@ void main() {
       for (final option in sessionOptions) {
         expect(option.valueBn, isNot(option.valueEn), reason: option.valueEn);
         // Both forms must resolve to the same row in either locale.
-        expect(sessionLabelFor(option.valueBn, en),
-            sessionLabelFor(option.valueEn, en));
-        expect(sessionLabelFor(option.valueBn, bn),
-            sessionLabelFor(option.valueEn, bn));
+        expect(
+          sessionLabelFor(option.valueBn, en),
+          sessionLabelFor(option.valueEn, en),
+        );
+        expect(
+          sessionLabelFor(option.valueBn, bn),
+          sessionLabelFor(option.valueEn, bn),
+        );
       }
     });
 

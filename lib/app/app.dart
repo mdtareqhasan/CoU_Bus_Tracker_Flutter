@@ -30,8 +30,8 @@ class _CoUBusTrackerAppState extends ConsumerState<CoUBusTrackerApp> {
 
     // Upload the FCM token whenever one becomes available (fresh token or a
     // background refresh). The service no-ops when logged out.
-    NotificationService.onTokenAvailable =
-        (token) => ref.read(fcmTokenServiceProvider).registerToken(token);
+    NotificationService.onTokenAvailable = (token) =>
+        ref.read(fcmTokenServiceProvider).registerToken(token);
 
     // If we restored an existing session on launch, register the token now —
     // the login path won't run in that case.

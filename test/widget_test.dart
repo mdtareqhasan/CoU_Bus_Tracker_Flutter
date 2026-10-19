@@ -16,29 +16,29 @@ void main() {
     // stuck on the splash frame forever — no route ever resolves.
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
-      const MethodChannel('dev.fluttercommunity.plus/package_info'),
-      (call) async {
-        if (call.method == 'getAll') {
-          return <String, dynamic>{
-            'appName': 'CoU Bus Tracker',
-            'packageName': 'com.cou.bustracker',
-            'version': '1.0.0',
-            'buildNumber': '1',
-            'buildSignature': '',
-            'installerStore': null,
-          };
-        }
-        return null;
-      },
-    );
+          const MethodChannel('dev.fluttercommunity.plus/package_info'),
+          (call) async {
+            if (call.method == 'getAll') {
+              return <String, dynamic>{
+                'appName': 'CoU Bus Tracker',
+                'packageName': 'com.cou.bustracker',
+                'version': '1.0.0',
+                'buildNumber': '1',
+                'buildSignature': '',
+                'installerStore': null,
+              };
+            }
+            return null;
+          },
+        );
   });
 
   tearDown(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
-      const MethodChannel('dev.fluttercommunity.plus/package_info'),
-      null,
-    );
+          const MethodChannel('dev.fluttercommunity.plus/package_info'),
+          null,
+        );
   });
 
   testWidgets('App smoke test', (WidgetTester tester) async {
