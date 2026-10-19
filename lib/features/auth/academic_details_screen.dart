@@ -488,7 +488,9 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
                                 style: Theme.of(context).textTheme.headlineSmall
                                     ?.copyWith(
                                       fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).colorScheme.onSurface,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
                                     ),
                               )
                               .animate()
@@ -499,7 +501,9 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
                             context.l10n.academicSubtitle,
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                             ),
                           ).animate().fadeIn(delay: 200.ms),
                           const SizedBox(height: AppTheme.space16),
@@ -1085,9 +1089,9 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
   }
 
   TextStyle _fieldStyle(BuildContext context) => TextStyle(
-        color: Theme.of(context).colorScheme.onSurface,
-        fontWeight: FontWeight.w500,
-      );
+    color: Theme.of(context).colorScheme.onSurface,
+    fontWeight: FontWeight.w500,
+  );
 
   InputDecoration _inputDecoration({
     required BuildContext context,

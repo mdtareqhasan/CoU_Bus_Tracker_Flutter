@@ -21,7 +21,10 @@ class RoleScreen extends StatelessWidget {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               stops: [0.0, 0.3],
-              colors: [AppTheme.primaryBlue, Theme.of(context).scaffoldBackgroundColor],
+              colors: [
+                AppTheme.primaryBlue,
+                Theme.of(context).scaffoldBackgroundColor,
+              ],
             ),
           ),
           child: SafeArea(
@@ -76,7 +79,9 @@ class RoleScreen extends StatelessWidget {
                             context.l10n.roleLoginRegisterHint,
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                             ),
                           ).animate().fadeIn(delay: 300.ms),
                           const SizedBox(height: AppTheme.space48),

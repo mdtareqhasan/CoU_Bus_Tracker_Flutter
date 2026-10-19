@@ -95,7 +95,9 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
                                 style: Theme.of(context).textTheme.headlineSmall
                                     ?.copyWith(
                                       fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).colorScheme.onSurface,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
                                     ),
                               )
                               .animate()
@@ -106,7 +108,9 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
                             context.l10n.googleSignInSubtitle,
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                             ),
                           ).animate().fadeIn(delay: 300.ms),
                           const SizedBox(height: AppTheme.space32),
@@ -219,7 +223,9 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
                     style: TextStyle(
                       fontSize: 12,
                       height: 1.5,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.95),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurfaceVariant.withValues(alpha: 0.95),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
