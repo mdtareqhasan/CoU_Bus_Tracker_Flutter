@@ -29,9 +29,20 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.1'
+          # Must satisfy pubspec `sdk: ^3.8.0` (3.27.1 shipped Dart 3.6 and
+          # failed at `flutter pub get`), and should match the local toolchain
+          # so `dart format` / `flutter analyze` agree with a dev machine.
+          flutter-version: '3.47.5'
           channel: stable
           cache: true
+
+      - name: Cache pub packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
 
       - name: Show toolchain versions
         run: |
