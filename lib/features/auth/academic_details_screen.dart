@@ -829,7 +829,7 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
               Expanded(
                 child: Text(
                   '$labelText — $message',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12.5,
                     height: 1.5,
                     color: Theme.of(context).colorScheme.onSurface,
@@ -965,7 +965,7 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
           Expanded(
             child: Text(
               _serverError!,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12.5,
                 height: 1.5,
                 color: Theme.of(context).colorScheme.onSurface,

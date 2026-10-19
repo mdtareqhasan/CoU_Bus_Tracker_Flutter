@@ -176,7 +176,7 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
           const SizedBox(height: AppTheme.space16),
           Text(
             context.l10n.googleEmailFormatLabel,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12.5,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.bold,
@@ -258,7 +258,7 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
               children: [
                 Text(
                   context.l10n.googleGmailReminderTitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
                     color: AppTheme.primaryBlue,
