@@ -278,7 +278,8 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
     return departmentLabelFor(text, context.l10n);
   }
 
-  /// Same, for the stored session value (the English range is canonical).
+  /// Same, for the stored session value (either language form — the profile
+  /// sends the Bengali digits, older payloads the ASCII range).
   String _sessionLabel(String text, AcademicOptions? options) {
     final match = _findSession(options, _selectedSessionId, text);
     if (match != null) return match.labelFor(context.l10n.localeName);
@@ -909,8 +910,8 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
     String? displayText,
   }) {
     // [displayText] overrides what is shown while [controller] keeps the
-    // canonical value for validation/submission (e.g. the session's English
-    // value shown as its localized label). The department/session fields pass
+    // canonical value for validation/submission (e.g. the stored session
+    // shown as its localized label). The department/session fields pass
     // only [displayText] — their canonical value lives in state now, not in a
     // controller.
     return TextFormField(

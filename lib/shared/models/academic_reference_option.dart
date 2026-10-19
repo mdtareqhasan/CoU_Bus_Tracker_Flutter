@@ -4,9 +4,10 @@
 /// The server returns both language forms for every row and the client picks
 /// the one matching its locale ([labelFor]) — the server never picks a
 /// language. [value] is the canonical string earlier app versions stored
-/// verbatim (the Bengali unit name, or the English session range); it is used
-/// only to recognise a value the profile already holds. The row [id] is what
-/// gets submitted back as the foreign key.
+/// verbatim (the Bengali unit name, or the English session range); a profile
+/// may hold either language form, so recognition matches [value] as well as
+/// [labelBn] / [labelEn]. The row [id] is what gets submitted back as the
+/// foreign key.
 ///
 /// Hand-written JSON parsing rather than `json_serializable`: this model is
 /// read straight off the wire in the registration flow and must not depend on

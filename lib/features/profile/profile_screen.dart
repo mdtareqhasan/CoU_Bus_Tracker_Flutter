@@ -266,7 +266,9 @@ class ProfileScreen extends ConsumerWidget {
           decoration: BoxDecoration(
             color: AppTheme.primaryBlue.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppTheme.primaryBlue.withValues(alpha: 0.2)),
+            border: Border.all(
+              color: AppTheme.primaryBlue.withValues(alpha: 0.2),
+            ),
           ),
           child: Text(
             authState.role == 'student'
@@ -356,10 +358,7 @@ class ProfileScreen extends ConsumerWidget {
           const SizedBox(height: 8),
           Text(
             context.l10n.profileTapToViewPhoto,
-            style: const TextStyle(
-              color: AppTheme.textHint,
-              fontSize: 12,
-            ),
+            style: const TextStyle(color: AppTheme.textHint, fontSize: 12),
           ),
         ],
       ),
@@ -437,9 +436,10 @@ class ProfileScreen extends ConsumerWidget {
           ),
 
           // Academic details — write-once fields filled in at registration /
-          // profile completion. Department and session are stored canonically
-          // (Bengali department name, English session value), so show them in
-          // the app's language like the registration pickers do.
+          // profile completion. The profile payload returns the Bengali
+          // display name for both department and session, so run it through
+          // the bundled label tables to show it in the app's language like
+          // the registration pickers do.
           const Divider(indent: 48, height: 1),
           _buildInfoRow(
             context,
@@ -552,18 +552,14 @@ class ProfileScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  label,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
+                Text(label, style: Theme.of(context).textTheme.bodySmall),
                 Text(
                   value,
                   maxLines: maxLines,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall
-                      ?.copyWith(fontSize: 14),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontSize: 14),
                 ),
               ],
             ),
