@@ -139,11 +139,10 @@ class ScheduleCard extends StatelessWidget {
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const Spacer(),
-                    Text(
-                      schedule.displayDeparture,
-                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                        color: AppTheme.primaryBlue,
-                      ),
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 14,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ],
                 ),

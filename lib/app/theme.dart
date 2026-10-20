@@ -54,36 +54,13 @@ class AppTheme {
     end: Alignment.bottomCenter,
   );
 
-  /// Dark-mode gradient: a subtle charcoal-to-navy surface. The low contrast
-  /// keeps dark-mode headers calm while preserving the app's blue identity.
-  static const LinearGradient darkPrimaryGradient = LinearGradient(
-    colors: [
-      Color(0xFF10151F), // Charcoal navy
-      Color(0xFF152A43), // Quiet navy blue
-    ],
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-  );
-
-  /// The gradient to paint for the ambient theme.
-  ///
-  /// Prefer this over [primaryGradient] anywhere the gradient lands on a themed
-  /// surface, so headers and buttons follow dark mode instead of staying lit.
+  /// The shared brand gradient used in both light and dark mode.
   static LinearGradient primaryGradientFor(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark
-          ? darkPrimaryGradient
-          : primaryGradient;
+      primaryGradient;
 
   /// Button gradient for prominent actions on dark surfaces. It stays more
-  /// saturated than the dark page gradient so the action remains obvious.
+  /// saturated than the page gradient so the action remains obvious.
   static LinearGradient authButtonGradientFor(BuildContext context) {
-    if (Theme.of(context).brightness == Brightness.dark) {
-      return const LinearGradient(
-        colors: [Color(0xFF3474BE), Color(0xFF285C9E)],
-        begin: Alignment.centerLeft,
-        end: Alignment.centerRight,
-      );
-    }
     return primaryGradient;
   }
 
