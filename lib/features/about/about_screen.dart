@@ -168,7 +168,9 @@ class _AboutScreenState extends State<AboutScreen> {
         ),
       ),
       flexibleSpace: Container(
-        decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
+        decoration: BoxDecoration(
+          gradient: AppTheme.primaryGradientFor(context),
+        ),
       ),
     );
   }

@@ -70,8 +70,8 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
         right: AppTheme.space24,
         bottom: AppTheme.space16,
       ),
-      decoration: const BoxDecoration(
-        gradient: AppTheme.primaryGradient,
+      decoration: BoxDecoration(
+        gradient: AppTheme.primaryGradientFor(context),
         borderRadius: BorderRadius.vertical(
           bottom: Radius.circular(AppTheme.radiusExtraLarge),
         ),

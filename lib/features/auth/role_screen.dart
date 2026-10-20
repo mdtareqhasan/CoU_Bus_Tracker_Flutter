@@ -64,7 +64,7 @@ class RoleScreen extends StatelessWidget {
                             child: AppBarLanguageSwitcher(),
                           ),
                           const SizedBox(height: 16),
-                          _buildIllustration(),
+                          _buildIllustration(context),
                           const SizedBox(height: AppTheme.space32),
                           Text(
                                 context.l10n.roleChoosePrompt,
@@ -118,7 +118,7 @@ class RoleScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildIllustration() {
+  Widget _buildIllustration(BuildContext context) {
     return Container(
       width: 140,
       height: 140,
@@ -131,7 +131,7 @@ class RoleScreen extends StatelessWidget {
           width: 100,
           height: 100,
           decoration: BoxDecoration(
-            gradient: AppTheme.primaryGradient,
+            gradient: AppTheme.primaryGradientFor(context),
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(

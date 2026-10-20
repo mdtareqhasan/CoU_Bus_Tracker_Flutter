@@ -80,7 +80,9 @@ class _NoticeScreenState extends ConsumerState<NoticeScreen> {
           ),
         ),
         background: Container(
-          decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
+          decoration: BoxDecoration(
+            gradient: AppTheme.primaryGradientFor(context),
+          ),
         ),
       ),
     );

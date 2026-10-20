@@ -987,7 +987,7 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
       width: double.infinity,
       height: 56,
       decoration: BoxDecoration(
-        gradient: AppTheme.primaryGradient,
+        gradient: AppTheme.primaryGradientFor(context),
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
         boxShadow: [
           BoxShadow(
@@ -1065,7 +1065,9 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
         ),
       ),
       flexibleSpace: Container(
-        decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
+        decoration: BoxDecoration(
+          gradient: AppTheme.primaryGradientFor(context),
+        ),
       ),
     );
   }

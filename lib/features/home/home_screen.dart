@@ -204,8 +204,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           right: AppTheme.space24,
           bottom: AppTheme.space32,
         ),
-        decoration: const BoxDecoration(
-          gradient: AppTheme.primaryGradient,
+        decoration: BoxDecoration(
+          gradient: AppTheme.primaryGradientFor(context),
           borderRadius: BorderRadius.vertical(
             bottom: Radius.circular(AppTheme.radiusExtraLarge),
           ),

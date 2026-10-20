@@ -157,7 +157,9 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
           StretchMode.blurBackground,
         ],
         background: Container(
-          decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
+          decoration: BoxDecoration(
+            gradient: AppTheme.primaryGradientFor(context),
+          ),
           child: Stack(
             children: [
               // Abstract background decoration
@@ -481,7 +483,7 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
       width: double.infinity,
       height: 60,
       decoration: BoxDecoration(
-        gradient: AppTheme.primaryGradient,
+        gradient: AppTheme.primaryGradientFor(context),
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
       ),
       child: ElevatedButton(

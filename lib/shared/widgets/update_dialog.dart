@@ -60,7 +60,7 @@ class UpdateDialog extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  gradient: AppTheme.primaryGradient,
+                  gradient: AppTheme.primaryGradientFor(context),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(

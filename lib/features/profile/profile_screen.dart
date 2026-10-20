@@ -77,7 +77,9 @@ class ProfileScreen extends ConsumerWidget {
         ),
       ),
       flexibleSpace: Container(
-        decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
+        decoration: BoxDecoration(
+          gradient: AppTheme.primaryGradientFor(context),
+        ),
       ),
     );
   }
@@ -90,7 +92,7 @@ class ProfileScreen extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const SizedBox(height: 60),
-          _buildPromptIllustration(),
+          _buildPromptIllustration(context),
           const SizedBox(height: AppTheme.space48),
           Text(
             context.l10n.profileYourProfile,
@@ -113,7 +115,7 @@ class ProfileScreen extends ConsumerWidget {
                 width: double.infinity,
                 height: 60,
                 decoration: BoxDecoration(
-                  gradient: AppTheme.primaryGradient,
+                  gradient: AppTheme.primaryGradientFor(context),
                   borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                   boxShadow: [
                     BoxShadow(
@@ -160,7 +162,7 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildPromptIllustration() {
+  Widget _buildPromptIllustration(BuildContext context) {
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -183,7 +185,7 @@ class ProfileScreen extends ConsumerWidget {
           width: 140,
           height: 140,
           decoration: BoxDecoration(
-            gradient: AppTheme.primaryGradient,
+            gradient: AppTheme.primaryGradientFor(context),
             borderRadius: BorderRadius.circular(45),
             boxShadow: [
               BoxShadow(
@@ -229,7 +231,7 @@ class ProfileScreen extends ConsumerWidget {
           width: 100,
           height: 100,
           decoration: BoxDecoration(
-            gradient: AppTheme.primaryGradient,
+            gradient: AppTheme.primaryGradientFor(context),
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(

@@ -54,6 +54,30 @@ class AppTheme {
     end: Alignment.bottomCenter,
   );
 
+  /// Dark-mode sibling of [primaryGradient]: the same indigo → blue → cyan
+  /// story, pulled down in luminance so it sits with the dark surfaces instead
+  /// of glaring off them (its brightest stop goes from 9.4:1 against
+  /// `backgroundDark` down to 5.35:1). It is also kinder to the white text
+  /// painted on top of it.
+  static const LinearGradient darkPrimaryGradient = LinearGradient(
+    colors: [
+      Color(0xFF140F46), // Deep Indigo
+      Color(0xFF1653A4), // Vibrant Blue
+      Color(0xFF1B9AAF), // Cyan, toned down
+    ],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  /// The gradient to paint for the ambient theme.
+  ///
+  /// Prefer this over [primaryGradient] anywhere the gradient lands on a themed
+  /// surface, so headers and buttons follow dark mode instead of staying lit.
+  static LinearGradient primaryGradientFor(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+      ? darkPrimaryGradient
+      : primaryGradient;
+
   static LinearGradient glassGradient(Brightness brightness) {
     return LinearGradient(
       colors: brightness == Brightness.light

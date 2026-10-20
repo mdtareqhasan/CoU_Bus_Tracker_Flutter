@@ -426,7 +426,9 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
       ),
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
-          decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
+          decoration: BoxDecoration(
+            gradient: AppTheme.primaryGradientFor(context),
+          ),
           padding: const EdgeInsets.fromLTRB(16, 82, 16, 8),
           child: Center(
             child: PointerInterceptor(
@@ -603,7 +605,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                     width: 95,
                     height: 95,
                     decoration: BoxDecoration(
-                      gradient: AppTheme.primaryGradient,
+                      gradient: AppTheme.primaryGradientFor(context),
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: Colors.white.withValues(alpha: 0.2),
