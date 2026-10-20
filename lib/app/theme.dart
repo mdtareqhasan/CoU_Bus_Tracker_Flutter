@@ -74,6 +74,19 @@ class AppTheme {
           ? darkPrimaryGradient
           : primaryGradient;
 
+  /// Button gradient for prominent actions on dark surfaces. It stays more
+  /// saturated than the dark page gradient so the action remains obvious.
+  static LinearGradient authButtonGradientFor(BuildContext context) {
+    if (Theme.of(context).brightness == Brightness.dark) {
+      return const LinearGradient(
+        colors: [Color(0xFF3474BE), Color(0xFF285C9E)],
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+      );
+    }
+    return primaryGradient;
+  }
+
   static LinearGradient glassGradient(Brightness brightness) {
     return LinearGradient(
       colors: brightness == Brightness.light

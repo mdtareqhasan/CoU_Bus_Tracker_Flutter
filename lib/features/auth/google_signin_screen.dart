@@ -320,7 +320,7 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
       width: double.infinity,
       height: 56,
       decoration: BoxDecoration(
-        gradient: AppTheme.primaryGradientFor(context),
+        gradient: AppTheme.authButtonGradientFor(context),
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
         boxShadow: [
           BoxShadow(

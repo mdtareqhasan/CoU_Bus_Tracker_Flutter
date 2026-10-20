@@ -227,32 +227,6 @@ class ProfileScreen extends ConsumerWidget {
   Widget _buildProfileHeader(BuildContext context, AuthState authState) {
     return Column(
       children: [
-        Container(
-          width: 100,
-          height: 100,
-          decoration: BoxDecoration(
-            gradient: AppTheme.primaryGradientFor(context),
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.primaryBlue.withValues(alpha: 0.2),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: Center(
-            child: Text(
-              (authState.displayName ?? 'U').substring(0, 1).toUpperCase(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 40,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
         Text(
           authState.displayName ?? context.l10n.commonUserName,
           style: Theme.of(context).textTheme.titleLarge,
