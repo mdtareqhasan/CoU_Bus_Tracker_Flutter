@@ -96,8 +96,10 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                   ? context.l10n.scheduleTeacherBus
                   : context.l10n.scheduleStudentBus,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: AppTheme.textPrimary,
+              // Theme-aware: AppTheme.textPrimary is the same slate as the
+              // dark-mode banner (surfaceDark), so it vanished in dark mode.
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.bold,
               ),
             ),
