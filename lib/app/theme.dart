@@ -54,16 +54,14 @@ class AppTheme {
     end: Alignment.bottomCenter,
   );
 
-  /// Dark-mode sibling of [primaryGradient]: the same indigo → blue → cyan
-  /// story, pulled down in luminance so it sits with the dark surfaces instead
-  /// of glaring off them (its brightest stop goes from 9.4:1 against
-  /// `backgroundDark` down to 5.35:1). It is also kinder to the white text
-  /// painted on top of it.
+  /// Dark-mode sibling of [primaryGradient]. The indigo, slate-blue, and teal
+  /// stops keep the same brand direction while sitting closer to the dark
+  /// surface palette and avoiding a bright cyan band behind white text.
   static const LinearGradient darkPrimaryGradient = LinearGradient(
     colors: [
-      Color(0xFF140F46), // Deep Indigo
-      Color(0xFF1653A4), // Vibrant Blue
-      Color(0xFF1B9AAF), // Cyan, toned down
+      Color(0xFF141238), // Deep indigo
+      Color(0xFF1B3768), // Slate blue
+      Color(0xFF176575), // Muted teal
     ],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
@@ -75,8 +73,8 @@ class AppTheme {
   /// surface, so headers and buttons follow dark mode instead of staying lit.
   static LinearGradient primaryGradientFor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-      ? darkPrimaryGradient
-      : primaryGradient;
+          ? darkPrimaryGradient
+          : primaryGradient;
 
   static LinearGradient glassGradient(Brightness brightness) {
     return LinearGradient(
