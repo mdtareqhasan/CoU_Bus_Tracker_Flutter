@@ -66,9 +66,9 @@ class ScheduleCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    if (schedule.busName != null)
+                    if (schedule.localizedBusName != null)
                       Text(
-                        schedule.busName!,
+                        schedule.localizedBusName!,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     const Spacer(),
@@ -155,11 +155,20 @@ class ScheduleCard extends StatelessWidget {
   }
 
   // WIP: start/end timeline for the route — not wired into the card yet.
+  // Stops are parsed out of the localized route name ("A → B → C").
   // ignore: unused_element
   Widget _buildRouteTimeline(BuildContext context) {
+    final stops = schedule.routeDisplay
+        .split('→')
+        .map((stop) => stop.trim())
+        .where((stop) => stop.isNotEmpty)
+        .toList();
     return Row(
       children: [
-        _TimelinePoint(label: schedule.startPoint ?? 'Start', isActive: true),
+        _TimelinePoint(
+          label: stops.isNotEmpty ? stops.first : 'Start',
+          isActive: true,
+        ),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -170,7 +179,10 @@ class ScheduleCard extends StatelessWidget {
             ),
           ),
         ),
-        _TimelinePoint(label: schedule.endPoint ?? 'End', isActive: true),
+        _TimelinePoint(
+          label: stops.length > 1 ? stops.last : 'End',
+          isActive: true,
+        ),
       ],
     );
   }

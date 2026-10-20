@@ -71,16 +71,22 @@ class BusListState {
 
       final query = searchQuery.toLowerCase();
 
-      // Get route from schedules if available
+      // The route lives on the schedules (a bus runs different routes at
+      // different times of day), so search across all of the bus's trips.
       final busSchedules = schedules.where((s) => s.busId == bus.id);
       final route = busSchedules.isNotEmpty
           ? busSchedules.first.routeDisplay
-          : bus.route ?? '';
+          : '';
 
+      // Match either language form of the bus name and route.
       final matchesSearch =
           query.isEmpty ||
           (bus.busNumber?.toLowerCase().contains(query) ?? false) ||
-          (bus.busName?.toLowerCase().contains(query) ?? false) ||
+          (bus.busNameBn?.toLowerCase().contains(query) ?? false) ||
+          (bus.busNameEn?.toLowerCase().contains(query) ?? false) ||
+          busSchedules.any((s) =>
+              (s.routeNameBn?.toLowerCase().contains(query) ?? false) ||
+              (s.routeNameEn?.toLowerCase().contains(query) ?? false)) ||
           (route.toLowerCase().contains(query));
 
       return matchesCategory && matchesSearch;

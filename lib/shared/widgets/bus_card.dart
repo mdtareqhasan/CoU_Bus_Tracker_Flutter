@@ -60,11 +60,10 @@ class BusCard extends StatelessWidget {
                             bus.busNumber ?? 'N/A',
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
-                          if (bus.busName != null &&
-                              bus.busName!.isNotEmpty) ...[
+                          if (bus.localizedBusName != null) ...[
                             const SizedBox(width: 8),
                             Text(
-                              bus.busName!,
+                              bus.localizedBusName!,
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],

@@ -79,9 +79,10 @@ class ScheduleListState {
 
       final matchesSearch =
           (schedule.busNumber?.toLowerCase().contains(query) ?? false) ||
-          (schedule.busName?.toLowerCase().contains(query) ?? false) ||
-          (schedule.startPoint?.toLowerCase().contains(query) ?? false) ||
-          (schedule.endPoint?.toLowerCase().contains(query) ?? false) ||
+          (schedule.busNameBn?.toLowerCase().contains(query) ?? false) ||
+          (schedule.busNameEn?.toLowerCase().contains(query) ?? false) ||
+          (schedule.routeNameBn?.toLowerCase().contains(query) ?? false) ||
+          (schedule.routeNameEn?.toLowerCase().contains(query) ?? false) ||
           (time.contains(englishQuery)) ||
           (bengaliTime.contains(query));
 

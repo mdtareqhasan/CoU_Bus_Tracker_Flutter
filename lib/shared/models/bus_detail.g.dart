@@ -9,9 +9,9 @@ part of 'bus_detail.dart';
 BusDetail _$BusDetailFromJson(Map<String, dynamic> json) => BusDetail(
   id: (json['id'] as num?)?.toInt(),
   busNumber: json['busNumber'] as String?,
-  busName: json['busName'] as String?,
+  busNameBn: json['busNameBn'] as String?,
+  busNameEn: json['busNameEn'] as String?,
   category: json['category'] as String?,
-  route: json['route'] as String?,
   driverName: json['driverName'] as String?,
   driverPhone: json['driverPhone'] as String?,
   busImageUrl: json['busImageUrl'] as String?,
@@ -25,9 +25,9 @@ BusDetail _$BusDetailFromJson(Map<String, dynamic> json) => BusDetail(
 Map<String, dynamic> _$BusDetailToJson(BusDetail instance) => <String, dynamic>{
   'id': instance.id,
   'busNumber': instance.busNumber,
-  'busName': instance.busName,
+  'busNameBn': instance.busNameBn,
+  'busNameEn': instance.busNameEn,
   'category': instance.category,
-  'route': instance.route,
   'driverName': instance.driverName,
   'driverPhone': instance.driverPhone,
   'busImageUrl': instance.busImageUrl,

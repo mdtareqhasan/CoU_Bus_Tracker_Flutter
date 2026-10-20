@@ -222,7 +222,7 @@ class _BusListScreenState extends ConsumerState<BusListScreen> {
             );
             final route = busSchedules.isNotEmpty
                 ? busSchedules.first.routeDisplay
-                : bus.route ?? context.l10n.busRouteMissing;
+                : context.l10n.busRouteMissing;
 
             return AnimationConfiguration.staggeredList(
               position: index,

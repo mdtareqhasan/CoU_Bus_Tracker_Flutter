@@ -7,9 +7,9 @@ part 'bus.g.dart';
 class Bus {
   final int? id;
   final String? busNumber;
-  final String? busName;
+  final String? busNameBn;
+  final String? busNameEn;
   final String? category;
-  final String? route;
   final String? driverName;
   final String? driverPhone;
   final String? busImageUrl;
@@ -19,9 +19,9 @@ class Bus {
   const Bus({
     this.id,
     this.busNumber,
-    this.busName,
+    this.busNameBn,
+    this.busNameEn,
     this.category,
-    this.route,
     this.driverName,
     this.driverPhone,
     this.busImageUrl,
@@ -32,9 +32,25 @@ class Bus {
   factory Bus.fromJson(Map<String, dynamic> json) => _$BusFromJson(json);
   Map<String, dynamic> toJson() => _$BusToJson(this);
 
+  /// Bus name in the active app language, falling back to the other language
+  /// and finally to the bus number.
   String get displayBusName {
-    if (busName != null && busName!.isNotEmpty) return busName!;
+    final name = localizedBusName;
+    if (name != null && name.isNotEmpty) return name;
     return busNumber ?? 'N/A';
+  }
+
+  /// Raw bus name in the active app language (no bus-number fallback).
+  String? get localizedBusName => _localized(busNameBn, busNameEn);
+
+  /// Picks [bn] or [en] to match the active app language, falling back to the
+  /// other language when the preferred one is missing or empty.
+  static String? _localized(String? bn, String? en) {
+    final preferred = L10n.locale.languageCode == 'bn' ? bn : en;
+    final fallback = L10n.locale.languageCode == 'bn' ? en : bn;
+    if (preferred != null && preferred.isNotEmpty) return preferred;
+    if (fallback != null && fallback.isNotEmpty) return fallback;
+    return null;
   }
 
   String get categoryLabel {

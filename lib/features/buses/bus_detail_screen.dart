@@ -489,8 +489,9 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
       child: ElevatedButton(
         onPressed: () {
           final url = bus.trackerUrl!;
-          final name =
-              bus.busNumber ?? bus.busName ?? context.l10n.busTrackingTitle;
+          final name = bus.busNumber ??
+              bus.localizedBusName ??
+              context.l10n.busTrackingTitle;
           context.push(
             '/bus/live/${bus.id}',
             extra: {'url': url, 'name': name},

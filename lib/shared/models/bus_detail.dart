@@ -11,9 +11,9 @@ class BusDetail extends Bus {
   const BusDetail({
     super.id,
     super.busNumber,
-    super.busName,
+    super.busNameBn,
+    super.busNameEn,
     super.category,
-    super.route,
     super.driverName,
     super.driverPhone,
     super.busImageUrl,
