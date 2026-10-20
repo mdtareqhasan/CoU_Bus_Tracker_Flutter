@@ -54,13 +54,12 @@ class AppTheme {
     end: Alignment.bottomCenter,
   );
 
-  /// Dark-mode gradient: a restrained navy to blue-violet surface that keeps
-  /// the header visually rich without introducing a bright cyan highlight.
+  /// Dark-mode gradient: a subtle charcoal-to-navy surface. The low contrast
+  /// keeps dark-mode headers calm while preserving the app's blue identity.
   static const LinearGradient darkPrimaryGradient = LinearGradient(
     colors: [
-      Color(0xFF080D1D), // Near-black navy
-      Color(0xFF111D3D), // Deep navy
-      Color(0xFF1B4A72), // Deep steel blue
+      Color(0xFF10151F), // Charcoal navy
+      Color(0xFF152A43), // Quiet navy blue
     ],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
