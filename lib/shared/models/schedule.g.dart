@@ -20,6 +20,7 @@ Schedule _$ScheduleFromJson(Map<String, dynamic> json) => Schedule(
   routeNameBn: json['routeNameBn'] as String?,
   routeNameEn: json['routeNameEn'] as String?,
   days: json['days'] as String?,
+  isActive: json['isActive'] as bool? ?? true,
 );
 
 Map<String, dynamic> _$ScheduleToJson(Schedule instance) => <String, dynamic>{
@@ -36,4 +37,5 @@ Map<String, dynamic> _$ScheduleToJson(Schedule instance) => <String, dynamic>{
   'routeNameBn': instance.routeNameBn,
   'routeNameEn': instance.routeNameEn,
   'days': instance.days,
+  'isActive': instance.isActive,
 };

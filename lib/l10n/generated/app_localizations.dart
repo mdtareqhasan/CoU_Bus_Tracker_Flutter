@@ -962,6 +962,12 @@ abstract class AppLocalizations {
   /// **'শিডিউল ও রুট'**
   String get scheduleRouteTitle;
 
+  /// Bus detail — badge on a deactivated trip; the trip stays visible, greyed out, so a rider who taps the "service paused" notification sees why it will not run.
+  ///
+  /// In bn, this message translates to:
+  /// **'সাময়িক বন্ধ'**
+  String get busSchedulePaused;
+
   /// Bus detail — link to live tracking.
   ///
   /// In bn, this message translates to:

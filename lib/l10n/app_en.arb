@@ -164,6 +164,7 @@
 
   "driverInfoTitle": "Driver information",
   "scheduleRouteTitle": "Schedule & route",
+  "busSchedulePaused": "Paused",
   "busSeeLiveLocation": "See live location",
   "commonError": "Error",
 

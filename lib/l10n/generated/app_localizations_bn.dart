@@ -483,6 +483,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get scheduleRouteTitle => 'শিডিউল ও রুট';
 
   @override
+  String get busSchedulePaused => 'সাময়িক বন্ধ';
+
+  @override
   String get busSeeLiveLocation => 'লাইভ লোকেশন দেখুন';
 
   @override

@@ -12,6 +12,21 @@ import '../../shared/models/bus_detail.dart';
 import '../../shared/models/schedule.dart';
 import '../providers.dart';
 
+/// Trips to render on the bus page.
+///
+/// The schedule-change deep link (`/bus/:id?scheduleId=<id>`) points at one
+/// specific trip, so the page normally shows just that trip. A *deleted* trip
+/// matches nothing — falling back to every trip beats rendering an empty
+/// section under the "Schedule & route" heading.
+List<Schedule> schedulesToShow(
+  List<Schedule> schedules,
+  int? initialScheduleId,
+) {
+  if (initialScheduleId == null) return schedules;
+  final target = schedules.where((s) => s.id == initialScheduleId).toList();
+  return target.isEmpty ? schedules : target;
+}
+
 class BusDetailScreen extends ConsumerStatefulWidget {
   final int busId;
   final int? initialScheduleId;
@@ -356,103 +371,145 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
   }
 
   Widget _buildSchedules(BusDetail bus) {
-    var schedules = bus.schedules ?? [];
-
-    // Filter by initialScheduleId if coming from Schedule page
-    if (widget.initialScheduleId != null) {
-      schedules = schedules
-          .where((s) => s.id == widget.initialScheduleId)
-          .toList();
-    }
+    // Deep-linked trip only; falls back to all trips when the tapped trip was
+    // deleted (see schedulesToShow).
+    final schedules = schedulesToShow(
+      bus.schedules ?? [],
+      widget.initialScheduleId,
+    );
 
     return Column(
       children: schedules
           .map(
             (s) => Padding(
               padding: const EdgeInsets.only(bottom: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryBlue.withValues(alpha: 0.05),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.access_time_rounded,
-                          size: 16,
-                          color: AppTheme.primaryBlue,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        s.displayDeparture,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      if (s.days != null)
+              // A paused trip stays visible, greyed out — the "service paused"
+              // push points here, so the page must show the trip *and* that it
+              // will not run.
+              child: Opacity(
+                opacity: s.isActive ? 1 : 0.55,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
+                          padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryBlue.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(4),
+                            color: AppTheme.primaryBlue.withValues(alpha: 0.05),
+                            shape: BoxShape.circle,
                           ),
+                          child: const Icon(
+                            Icons.access_time_rounded,
+                            size: 16,
+                            color: AppTheme.primaryBlue,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          s.displayDeparture,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        if (s.days != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryBlue.withValues(
+                                alpha: 0.1,
+                              ),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              s.days!,
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: AppTheme.primaryBlue,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        if (!s.isActive) ...[
+                          const SizedBox(width: 8),
+                          Flexible(child: _buildPausedBadge()),
+                        ],
+                        const Spacer(),
+                        _buildDirectionBadge(s),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.route_rounded,
+                          size: 16,
+                          color: AppTheme.textHint,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
                           child: Text(
-                            s.days!,
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: AppTheme.primaryBlue,
-                              fontWeight: FontWeight.bold,
+                            s.routeDisplay,
+                            // Theme-aware: this sits on the scaffold background,
+                            // which is `backgroundDark` in dark mode, where the
+                            // hard-coded `AppTheme.textPrimary` is ~1.2:1.
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Theme.of(context).colorScheme.onSurface,
+                              height: 1.4,
                             ),
                           ),
                         ),
-                      const Spacer(),
-                      _buildDirectionBadge(s),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.route_rounded,
-                        size: 16,
-                        color: AppTheme.textHint,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          s.routeDisplay,
-                          // Theme-aware: this sits on the scaffold background,
-                          // which is `backgroundDark` in dark mode, where the
-                          // hard-coded `AppTheme.textPrimary` is ~1.2:1.
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(context).colorScheme.onSurface,
-                            height: 1.4,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (schedules.indexOf(s) != schedules.length - 1)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 16),
-                      child: Divider(height: 1, thickness: 0.5),
+                      ],
                     ),
-                ],
+                    if (schedules.indexOf(s) != schedules.length - 1)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 16),
+                        child: Divider(height: 1, thickness: 0.5),
+                      ),
+                  ],
+                ),
               ),
             ),
           )
           .toList(),
+    );
+  }
+
+  /// Grey "Paused" chip marking a deactivated trip. Sits next to the departure
+  /// time so the eye lands on it while reading the schedule.
+  Widget _buildPausedBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: AppTheme.textHint.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.pause_circle_outline_rounded,
+            size: 12,
+            color: AppTheme.textHint,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            context.l10n.busSchedulePaused,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 10,
+              color: AppTheme.textHint,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -489,7 +546,8 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
       child: ElevatedButton(
         onPressed: () {
           final url = bus.trackerUrl!;
-          final name = bus.busNumber ??
+          final name =
+              bus.busNumber ??
               bus.localizedBusName ??
               context.l10n.busTrackingTitle;
           context.push(

@@ -484,6 +484,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scheduleRouteTitle => 'Schedule & route';
 
   @override
+  String get busSchedulePaused => 'Paused';
+
+  @override
   String get busSeeLiveLocation => 'See live location';
 
   @override

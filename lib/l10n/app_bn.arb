@@ -730,6 +730,11 @@
   },
   "scheduleRouteTitle": "শিডিউল ও রুট",
 
+  "@busSchedulePaused": {
+    "description": "Bus detail — badge on a deactivated trip; the trip stays visible, greyed out, so a rider who taps the \"service paused\" notification sees why it will not run."
+  },
+  "busSchedulePaused": "সাময়িক বন্ধ",
+
   "@busSeeLiveLocation": {
     "description": "Bus detail — link to live tracking."
   },

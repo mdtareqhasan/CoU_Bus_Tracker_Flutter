@@ -20,6 +20,14 @@ class Schedule {
   final String? routeNameEn;
   final String? days;
 
+  /// Whether the trip still runs. Deactivated schedules stay in the bus
+  /// detail payload (the schedules tab filters them server-side), so the
+  /// bus page can grey them out instead of hiding them — a rider who taps
+  /// the "service paused" push must see the trip *and* that it is off.
+  /// Missing from JSON (older cache) is treated as running.
+  @JsonKey(defaultValue: true)
+  final bool isActive;
+
   const Schedule({
     this.id,
     this.busId,
@@ -34,6 +42,7 @@ class Schedule {
     this.routeNameBn,
     this.routeNameEn,
     this.days,
+    this.isActive = true,
   });
 
   factory Schedule.fromJson(Map<String, dynamic> json) =>
@@ -53,8 +62,12 @@ class Schedule {
   /// language. A bus runs different routes at different times of day, so the
   /// route belongs to the schedule, not the bus.
   String? get localizedRouteName {
-    final preferred = L10n.locale.languageCode == 'bn' ? routeNameBn : routeNameEn;
-    final fallback = L10n.locale.languageCode == 'bn' ? routeNameEn : routeNameBn;
+    final preferred = L10n.locale.languageCode == 'bn'
+        ? routeNameBn
+        : routeNameEn;
+    final fallback = L10n.locale.languageCode == 'bn'
+        ? routeNameEn
+        : routeNameBn;
     if (preferred != null && preferred.isNotEmpty) return preferred;
     if (fallback != null && fallback.isNotEmpty) return fallback;
     return null;
