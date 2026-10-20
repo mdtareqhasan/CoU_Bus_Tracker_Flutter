@@ -5,8 +5,14 @@ import '../models/schedule.dart';
 class ScheduleCard extends StatelessWidget {
   final Schedule schedule;
   final VoidCallback onTap;
+  final bool flat;
 
-  const ScheduleCard({super.key, required this.schedule, required this.onTap});
+  const ScheduleCard({
+    super.key,
+    required this.schedule,
+    required this.onTap,
+    this.flat = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -14,18 +20,24 @@ class ScheduleCard extends StatelessWidget {
     final isUp = schedule.direction?.toUpperCase() == 'UP';
     final directionColor = isUp ? AppTheme.success : AppTheme.warning;
 
+    final radius = BorderRadius.circular(
+      flat ? AppTheme.radiusMedium : AppTheme.radiusLarge,
+    );
+
     return Container(
       margin: const EdgeInsets.only(bottom: AppTheme.space12),
       decoration: BoxDecoration(
-        color: isDark ? AppTheme.surfaceDark : AppTheme.surfaceLight,
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        boxShadow: AppTheme.softShadow,
+        color: flat
+            ? Colors.transparent
+            : (isDark ? AppTheme.surfaceDark : AppTheme.surfaceLight),
+        borderRadius: radius,
+        boxShadow: flat ? null : AppTheme.softShadow,
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+          borderRadius: radius,
           child: Padding(
             padding: const EdgeInsets.all(AppTheme.space16),
             child: Column(

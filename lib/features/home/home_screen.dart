@@ -505,8 +505,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildTimeGroup(String time, List<Schedule> schedules, int index) {
     final bengaliTime = TimeUtils.formatTime(time);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppTheme.space16),
+    return Container(
+      margin: const EdgeInsets.only(bottom: AppTheme.space16),
+      padding: const EdgeInsets.fromLTRB(
+        AppTheme.space16,
+        AppTheme.space16,
+        AppTheme.space16,
+        AppTheme.space4,
+      ),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        boxShadow: AppTheme.softShadow,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -552,14 +563,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   child: SlideAnimation(
                     verticalOffset: 20.0,
                     child: FadeInAnimation(
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: ScheduleCard(
-                          schedule: s,
-                          onTap: () => context.push(
-                            '/bus/${s.busId}?scheduleId=${s.id}',
+                      child: Column(
+                        children: [
+                          if (i > 0)
+                            Divider(
+                              height: 1,
+                              indent: AppTheme.space16,
+                              endIndent: AppTheme.space16,
+                              color: Theme.of(context)
+                                  .dividerColor
+                                  .withValues(alpha: 0.16),
+                            ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: ScheduleCard(
+                              schedule: s,
+                              flat: true,
+                              onTap: () => context.push(
+                                '/bus/${s.busId}?scheduleId=${s.id}',
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
                   ),
