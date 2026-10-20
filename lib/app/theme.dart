@@ -54,14 +54,13 @@ class AppTheme {
     end: Alignment.bottomCenter,
   );
 
-  /// Dark-mode sibling of [primaryGradient]. The indigo, slate-blue, and teal
-  /// stops keep the same brand direction while sitting closer to the dark
-  /// surface palette and avoiding a bright cyan band behind white text.
+  /// Dark-mode gradient: a restrained navy to blue-violet surface that keeps
+  /// the header visually rich without introducing a bright cyan highlight.
   static const LinearGradient darkPrimaryGradient = LinearGradient(
     colors: [
-      Color(0xFF141238), // Deep indigo
-      Color(0xFF1B3768), // Slate blue
-      Color(0xFF176575), // Muted teal
+      Color(0xFF080D1D), // Near-black navy
+      Color(0xFF111D3D), // Deep navy
+      Color(0xFF29235C), // Blue-violet
     ],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
