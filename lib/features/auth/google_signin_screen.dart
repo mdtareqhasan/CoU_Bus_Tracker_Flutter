@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import '../../app/app.dart';
 import '../../app/theme.dart';
 import '../../core/error_handler.dart';
 import '../../core/services/google_signin_service.dart';
@@ -37,6 +38,7 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
       if (next.status == AuthStateStatus.authenticated) {
         requestPostAuthNotificationPermissionAfterNavigation(context);
         context.go('/home');
+        consumePendingRouteForLogin();
       } else if (next.status == AuthStateStatus.needsProfileDetails) {
         // Google Sign-In creates the row with department/roll/session NULL.
         context.go('/auth/academic-details?role=${next.role ?? widget.role}');

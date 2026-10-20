@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../app/app.dart';
 import '../../app/theme.dart';
 import '../../core/error_handler.dart';
 import '../../core/result.dart';
@@ -333,6 +334,7 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
       // Profile is complete now — straight to the app, no ID-card step.
       requestPostAuthNotificationPermissionAfterNavigation(context);
       context.go('/home');
+      consumePendingRouteForLogin();
       return;
     }
 

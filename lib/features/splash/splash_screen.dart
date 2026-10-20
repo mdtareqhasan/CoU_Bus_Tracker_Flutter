@@ -5,10 +5,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../core/constants.dart';
 import '../../core/config/remote_config_service.dart';
 import '../../core/config/app_version_checker.dart';
+import '../../core/services/pending_notification_route.dart';
 import '../auth/auth_provider.dart';
 import '../providers.dart';
 import 'maintenance_screen.dart';
@@ -89,7 +91,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     if (authState.status == AuthStateStatus.initial) {
       final storage = ref.read(storageServiceProvider);
       if (storage.isLoggedIn()) {
+        // Restore timed out but local storage still says signed in: land on
+        // home, with any parked deep-link route on top of it.
+        final pending = PendingNotificationRoute.consume();
         context.go('/home');
+        if (pending != null) {
+          appRouter.push(pending);
+        }
       } else {
         context.go('/auth/role');
       }
@@ -97,7 +105,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     }
 
     if (authState.status == AuthStateStatus.authenticated) {
+      // A cold-start tap parked its deep-link route; replay it on top of home
+      // instead of a plain home landing. Falls back to home when nothing pending.
+      final pending = PendingNotificationRoute.consume();
       context.go('/home');
+      if (pending != null) {
+        appRouter.push(pending);
+      }
     } else if (authState.status == AuthStateStatus.needsProfileDetails) {
       final role = authState.role ?? 'student';
       context.go('/auth/academic-details?role=$role');

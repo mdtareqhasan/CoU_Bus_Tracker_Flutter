@@ -6,6 +6,7 @@ import 'router.dart';
 import 'theme.dart';
 import '../core/api_client.dart';
 import '../core/services/notification_service.dart';
+import '../core/services/pending_notification_route.dart';
 import '../core/update_service.dart';
 import '../features/auth/auth_provider.dart';
 import '../features/notifications/fcm_token_service.dart';
@@ -34,6 +35,16 @@ class _CoUBusTrackerAppState extends ConsumerState<CoUBusTrackerApp> {
     NotificationService.onTokenAvailable = (token) =>
         ref.read(fcmTokenServiceProvider).registerToken(token);
 
+    // A tapped notification hands us its deep-link route. Park it, then
+    // navigate right away if the app is already up (background-tap, or a tap
+    // on a foreground local notification). On a cold start, main() already
+    // parked the route before the router existed; splash replays it once
+    // the session is known, so this intentionally no-ops there.
+    NotificationService.onNotificationTap = (route) {
+      PendingNotificationRoute.set(route);
+      _replayPendingRoute();
+    };
+
     // If we restored an existing session on launch, register the token now —
     // the login path won't run in that case.
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -47,7 +58,26 @@ class _CoUBusTrackerAppState extends ConsumerState<CoUBusTrackerApp> {
     AuthInterceptor.onSessionExpired = null;
     AuthInterceptor.onProfileIncomplete = null;
     NotificationService.onTokenAvailable = null;
+    NotificationService.onNotificationTap = null;
     super.dispose();
+  }
+
+  /// Replays a route carried by a tapped notification, if one is pending and
+  /// the user is authenticated.
+  ///
+  /// Deliberately no-ops while splash is still the current location: splash
+  /// owns the first navigation decision (pushing a page now would be wiped by
+  /// its own `go('/home')` seconds later and leave a dead splash beneath it).
+  /// Splash consumes the pending route itself; an unauthenticated user's
+  /// route is left for the post-login path (`consumePendingRouteForLogin`).
+  void _replayPendingRoute() {
+    if (!PendingNotificationRoute.hasPending) return;
+    if (appRouter.state.uri.path == '/splash') return;
+    final authState = ref.read(authProvider);
+    if (!authState.isLoggedIn) return;
+    final route = PendingNotificationRoute.consume();
+    if (route == null) return;
+    appRouter.push(route);
   }
 
   /// Registers this device's FCM token on app start when a session already
@@ -123,4 +153,17 @@ class _CoUBusTrackerAppState extends ConsumerState<CoUBusTrackerApp> {
       supportedLocales: AppLocalizations.supportedLocales,
     );
   }
+}
+
+/// Call right after a successful login navigates to `/home`.
+///
+/// If the user tapped a notification while logged out, the deep-link route was
+/// parked in [PendingNotificationRoute]; now that they're authenticated we
+/// replay it on top of the home shell. Returns the route it opened (for tests
+/// / logging), or null when nothing was pending.
+String? consumePendingRouteForLogin() {
+  final route = PendingNotificationRoute.consume();
+  if (route == null) return null;
+  appRouter.push(route);
+  return route;
 }

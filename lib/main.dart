@@ -9,6 +9,7 @@ import 'features/providers.dart';
 import 'firebase_options.dart';
 
 import 'core/services/notification_service.dart';
+import 'core/services/pending_notification_route.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -27,6 +28,12 @@ void main() async {
 
   // Register the FCM background handler.
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  // Wire the tap callback BEFORE initialize(): a cold-start tap delivers its
+  // route through getInitialMessage() inside initialize(), long before runApp
+  // builds the router — so this early callback may only park the route.
+  // CoUBusTrackerApp upgrades it to store-and-navigate once the app is up.
+  NotificationService.onNotificationTap = PendingNotificationRoute.set;
 
   await NotificationService.initialize();
 
