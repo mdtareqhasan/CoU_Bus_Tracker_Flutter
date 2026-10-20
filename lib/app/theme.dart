@@ -60,7 +60,7 @@ class AppTheme {
     colors: [
       Color(0xFF080D1D), // Near-black navy
       Color(0xFF111D3D), // Deep navy
-      Color(0xFF29235C), // Blue-violet
+      Color(0xFF1B4A72), // Deep steel blue
     ],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
