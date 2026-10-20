@@ -336,21 +336,23 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
 
   Widget _buildTimeGroup(String time, List<Schedule> schedules, int index) {
     final bengaliTime = TimeUtils.formatTime(time);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Container(
       margin: const EdgeInsets.only(bottom: AppTheme.space16),
+      padding: const EdgeInsets.fromLTRB(
+        AppTheme.space16,
+        AppTheme.space16,
+        AppTheme.space16,
+        AppTheme.space4,
+      ),
       decoration: BoxDecoration(
-        color: isDark ? AppTheme.surfaceDark : AppTheme.surfaceLight,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
         boxShadow: AppTheme.softShadow,
       ),
-      child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          initiallyExpanded: true,
-          shape: const RoundedRectangleBorder(side: BorderSide.none),
-          title: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(AppTheme.space8),
@@ -364,56 +366,61 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                   size: 20,
                 ),
               ),
-              const SizedBox(width: AppTheme.space16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    bengaliTime,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  Text(
-                    context.l10n.countBuses(schedules.length),
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
+              const SizedBox(width: AppTheme.space12),
+              Text(bengaliTime, style: Theme.of(context).textTheme.titleMedium),
+              const Spacer(),
+              Text(
+                context.l10n.countBuses(schedules.length),
+                style: Theme.of(context).textTheme.bodySmall,
               ),
             ],
           ),
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppTheme.space16,
-                vertical: AppTheme.space8,
-              ),
-              child: AnimationLimiter(
-                child: Column(
-                  children: List.generate(schedules.length, (i) {
-                    final s = schedules[i];
-                    return AnimationConfiguration.staggeredList(
-                      position: i,
-                      duration: const Duration(milliseconds: 375),
-                      child: SlideAnimation(
-                        verticalOffset: 20.0,
-                        child: FadeInAnimation(
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
+          const SizedBox(height: AppTheme.space12),
+          Divider(
+            height: 1,
+            color: Theme.of(context).dividerColor.withValues(alpha: 0.5),
+          ),
+          const SizedBox(height: AppTheme.space12),
+          AnimationLimiter(
+            child: Column(
+              children: List.generate(schedules.length, (i) {
+                final s = schedules[i];
+                return AnimationConfiguration.staggeredList(
+                  position: i,
+                  duration: const Duration(milliseconds: 375),
+                  child: SlideAnimation(
+                    verticalOffset: 20.0,
+                    child: FadeInAnimation(
+                      child: Column(
+                        children: [
+                          if (i > 0)
+                            Divider(
+                              height: 1,
+                              indent: AppTheme.space16,
+                              endIndent: AppTheme.space16,
+                              color: Theme.of(context)
+                                  .dividerColor
+                                  .withValues(alpha: 0.16),
+                            ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
                             child: ScheduleCard(
                               schedule: s,
+                              flat: true,
                               onTap: () => context.push(
                                 '/bus/${s.busId}?scheduleId=${s.id}',
                               ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
-                    );
-                  }),
-                ),
-              ),
+                    ),
+                  ),
+                );
+              }),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     ).animate().fadeIn(delay: (index * 100).ms).slideY(begin: 0.1, end: 0);
   }
