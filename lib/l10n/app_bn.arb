@@ -1243,7 +1243,7 @@
   "@aboutAppDescription": {
     "description": "About Us — one-line app description under the logo."
   },
-  "aboutAppDescription": "কমিলা বিশ্ববিদ্যালয়ের বাস রিয়েল-টাইমে ট্র্যাক করার অ্যাপ, সাথে বাস সময়সূচি",
+  "aboutAppDescription": "কুমিল্লা বিশ্ববিদ্যালয়ের বাস রিয়েল-টাইমে ট্র্যাক করার অ্যাপ, সাথে বাস সময়সূচি",
 
   "@aboutDeptName": {
     "description": "About Us — heading of the department credit card."
@@ -1278,22 +1278,22 @@
   "@aboutInfoLeadDeveloper": {
     "description": "About Us — affiliation line of the lead developer card (batch 16)."
   },
-  "aboutInfoLeadDeveloper": "সিএসই বিভাগ, ব্যাচ: ১৬, কমিলা বিশ্ববিদ্যালয়",
+  "aboutInfoLeadDeveloper": "সিএসই বিভাগ, ব্যাচ: ১৬, কুমিল্লা বিশ্ববিদ্যালয়",
 
   "@aboutInfoMaintainer": {
     "description": "About Us — affiliation line of the current maintainer card (batch 17)."
   },
-  "aboutInfoMaintainer": "সিএসই বিভাগ, ব্যাচ: ১৭, কমিলা বিশ্ববিদ্যালয়",
+  "aboutInfoMaintainer": "সিএসই বিভাগ, ব্যাচ: ১৭, কুমিল্লা বিশ্ববিদ্যালয়",
 
   "@aboutInfoConsultant": {
     "description": "About Us — two-line affiliation of the project consultant card."
   },
-  "aboutInfoConsultant": "মাক্রো প্রো, থাইল্যান্ডে সিনিয়র প্ল্যাটফর্ম ইঞ্জিনিয়ার\nসিএসই ১০ ব্যাচ, কমিলা বিশ্ববিদ্যালয়",
+  "aboutInfoConsultant": "মাক্রো প্রো, থাইল্যান্ডে সিনিয়র প্ল্যাটফর্ম ইঞ্জিনিয়ার\nসিএসই ১০ ব্যাচ, কুমিল্লা বিশ্ববিদ্যালয়",
 
   "@aboutInfoAdvisor": {
     "description": "About Us — affiliation line of the advisor card."
   },
-  "aboutInfoAdvisor": "কমিলা বিশ্ববিদ্যালয়, সিএসই বিভাগে লেকচারার",
+  "aboutInfoAdvisor": "কুমিল্লা বিশ্ববিদ্যালয়, সিএসই বিভাগে লেকচারার",
 
   "@profileDarkMode": {
     "description": "Label for the profile dark mode setting."

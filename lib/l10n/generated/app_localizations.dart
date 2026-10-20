@@ -2207,7 +2207,7 @@ abstract class AppLocalizations {
   /// About Us — one-line app description under the logo.
   ///
   /// In bn, this message translates to:
-  /// **'কমিলা বিশ্ববিদ্যালয়ের বাস রিয়েল-টাইমে ট্র্যাক করার অ্যাপ, সাথে বাস সময়সূচি'**
+  /// **'কুমিল্লা বিশ্ববিদ্যালয়ের বাস রিয়েল-টাইমে ট্র্যাক করার অ্যাপ, সাথে বাস সময়সূচি'**
   String get aboutAppDescription;
 
   /// About Us — heading of the department credit card.
@@ -2249,25 +2249,25 @@ abstract class AppLocalizations {
   /// About Us — affiliation line of the lead developer card (batch 16).
   ///
   /// In bn, this message translates to:
-  /// **'সিএসই বিভাগ, ব্যাচ: ১৬, কমিলা বিশ্ববিদ্যালয়'**
+  /// **'সিএসই বিভাগ, ব্যাচ: ১৬, কুমিল্লা বিশ্ববিদ্যালয়'**
   String get aboutInfoLeadDeveloper;
 
   /// About Us — affiliation line of the current maintainer card (batch 17).
   ///
   /// In bn, this message translates to:
-  /// **'সিএসই বিভাগ, ব্যাচ: ১৭, কমিলা বিশ্ববিদ্যালয়'**
+  /// **'সিএসই বিভাগ, ব্যাচ: ১৭, কুমিল্লা বিশ্ববিদ্যালয়'**
   String get aboutInfoMaintainer;
 
   /// About Us — two-line affiliation of the project consultant card.
   ///
   /// In bn, this message translates to:
-  /// **'মাক্রো প্রো, থাইল্যান্ডে সিনিয়র প্ল্যাটফর্ম ইঞ্জিনিয়ার\nসিএসই ১০ ব্যাচ, কমিলা বিশ্ববিদ্যালয়'**
+  /// **'মাক্রো প্রো, থাইল্যান্ডে সিনিয়র প্ল্যাটফর্ম ইঞ্জিনিয়ার\nসিএসই ১০ ব্যাচ, কুমিল্লা বিশ্ববিদ্যালয়'**
   String get aboutInfoConsultant;
 
   /// About Us — affiliation line of the advisor card.
   ///
   /// In bn, this message translates to:
-  /// **'কমিলা বিশ্ববিদ্যালয়, সিএসই বিভাগে লেকচারার'**
+  /// **'কুমিল্লা বিশ্ববিদ্যালয়, সিএসই বিভাগে লেকচারার'**
   String get aboutInfoAdvisor;
 
   /// Label for the profile dark mode setting.

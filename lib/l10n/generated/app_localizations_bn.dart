@@ -1143,7 +1143,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get aboutAppDescription =>
-      'কমিলা বিশ্ববিদ্যালয়ের বাস রিয়েল-টাইমে ট্র্যাক করার অ্যাপ, সাথে বাস সময়সূচি';
+      'কুমিল্লা বিশ্ববিদ্যালয়ের বাস রিয়েল-টাইমে ট্র্যাক করার অ্যাপ, সাথে বাস সময়সূচি';
 
   @override
   String get aboutDeptName => 'কম্পিউটার সায়েন্স অ্যান্ড ইঞ্জিনিয়ারিং';
@@ -1166,18 +1166,19 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get aboutInfoLeadDeveloper =>
-      'সিএসই বিভাগ, ব্যাচ: ১৬, কমিলা বিশ্ববিদ্যালয়';
+      'সিএসই বিভাগ, ব্যাচ: ১৬, কুমিল্লা বিশ্ববিদ্যালয়';
 
   @override
   String get aboutInfoMaintainer =>
-      'সিএসই বিভাগ, ব্যাচ: ১৭, কমিলা বিশ্ববিদ্যালয়';
+      'সিএসই বিভাগ, ব্যাচ: ১৭, কুমিল্লা বিশ্ববিদ্যালয়';
 
   @override
   String get aboutInfoConsultant =>
-      'মাক্রো প্রো, থাইল্যান্ডে সিনিয়র প্ল্যাটফর্ম ইঞ্জিনিয়ার\nসিএসই ১০ ব্যাচ, কমিলা বিশ্ববিদ্যালয়';
+      'মাক্রো প্রো, থাইল্যান্ডে সিনিয়র প্ল্যাটফর্ম ইঞ্জিনিয়ার\nসিএসই ১০ ব্যাচ, কুমিল্লা বিশ্ববিদ্যালয়';
 
   @override
-  String get aboutInfoAdvisor => 'কমিলা বিশ্ববিদ্যালয়, সিএসই বিভাগে লেকচারার';
+  String get aboutInfoAdvisor =>
+      'কুমিল্লা বিশ্ববিদ্যালয়, সিএসই বিভাগে লেকচারার';
 
   @override
   String get profileDarkMode => 'ডার্ক মোড';
