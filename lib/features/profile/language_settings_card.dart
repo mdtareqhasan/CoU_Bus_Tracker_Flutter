@@ -49,10 +49,14 @@ class LanguageSettingsCard extends ConsumerWidget {
                 const SizedBox(width: 16),
                 Text(
                   context.l10n.profileLanguage,
-                  style: const TextStyle(
+                  // Theme-aware: the card is `cardColor`, which is
+                  // `colorScheme.surface` — i.e. `surfaceDark` in dark mode.
+                  // Hard-coding `AppTheme.textPrimary` put dark text on that
+                  // same dark slate, so the label vanished.
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
-                    color: AppTheme.textPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ],

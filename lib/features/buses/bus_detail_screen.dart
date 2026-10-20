@@ -429,9 +429,12 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
                       Expanded(
                         child: Text(
                           s.routeDisplay,
-                          style: const TextStyle(
+                          // Theme-aware: this sits on the scaffold background,
+                          // which is `backgroundDark` in dark mode, where the
+                          // hard-coded `AppTheme.textPrimary` is ~1.2:1.
+                          style: TextStyle(
                             fontSize: 14,
-                            color: AppTheme.textPrimary,
+                            color: Theme.of(context).colorScheme.onSurface,
                             height: 1.4,
                           ),
                         ),

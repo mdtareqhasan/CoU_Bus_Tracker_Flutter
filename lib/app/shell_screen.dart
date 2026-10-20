@@ -86,7 +86,10 @@ class _ShellScreenState extends State<ShellScreen> {
           onTap: (index) => _shell.goBranch(index),
           backgroundColor: isDark ? AppTheme.surfaceDark : Colors.white,
           selectedItemColor: AppTheme.primaryBlue,
-          unselectedItemColor: isDark ? Colors.white24 : AppTheme.textHint,
+          // Not `Colors.white24` in dark mode: that is white at 24% opacity,
+          // which renders ~2.2:1 on the dark bar and is barely readable.
+          // `textHint` lands at ~5.7:1 there (and is unchanged in light).
+          unselectedItemColor: AppTheme.textHint,
           type: BottomNavigationBarType.fixed,
           elevation: 15,
           items: [

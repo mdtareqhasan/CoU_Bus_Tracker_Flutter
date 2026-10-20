@@ -316,10 +316,13 @@ class ProfileScreen extends ConsumerWidget {
               const SizedBox(width: 12),
               Text(
                 context.l10n.profileIdCard,
-                style: const TextStyle(
+                // Theme-aware: the card is `cardColor` (`surface`), which is
+                // `surfaceDark` in dark mode — `AppTheme.textPrimary` is that
+                // exact colour, so the label vanished there.
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
-                  color: AppTheme.textPrimary,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
