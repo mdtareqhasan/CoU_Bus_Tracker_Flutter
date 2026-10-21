@@ -9,6 +9,7 @@ import '../features/buses/bus_detail_screen.dart';
 import '../features/buses/live_tracking_screen.dart';
 import '../features/schedules/schedule_screen.dart';
 import '../features/notices/notice_screen.dart';
+import '../features/routes/route_screen.dart';
 import '../features/auth/role_screen.dart';
 import '../features/auth/academic_details_screen.dart';
 import '../features/auth/google_signin_screen.dart';
@@ -57,6 +58,15 @@ final appRouter = GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
+              path: '/route',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: RouteScreen()),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
               path: '/buses',
               pageBuilder: (context, state) =>
                   const NoTransitionPage(child: BusListScreen()),
@@ -78,15 +88,6 @@ final appRouter = GoRouter(
               path: '/notices',
               pageBuilder: (context, state) =>
                   const NoTransitionPage(child: NoticeScreen()),
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: '/profile',
-              pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: ProfileScreen()),
             ),
           ],
         ),
@@ -135,6 +136,11 @@ final appRouter = GoRouter(
         final role = state.uri.queryParameters['role'] ?? 'student';
         return AcademicDetailsScreen(role: role);
       },
+    ),
+    GoRoute(
+      path: '/profile',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ProfileScreen(),
     ),
     GoRoute(
       path: '/about',

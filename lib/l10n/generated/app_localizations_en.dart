@@ -208,6 +208,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navHome => 'Home';
 
   @override
+  String get navRoute => 'Route';
+
+  @override
   String get navBuses => 'Buses';
 
   @override

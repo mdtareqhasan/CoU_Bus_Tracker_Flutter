@@ -6,7 +6,7 @@ import 'package:cou_bus_tracker/app/shell_screen.dart';
 import 'package:cou_bus_tracker/l10n/l10n.dart';
 
 /// The five tab routes, in the same order as the app's bottom navigation bar.
-const _tabPaths = ['/home', '/buses', '/schedules', '/notices', '/profile'];
+const _tabPaths = ['/home', '/route', '/buses', '/schedules', '/notices'];
 
 /// Replica of the app's shell wiring from `lib/app/router.dart`, with stub
 /// screens so no providers, storage or network are needed. It uses the real
@@ -77,18 +77,18 @@ void main() {
 
     await swipeLeft(tester);
     expect(find.text('tab-1:0'), findsOneWidget);
-    expect(router.routerDelegate.currentConfiguration.uri.path, '/buses');
+    expect(router.routerDelegate.currentConfiguration.uri.path, '/route');
     expect(selectedTab(tester), 1);
 
     await swipeLeft(tester);
     expect(find.text('tab-2:0'), findsOneWidget);
-    expect(router.routerDelegate.currentConfiguration.uri.path, '/schedules');
+    expect(router.routerDelegate.currentConfiguration.uri.path, '/buses');
     expect(selectedTab(tester), 2);
 
     // Swiping back goes the other way, without skipping a tab.
     await swipeRight(tester);
     expect(find.text('tab-1:0'), findsOneWidget);
-    expect(router.routerDelegate.currentConfiguration.uri.path, '/buses');
+    expect(router.routerDelegate.currentConfiguration.uri.path, '/route');
     expect(selectedTab(tester), 1);
 
     // A swipe on the first tab must not throw (nothing is before it).
@@ -101,11 +101,11 @@ void main() {
     final router = await pumpShell(tester);
 
     // The bottom-nav labels are localized (bn).
-    await tester.tap(find.text('প্রোফাইল'));
+    await tester.tap(find.text('নোটিশ'));
     await tester.pumpAndSettle();
 
     expect(find.text('tab-4:0'), findsOneWidget);
-    expect(router.routerDelegate.currentConfiguration.uri.path, '/profile');
+    expect(router.routerDelegate.currentConfiguration.uri.path, '/notices');
     expect(selectedTab(tester), 4);
 
     // …and from there, a swipe is relative to the new tab.
@@ -119,15 +119,15 @@ void main() {
     final router = await pumpShell(tester);
 
     // Tapping the last tab animates the pager across four pages. The shell
-    // must point at /profile the whole time: `onPageChanged` reports every
+    // must point at /notices the whole time: `onPageChanged` reports every
     // page the pager flies past, and those must not be mistaken for swipes.
-    await tester.tap(find.text('প্রোফাইল'));
+    await tester.tap(find.text('নোটিশ'));
     // Sample a few times while the 250 ms animation is running.
     for (var step = 0; step < 5; step++) {
       await tester.pump(const Duration(milliseconds: 45));
       expect(
         router.routerDelegate.currentConfiguration.uri.path,
-        '/profile',
+        '/notices',
         reason: 'URL changed while the tap animation was in flight',
       );
       expect(selectedTab(tester), 4);
@@ -135,7 +135,7 @@ void main() {
 
     await tester.pumpAndSettle();
     expect(find.text('tab-4:0'), findsOneWidget);
-    expect(router.routerDelegate.currentConfiguration.uri.path, '/profile');
+    expect(router.routerDelegate.currentConfiguration.uri.path, '/notices');
     expect(selectedTab(tester), 4);
   });
 
@@ -144,7 +144,7 @@ void main() {
     final router = await pumpShell(tester);
 
     // Start the (250 ms) animation to the last tab…
-    await tester.tap(find.text('প্রোফাইল'));
+    await tester.tap(find.text('নোটিশ'));
     await tester.pump(const Duration(milliseconds: 80));
 
     // …then interrupt it with a swipe, which takes the pager over mid-flight.
@@ -169,8 +169,8 @@ void main() {
     router.go('/notices');
     await tester.pumpAndSettle();
 
-    expect(find.text('tab-3:0'), findsOneWidget);
-    expect(selectedTab(tester), 3);
+    expect(find.text('tab-4:0'), findsOneWidget);
+    expect(selectedTab(tester), 4);
   });
 
   testWidgets('a tab keeps its state when you swipe away and back', (

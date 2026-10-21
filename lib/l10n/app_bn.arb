@@ -285,6 +285,11 @@
   },
   "navHome": "হোম",
 
+  "@navRoute": {
+    "description": "Bottom navigation — route tab."
+  },
+  "navRoute": "রুট",
+
   "@navBuses": {
     "description": "Bottom navigation — bus list tab."
   },

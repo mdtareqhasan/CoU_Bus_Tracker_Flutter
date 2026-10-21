@@ -9,6 +9,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../app/theme.dart';
+import '../../app/theme_mode_provider.dart';
+import '../../app/locale_provider.dart';
 import '../../l10n/l10n.dart';
 import '../../shared/widgets/stat_card.dart';
 import '../../shared/widgets/schedule_card.dart';
@@ -285,26 +287,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: const Icon(Icons.menu_rounded, color: Colors.white, size: 24),
       ),
       onSelected: (value) {
-        if (value == 'about') {
-          context.push('/about');
+        switch (value) {
+          case 'profile':
+            context.push('/profile');
+          case 'about':
+            context.push('/about');
         }
       },
       itemBuilder: (context) => [
         PopupMenuItem(
+          value: 'profile',
+          child: _MenuItemRow(
+            icon: Icons.person_outline_rounded,
+            label: context.l10n.profileTitle,
+          ),
+        ),
+        const PopupMenuDivider(),
+        const PopupMenuItem<String>(height: 60, child: _ThemeMenuTile()),
+        const PopupMenuItem<String>(height: 60, child: _LanguageMenuTile()),
+        const PopupMenuDivider(),
+        PopupMenuItem(
           value: 'about',
-          child: Row(
-            children: [
-              const Icon(
-                Icons.info_outline_rounded,
-                size: 20,
-                color: AppTheme.primaryBlue,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                context.l10n.aboutUsTitle,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ],
+          child: _MenuItemRow(
+            icon: Icons.info_outline_rounded,
+            label: context.l10n.aboutUsTitle,
           ),
         ),
       ],
@@ -536,10 +542,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
               ),
               const SizedBox(width: AppTheme.space12),
-              Text(
-                bengaliTime,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
+              Text(bengaliTime, style: Theme.of(context).textTheme.titleMedium),
               const Spacer(),
               Text(
                 context.l10n.countBuses(schedules.length),
@@ -570,9 +573,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               height: 1,
                               indent: AppTheme.space16,
                               endIndent: AppTheme.space16,
-                              color: Theme.of(context)
-                                  .dividerColor
-                                  .withValues(alpha: 0.16),
+                              color: Theme.of(
+                                context,
+                              ).dividerColor.withValues(alpha: 0.16),
                             ),
                           Padding(
                             padding: const EdgeInsets.only(top: 8),
@@ -670,6 +673,113 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Plain row used by the navigational entries in the home menu.
+class _MenuItemRow extends StatelessWidget {
+  const _MenuItemRow({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: AppTheme.primaryBlue),
+        const SizedBox(width: 12),
+        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+      ],
+    );
+  }
+}
+
+/// Dark/light switch inside the home menu.
+///
+/// A [ConsumerWidget] on purpose: the menu is a separate route, so the
+/// surrounding [PopupMenuButton] does not rebuild while it is open. Watching
+/// the provider here keeps the switch's thumb in sync immediately.
+class _ThemeMenuTile extends ConsumerWidget {
+  const _ThemeMenuTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mode = ref.watch(themeModeProvider);
+    final isDark =
+        mode == ThemeMode.dark ||
+        (mode == ThemeMode.system &&
+            MediaQuery.platformBrightnessOf(context) == Brightness.dark);
+
+    return Row(
+      children: [
+        Icon(
+          isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+          size: 20,
+          color: AppTheme.primaryBlue,
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            context.l10n.profileDarkMode,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        Switch(
+          value: isDark,
+          onChanged: (enabled) => ref
+              .read(themeModeProvider.notifier)
+              .setThemeMode(enabled ? ThemeMode.dark : ThemeMode.light),
+        ),
+      ],
+    );
+  }
+}
+
+/// Language switch inside the home menu: on = English, off = Bengali.
+class _LanguageMenuTile extends ConsumerWidget {
+  const _LanguageMenuTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isEnglish = ref.watch(localeProvider).languageCode == 'en';
+
+    return Row(
+      children: [
+        const Icon(
+          Icons.translate_rounded,
+          size: 20,
+          color: AppTheme.primaryBlue,
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                context.l10n.profileLanguage,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Text(
+                isEnglish
+                    ? context.l10n.languageEnglish
+                    : context.l10n.languageBengali,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(fontSize: 11),
+              ),
+            ],
+          ),
+        ),
+        Switch(
+          value: isEnglish,
+          onChanged: (english) => ref
+              .read(localeProvider.notifier)
+              .setLanguageCode(english ? 'en' : 'bn'),
+        ),
+      ],
     );
   }
 }

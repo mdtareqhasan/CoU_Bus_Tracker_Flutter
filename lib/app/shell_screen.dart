@@ -99,6 +99,11 @@ class _ShellScreenState extends State<ShellScreen> {
               label: context.l10n.navHome,
             ),
             BottomNavigationBarItem(
+              icon: const Icon(Icons.route_outlined),
+              activeIcon: const Icon(Icons.route_rounded),
+              label: context.l10n.navRoute,
+            ),
+            BottomNavigationBarItem(
               icon: const Icon(Icons.directions_bus_outlined),
               activeIcon: const Icon(Icons.directions_bus_rounded),
               label: context.l10n.navBuses,
@@ -112,11 +117,6 @@ class _ShellScreenState extends State<ShellScreen> {
               icon: const Icon(Icons.notifications_outlined),
               activeIcon: const Icon(Icons.notifications_rounded),
               label: context.l10n.navNotices,
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.person_outline_rounded),
-              activeIcon: const Icon(Icons.person_rounded),
-              label: context.l10n.navProfile,
             ),
           ],
         ),

@@ -8,8 +8,6 @@ import '../../l10n/l10n.dart';
 import '../auth/auth_provider.dart';
 import '../auth/department_options.dart';
 import '../auth/session_options.dart';
-import 'language_settings_card.dart';
-import 'theme_settings_card.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -18,40 +16,29 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
 
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, _) {
-        if (didPop) return;
-        context.go('/home');
-      },
-      child: Scaffold(
-        body: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            _buildSliverAppBar(context),
+    return Scaffold(
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          _buildSliverAppBar(context),
+          SliverToBoxAdapter(
+            child: authState.isLoggedIn
+                ? _buildLoggedInProfile(context, authState)
+                : _buildLoggedOutPrompt(context),
+          ),
+          if (authState.isLoggedIn)
             SliverToBoxAdapter(
-              child: authState.isLoggedIn
-                  ? _buildLoggedInProfile(context, authState)
-                  : _buildLoggedOutPrompt(context),
-            ),
-            // Shown logged-in and logged-out alike: language is an app
-            // setting, not an account one.
-            const SliverToBoxAdapter(child: LanguageSettingsCard()),
-            const SliverToBoxAdapter(child: ThemeSettingsCard()),
-            if (authState.isLoggedIn)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppTheme.space24,
-                    AppTheme.space32,
-                    AppTheme.space24,
-                    AppTheme.space48,
-                  ),
-                  child: _buildLogoutButton(context, ref),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppTheme.space24,
+                  AppTheme.space32,
+                  AppTheme.space24,
+                  AppTheme.space48,
                 ),
+                child: _buildLogoutButton(context, ref),
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
@@ -66,7 +53,7 @@ class ProfileScreen extends ConsumerWidget {
           color: Colors.white,
           size: 20,
         ),
-        onPressed: () => context.go('/home'),
+        onPressed: () => context.canPop() ? context.pop() : context.go('/home'),
       ),
       title: Text(
         context.l10n.profileTitle,

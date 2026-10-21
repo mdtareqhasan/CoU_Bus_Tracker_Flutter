@@ -440,6 +440,12 @@ abstract class AppLocalizations {
   /// **'হোম'**
   String get navHome;
 
+  /// Bottom navigation — route tab.
+  ///
+  /// In bn, this message translates to:
+  /// **'রুট'**
+  String get navRoute;
+
   /// Bottom navigation — bus list tab.
   ///
   /// In bn, this message translates to:
