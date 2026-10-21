@@ -5,7 +5,10 @@ import '../../app/theme.dart';
 import '../../l10n/l10n.dart';
 
 class ForceUpdateScreen extends StatelessWidget {
+  /// Legacy single-language message (old backends / old cache).
   final String message;
+  final String messageBn;
+  final String messageEn;
   final String playStoreUrl;
   final bool forceUpdate;
   final VoidCallback? onSkip;
@@ -13,10 +16,29 @@ class ForceUpdateScreen extends StatelessWidget {
   const ForceUpdateScreen({
     super.key,
     required this.message,
+    this.messageBn = '',
+    this.messageEn = '',
     required this.playStoreUrl,
     required this.forceUpdate,
     this.onSkip,
   });
+
+  /// Body copy for the active locale.
+  ///
+  /// Order: the admin's copy for this language → the other language → the
+  /// legacy single-language value → the app's own translated default. That way
+  /// an English rider never sees Bangla text merely because the panel's Bangla
+  /// box was the only one filled in.
+  String _messageFor(BuildContext context) {
+    final isBangla = Localizations.localeOf(context).languageCode == 'bn';
+    final preferred = (isBangla ? messageBn : messageEn).trim();
+    final other = (isBangla ? messageEn : messageBn).trim();
+
+    if (preferred.isNotEmpty) return preferred;
+    if (other.isNotEmpty) return other;
+    if (message.trim().isNotEmpty) return message.trim();
+    return context.l10n.newVersionBody;
+  }
 
   Future<void> _launchStore() async {
     final uri = Uri.parse(playStoreUrl);
@@ -70,7 +92,7 @@ class ForceUpdateScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    message.isNotEmpty ? message : context.l10n.newVersionBody,
+                    _messageFor(context),
                     style: const TextStyle(
                       fontSize: 16,
                       color: Colors.white70,

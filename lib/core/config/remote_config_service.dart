@@ -7,7 +7,14 @@ class PublicConfig {
   final String latestAppVersion;
   final String minimumAppVersion;
   final bool forceUpdate;
+
+  /// Legacy single-language message. Kept so an app talking to an older
+  /// backend (or reading an old cache) still has something to show.
   final String updateMessage;
+
+  /// Admin-authored copy per language. Empty means "fall back".
+  final String updateMessageBn;
+  final String updateMessageEn;
   final String playStoreUrl;
   final bool maintenanceMode;
   final String maintenanceMessage;
@@ -17,17 +24,25 @@ class PublicConfig {
     required this.minimumAppVersion,
     required this.forceUpdate,
     required this.updateMessage,
+    required this.updateMessageBn,
+    required this.updateMessageEn,
     required this.playStoreUrl,
     required this.maintenanceMode,
     required this.maintenanceMessage,
   });
 
   factory PublicConfig.fromJson(Map<String, dynamic> json) {
+    final legacyMessage = json['updateMessage'] as String? ?? '';
     return PublicConfig(
       latestAppVersion: json['latestAppVersion'] as String? ?? '1.0.0',
       minimumAppVersion: json['minimumAppVersion'] as String? ?? '1.0.0',
       forceUpdate: json['forceUpdate'] as bool? ?? false,
-      updateMessage: json['updateMessage'] as String? ?? '',
+      updateMessage: legacyMessage,
+      // Older payloads only carry `updateMessage`; treating it as the value
+      // for both languages keeps the previous behaviour instead of dropping
+      // the admin's text.
+      updateMessageBn: json['updateMessageBn'] as String? ?? legacyMessage,
+      updateMessageEn: json['updateMessageEn'] as String? ?? legacyMessage,
       playStoreUrl: json['playStoreUrl'] as String? ?? kDefaultPlayStoreUrl,
       maintenanceMode: json['maintenanceMode'] as bool? ?? false,
       maintenanceMessage: json['maintenanceMessage'] as String? ?? '',
@@ -39,6 +54,8 @@ class PublicConfig {
     'minimumAppVersion': minimumAppVersion,
     'forceUpdate': forceUpdate,
     'updateMessage': updateMessage,
+    'updateMessageBn': updateMessageBn,
+    'updateMessageEn': updateMessageEn,
     'playStoreUrl': playStoreUrl,
     'maintenanceMode': maintenanceMode,
     'maintenanceMessage': maintenanceMessage,
@@ -49,6 +66,8 @@ class PublicConfig {
     minimumAppVersion: '1.0.0',
     forceUpdate: false,
     updateMessage: '',
+    updateMessageBn: '',
+    updateMessageEn: '',
     playStoreUrl: kDefaultPlayStoreUrl,
     maintenanceMode: false,
     maintenanceMessage: '',

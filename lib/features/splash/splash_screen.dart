@@ -157,6 +157,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     if (_gateStatus == AppGateStatus.forceUpdate && _config != null) {
       return ForceUpdateScreen(
         message: _config!.updateMessage,
+        messageBn: _config!.updateMessageBn,
+        messageEn: _config!.updateMessageEn,
         playStoreUrl: _config!.playStoreUrl,
         forceUpdate: true,
         onSkip: () => setState(() {
@@ -168,6 +170,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     if (_gateStatus == AppGateStatus.optionalUpdate && _config != null) {
       return ForceUpdateScreen(
         message: _config!.updateMessage,
+        messageBn: _config!.updateMessageBn,
+        messageEn: _config!.updateMessageEn,
         playStoreUrl: _config!.playStoreUrl,
         forceUpdate: false,
         onSkip: () => setState(() {
