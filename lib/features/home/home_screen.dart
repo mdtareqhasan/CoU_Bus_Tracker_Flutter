@@ -18,6 +18,8 @@ import '../../core/utils/time_utils.dart';
 import '../../shared/models/schedule.dart';
 import 'home_provider.dart';
 import '../auth/auth_provider.dart';
+import '../routes/routes_provider.dart';
+import '../../shared/widgets/route_card.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -37,6 +39,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       final authState = ref.read(authProvider);
       ref.read(dashboardProvider.notifier).setUserRole(authState.role);
       ref.read(dashboardProvider.notifier).loadAll();
+      // "My Routes" on Home is the shared listing + this rider's pins. Both
+      // are cache-first and guarded inside the notifier, so a re-landing is
+      // cheap and the section can appear without waiting for the Route tab.
+      unawaited(ref.read(routeListProvider.notifier).loadRoutes());
+      unawaited(ref.read(routeListProvider.notifier).loadPreferences());
       _startConnectivityListener();
     });
   }
@@ -175,13 +182,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         },
         child: Scaffold(
           body: RefreshIndicator(
-            onRefresh: () => ref.read(dashboardProvider.notifier).refresh(),
+            onRefresh: () async {
+              await Future.wait([
+                ref.read(dashboardProvider.notifier).refresh(),
+                ref.read(routeListProvider.notifier).loadRoutes(force: true),
+                ref.read(routeListProvider.notifier).refreshPreferences(),
+              ]);
+            },
             child: CustomScrollView(
               physics: const BouncingScrollPhysics(),
               slivers: [
                 _buildModernHeader(context, state),
                 _buildConnectionStrip(context, state),
                 _buildModernStatGrid(context, state),
+                // Pinned routes only — the section (header included) is
+                // omitted entirely while nothing is pinned.
+                ..._buildMyRoutesSlivers(context),
                 _buildSectionHeader(
                   context,
                   title: context.l10n.todayScheduleTitle,
@@ -447,6 +463,40 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         }, childCount: stats.length),
       ),
     );
+  }
+
+  /// Pinned routes as one sliver group, or nothing at all while the rider
+  /// has no pins (an empty "My Routes" header would just be noise). Rows are
+  /// pair-aware like the Route tab: pinning both directions of a corridor
+  /// shows one card with two rows; pinning one shows that direction alone —
+  /// with no "One way" badge, since the corridor genuinely runs both ways.
+  List<Widget> _buildMyRoutesSlivers(BuildContext context) {
+    final routeState = ref.watch(routeListProvider);
+    final pinned = routeState.pinnedGroups;
+    if (!routeState.preferencesLoaded || pinned.isEmpty) {
+      return const <Widget>[];
+    }
+
+    return [
+      _buildSectionHeader(
+        context,
+        title: context.l10n.routeMyRoutes,
+        onSeeAll: () => context.go('/route'),
+      ),
+      SliverPadding(
+        padding: const EdgeInsets.symmetric(horizontal: AppTheme.space24),
+        sliver: SliverList.builder(
+          itemCount: pinned.length,
+          itemBuilder: (context, index) => Padding(
+            padding: const EdgeInsets.only(bottom: AppTheme.space8),
+            child: RouteCard(
+              group: pinned[index],
+              onTap: (routeId) => context.push('/route/$routeId'),
+            ),
+          ),
+        ),
+      ),
+    ];
   }
 
   Widget _buildSectionHeader(

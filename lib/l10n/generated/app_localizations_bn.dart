@@ -1191,4 +1191,31 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get profileDarkModeDescription => 'গাঢ় রঙের থিম ব্যবহার করুন';
+
+  @override
+  String get routeOneWay => 'একদিক';
+
+  @override
+  String get routeMyRoutes => 'আমার রুট';
+
+  @override
+  String get routeMyRoutesHint =>
+      'পিন করলে হোম স্ক্রিনে দেখাবে, ঘণ্টা চালু করলে সময়সূচি বদলের বার্তা পাবেন';
+
+  @override
+  String routeTripCount(num count) {
+    return '$count টি ট্রিপ';
+  }
+
+  @override
+  String get routeNoTrips => 'এখনো কোনো ট্রিপ নেই';
+
+  @override
+  String get routeEmpty => 'এখনো কোনো রুট যোগ করা হয়নি';
+
+  @override
+  String get routePinTooltip => 'হোম স্ক্রিনে পিন করুন';
+
+  @override
+  String get routeAlertTooltip => 'সময়সূচি পরিবর্তনের বার্তা পান';
 }

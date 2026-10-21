@@ -31,6 +31,17 @@ class ApiEndpoints {
   static String schedulesByBus(int busId) => '/schedules/bus/$busId';
   static const String activeNotices = '/notices/active';
 
+  // Routes: public listing (each direction is one row; pairs point at each
+  // other via oppositeRouteId) + per-direction trips.
+  static const String routes = '/routes';
+  static String schedulesByRoute(int routeId) => '/schedules/route/$routeId';
+
+  // My route preferences (authenticated, rider-only): pins + schedule-alert
+  // opt-in. PUT takes a partial body — omitted fields keep their value.
+  static const String routePreferences = '/me/route-preferences';
+  static String routePreference(int routeId) =>
+      '/me/route-preferences/$routeId';
+
   // Registration has been unified into a single OTP-first endpoint.
   // The Student/Teacher row is only created on successful OTP verification.
   static const String initPhoneRegistration = '/auth/phone-verification/init';
@@ -107,7 +118,18 @@ class StorageKeys {
   static const String cachedBuses = 'cached_buses';
   static const String cachedSchedules = 'cached_schedules';
   static const String cachedNotices = 'cached_notices';
+  static const String cachedRoutes = 'cached_routes';
   static String cachedBusDetail(int id) => 'cached_bus_detail_$id';
+
+  /// Route preferences are per-rider, so the cache key carries the user id —
+  /// one account's pins can never surface for another account on this device.
+  static String cachedRoutePreferences(int userId) =>
+      'cached_route_preferences_$userId';
+
+  /// Prefix used by [cachedRoutePreferences]; cleared wholesale on logout so
+  /// no previous rider's pins linger in prefs.
+  static const String cachedRoutePreferencesPrefix =
+      'cached_route_preferences_';
   static const String cacheTimestamp = 'cache_timestamp';
   static const String skippedVersion = 'skipped_version';
   static const String registrationDraft = 'registration_draft';

@@ -1202,4 +1202,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileDarkModeDescription => 'Use a darker color scheme';
+
+  @override
+  String get routeOneWay => 'One way';
+
+  @override
+  String get routeMyRoutes => 'My Routes';
+
+  @override
+  String get routeMyRoutesHint =>
+      'Pin to show a route on Home; turn on the bell to get notified when its schedule changes';
+
+  @override
+  String routeTripCount(num count) {
+    return '$count trips';
+  }
+
+  @override
+  String get routeNoTrips => 'No trips yet';
+
+  @override
+  String get routeEmpty => 'No routes added yet';
+
+  @override
+  String get routePinTooltip => 'Pin to home screen';
+
+  @override
+  String get routeAlertTooltip => 'Get schedule change alerts';
 }

@@ -186,8 +186,20 @@ class StorageService {
       StorageKeys.cachedBuses,
       StorageKeys.cachedSchedules,
       StorageKeys.cachedNotices,
+      StorageKeys.cachedRoutes,
     ];
     for (var key in keys) {
+      await _prefs.remove(key);
+      await _prefs.remove('${key}_timestamp');
+    }
+    // Route preferences are per-rider (keyed by user id) — sweep every
+    // account's cached pins so a signed-out device holds none of them.
+    final preferenceKeys = _prefs
+        .getKeys()
+        .where((key) =>
+            key.startsWith(StorageKeys.cachedRoutePreferencesPrefix))
+        .toList();
+    for (var key in preferenceKeys) {
       await _prefs.remove(key);
       await _prefs.remove('${key}_timestamp');
     }

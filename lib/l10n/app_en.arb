@@ -406,5 +406,14 @@
   "aboutInfoConsultant": "Senior Platform Engineer at Makro Pro,Thailand\nCSE 10 Batch, Comilla University",
   "aboutInfoAdvisor": "Lecturer, Dept. of CSE, Comilla University",
   "profileDarkMode": "Dark mode",
-  "profileDarkModeDescription": "Use a darker color scheme"
+  "profileDarkModeDescription": "Use a darker color scheme",
+
+  "routeOneWay": "One way",
+  "routeMyRoutes": "My Routes",
+  "routeMyRoutesHint": "Pin to show a route on Home; turn on the bell to get notified when its schedule changes",
+  "routeTripCount": "{count} trips",
+  "routeNoTrips": "No trips yet",
+  "routeEmpty": "No routes added yet",
+  "routePinTooltip": "Pin to home screen",
+  "routeAlertTooltip": "Get schedule change alerts"
 }

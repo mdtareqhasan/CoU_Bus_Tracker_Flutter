@@ -9,6 +9,7 @@ import '../features/buses/bus_detail_screen.dart';
 import '../features/buses/live_tracking_screen.dart';
 import '../features/schedules/schedule_screen.dart';
 import '../features/notices/notice_screen.dart';
+import '../features/routes/route_detail_screen.dart';
 import '../features/routes/route_screen.dart';
 import '../features/auth/role_screen.dart';
 import '../features/auth/academic_details_screen.dart';
@@ -112,6 +113,17 @@ final appRouter = GoRouter(
         final url = extra?['url'] ?? '';
         final name = extra?['name'] ?? context.l10n.busTrackingTitle;
         return LiveTrackingScreen(url: url, busName: name);
+      },
+    ),
+    // One direction's detail page. The path mirrors the backend push deep
+    // link (/route/{routeId}) and is a sibling of the shell's `/route` branch:
+    // the branch matches only the exact path, so `/route/5` lands here.
+    GoRoute(
+      path: '/route/:id',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final id = int.parse(state.pathParameters['id']!);
+        return RouteDetailScreen(routeId: id);
       },
     ),
     GoRoute(

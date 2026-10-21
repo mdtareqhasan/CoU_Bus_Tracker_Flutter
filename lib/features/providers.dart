@@ -9,6 +9,7 @@ import './notices/notice_repository.dart';
 import './auth/auth_repository.dart';
 import './auth/academic_reference_repository.dart';
 import './notifications/notification_repository.dart';
+import './routes/route_repository.dart';
 
 final storageServiceProvider = Provider<StorageService>((ref) {
   throw UnimplementedError(
@@ -32,6 +33,10 @@ final busRepositoryProvider = Provider<BusRepository>((ref) {
 
 final scheduleRepositoryProvider = Provider<ScheduleRepository>((ref) {
   return ScheduleRepository(ref.watch(apiClientProvider));
+});
+
+final routeRepositoryProvider = Provider<RouteRepository>((ref) {
+  return RouteRepository(ref.watch(apiClientProvider));
 });
 
 final noticeRepositoryProvider = Provider<NoticeRepository>((ref) {

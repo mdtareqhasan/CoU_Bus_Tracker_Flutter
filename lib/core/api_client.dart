@@ -94,6 +94,7 @@ class AuthInterceptor extends Interceptor {
     r'|/config'
     r'|/app/version'
     r'|/buses'
+    r'|/routes'
     r'|/schedules',
   );
 

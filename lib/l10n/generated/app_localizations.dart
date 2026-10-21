@@ -2293,6 +2293,54 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'গাঢ় রঙের থিম ব্যবহার করুন'**
   String get profileDarkModeDescription;
+
+  /// Badge on a route that only runs in one direction. Never applied to a linked pair — a pair is two one-way rows, not 'both ways'.
+  ///
+  /// In bn, this message translates to:
+  /// **'একদিক'**
+  String get routeOneWay;
+
+  /// Title of the rider's saved routes: home 'My Routes' section header and the Route tab's pin sheet title.
+  ///
+  /// In bn, this message translates to:
+  /// **'আমার রুট'**
+  String get routeMyRoutes;
+
+  /// One line under the sheet title explaining the two independent toggles: pin = shows on Home, bell = schedule-change notifications.
+  ///
+  /// In bn, this message translates to:
+  /// **'পিন করলে হোম স্ক্রিনে দেখাবে, ঘণ্টা চালু করলে সময়সূচি বদলের বার্তা পাবেন'**
+  String get routeMyRoutesHint;
+
+  /// Trip count shown under a route name on its card.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count} টি ট্রিপ'**
+  String routeTripCount(num count);
+
+  /// Shown when a route has no active trips yet — card sub-line and route detail empty state.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখনো কোনো ট্রিপ নেই'**
+  String get routeNoTrips;
+
+  /// Route tab empty state — no routes configured yet.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখনো কোনো রুট যোগ করা হয়নি'**
+  String get routeEmpty;
+
+  /// Tooltip/semantics for the pin toggle in the saved-routes sheet.
+  ///
+  /// In bn, this message translates to:
+  /// **'হোম স্ক্রিনে পিন করুন'**
+  String get routePinTooltip;
+
+  /// Tooltip/semantics for the schedule-alert bell toggle in the saved-routes sheet.
+  ///
+  /// In bn, this message translates to:
+  /// **'সময়সূচি পরিবর্তনের বার্তা পান'**
+  String get routeAlertTooltip;
 }
 
 class _AppLocalizationsDelegate

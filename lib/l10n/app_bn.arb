@@ -1313,5 +1313,50 @@
   "@profileDarkModeDescription": {
     "description": "Description for the profile dark mode setting."
   },
-  "profileDarkModeDescription": "গাঢ় রঙের থিম ব্যবহার করুন"
+  "profileDarkModeDescription": "গাঢ় রঙের থিম ব্যবহার করুন",
+
+  "@routeOneWay": {
+    "description": "Badge on a route that only runs in one direction. Never applied to a linked pair — a pair is two one-way rows, not 'both ways'."
+  },
+  "routeOneWay": "একদিক",
+
+  "@routeMyRoutes": {
+    "description": "Title of the rider's saved routes: home 'My Routes' section header and the Route tab's pin sheet title."
+  },
+  "routeMyRoutes": "আমার রুট",
+
+  "@routeMyRoutesHint": {
+    "description": "One line under the sheet title explaining the two independent toggles: pin = shows on Home, bell = schedule-change notifications."
+  },
+  "routeMyRoutesHint": "পিন করলে হোম স্ক্রিনে দেখাবে, ঘণ্টা চালু করলে সময়সূচি বদলের বার্তা পাবেন",
+
+  "@routeTripCount": {
+    "description": "Trip count shown under a route name on its card.",
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "routeTripCount": "{count} টি ট্রিপ",
+
+  "@routeNoTrips": {
+    "description": "Shown when a route has no active trips yet — card sub-line and route detail empty state."
+  },
+  "routeNoTrips": "এখনো কোনো ট্রিপ নেই",
+
+  "@routeEmpty": {
+    "description": "Route tab empty state — no routes configured yet."
+  },
+  "routeEmpty": "এখনো কোনো রুট যোগ করা হয়নি",
+
+  "@routePinTooltip": {
+    "description": "Tooltip/semantics for the pin toggle in the saved-routes sheet."
+  },
+  "routePinTooltip": "হোম স্ক্রিনে পিন করুন",
+
+  "@routeAlertTooltip": {
+    "description": "Tooltip/semantics for the schedule-alert bell toggle in the saved-routes sheet."
+  },
+  "routeAlertTooltip": "সময়সূচি পরিবর্তনের বার্তা পান"
 }
