@@ -85,17 +85,71 @@ jobs:
             echo "track=ci-${{ github.run_number }}" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Build APK (release)
+      # Release builds must be signed with the same key on every run and on
+      # the same key a dev machine uses, otherwise the APKs are mutually
+      # uninstallable (fresh runners would otherwise auto-generate a new
+      # random debug keystore per run). The keystore + passwords live in
+      # repo secrets (ANDROID_KEYSTORE_B64, ANDROID_KEYSTORE_PASSWORD,
+      # ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD) and are materialized as
+      # android/key.properties, which android/app/build.gradle.kts already
+      # reads. Never echo secret values: only test for emptiness.
+      - name: Configure signing (release)
         if: steps.build_type.outputs.type == 'release'
-        run: flutter build apk --release
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_B64" ] || [ -z "$KEYSTORE_PASSWORD" ] || [ -z "$KEY_ALIAS" ] || [ -z "$KEY_PASSWORD" ]; then
+            echo "::error::Release signing secrets are missing. Set ANDROID_KEYSTORE_B64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD in the repo's Actions secrets."
+            exit 1
+          fi
+          echo "$KEYSTORE_B64" | base64 -d > android/upload-keystore.jks
+          {
+            echo "storePassword=$KEYSTORE_PASSWORD"
+            echo "keyPassword=$KEY_PASSWORD"
+            echo "keyAlias=$KEY_ALIAS"
+            echo "storeFile=../upload-keystore.jks"
+          } > android/key.properties
+
+      # One Gradle build per release: the signed AAB below is the single
+      # source of truth, and the sideloadable APK is derived from it with
+      # bundletool (Google's official AAB->APK tool, pure Java) instead of a
+      # second full `flutter build apk` pass.
+      - name: Build App Bundle (release)
+        if: steps.build_type.outputs.type == 'release'
+        run: flutter build appbundle --release
 
       - name: Build APK (debug)
         if: steps.build_type.outputs.type == 'debug'
         run: flutter build apk --debug
 
-      - name: Build App Bundle (release)
+      # Turn the signed AAB into a single universal (all-ABIs) APK signed
+      # with the same release keystore, so it installs as an upgrade over
+      # every other correctly-signed build.
+      - name: Derive universal APK from AAB (bundletool)
         if: steps.build_type.outputs.type == 'release'
-        run: flutter build appbundle --release
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          curl -fsSL -o /tmp/bundletool.jar \
+            https://github.com/google/bundletool/releases/download/1.18.3/bundletool-all-1.18.3.jar
+          java -jar /tmp/bundletool.jar build-apks \
+            --bundle=build/app/outputs/bundle/release/app-release.aab \
+            --output=/tmp/app.apks \
+            --mode=universal \
+            --ks=android/upload-keystore.jks \
+            --ks-pass="pass:$KEYSTORE_PASSWORD" \
+            --ks-key-alias="$KEY_ALIAS" \
+            --key-pass="pass:$KEY_PASSWORD"
+          # The .apks archive is a zip; universal.apk is the all-ABIs APK we
+          # sideload. Place it where the upload step already looks.
+          mkdir -p build/app/outputs/flutter-apk
+          unzip -p /tmp/app.apks universal.apk > build/app/outputs/flutter-apk/app-release.apk
+          ls -lh build/app/outputs/flutter-apk/app-release.apk
 
       - name: List build artifacts
         if: always()
