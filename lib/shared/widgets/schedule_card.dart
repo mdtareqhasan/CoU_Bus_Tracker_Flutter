@@ -31,7 +31,11 @@ class ScheduleCard extends StatelessWidget {
             ? Colors.transparent
             : (isDark ? AppTheme.surfaceDark : AppTheme.surfaceLight),
         borderRadius: radius,
-        boxShadow: flat ? null : AppTheme.softShadow,
+        // Outlined card style: a 1px border instead of a drop shadow.
+        border: Border.all(
+          color: AppTheme.textHint.withValues(alpha: 0.5),
+          width: 1,
+        ),
       ),
       child: Material(
         color: Colors.transparent,
