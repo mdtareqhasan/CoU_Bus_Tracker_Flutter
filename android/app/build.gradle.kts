@@ -50,6 +50,17 @@ android {
                 signingConfigs.getByName("debug")
             }
         }
+        // Sign debug builds with the same upload keystore when key.properties
+        // exists, so laptop builds install over CI builds instead of failing
+        // on signature mismatch. Falls back to the debug keystore when
+        // key.properties is absent (fresh clones, CI debug runs).
+        debug {
+            signingConfig = if (keystorePropertiesFile.exists()) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
+        }
     }
 
     compileOptions {
