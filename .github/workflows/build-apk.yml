@@ -117,9 +117,12 @@ jobs:
       # source of truth, and the sideloadable APK is derived from it with
       # bundletool (Google's official AAB->APK tool, pure Java) instead of a
       # second full `flutter build apk` pass.
+      # --build-number=run_number: Play requires strictly increasing
+      # versionCodes and rejects duplicates, so take it from the CI run
+      # counter instead of pubspec (which would repeat on every push).
       - name: Build App Bundle (release)
         if: steps.build_type.outputs.type == 'release'
-        run: flutter build appbundle --release
+        run: flutter build appbundle --release --build-number=${{ github.run_number }}
 
       - name: Build APK (debug)
         if: steps.build_type.outputs.type == 'debug'
@@ -173,3 +176,24 @@ jobs:
           path: build/app/outputs/bundle/release/*.aab
           if-no-files-found: warn
           retention-days: 14
+
+      # Google Play auto-publish (internal track). The step self-skips until
+      # the PLAY_SERVICE_ACCOUNT_JSON secret exists, so builds stay green
+      # before Play Console setup is done. The AAB is already signed with
+      # the upload key from the signing step above.
+      - name: Check Play upload credentials
+        id: play_creds
+        if: steps.build_type.outputs.type == 'release'
+        env:
+          PLAY_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: echo "available=$([ -n "$PLAY_JSON" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - name: Upload AAB to Google Play (internal track)
+        if: steps.build_type.outputs.type == 'release' && steps.play_creds.outputs.available == 'true'
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.cse.coubustracker
+          releaseFiles: build/app/outputs/bundle/release/app-release.aab
+          track: internal
+          status: completed
