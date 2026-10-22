@@ -493,6 +493,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get busSeeLiveLocation => 'See live location';
 
   @override
+  String get busTrackerUnavailable =>
+      'Live tracker link isn\'t available for this bus yet';
+
+  @override
   String get commonError => 'Error';
 
   @override

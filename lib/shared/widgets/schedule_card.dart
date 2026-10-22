@@ -129,6 +129,25 @@ class ScheduleCard extends StatelessWidget {
                 Row(
                   children: [
                     const Icon(
+                      Icons.schedule_rounded,
+                      size: 14,
+                      color: AppTheme.textHint,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      // Localized 12-hour time (bn gets period words +
+                      // Bengali digits), "Not scheduled" when absent.
+                      schedule.displayDeparture,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppTheme.space12),
+                Row(
+                  children: [
+                    const Icon(
                       Icons.calendar_today_rounded,
                       size: 14,
                       color: AppTheme.textHint,

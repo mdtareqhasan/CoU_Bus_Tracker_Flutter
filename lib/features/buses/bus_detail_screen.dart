@@ -142,7 +142,9 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
                   ),
                 const SizedBox(height: AppTheme.space32),
                 if (bus.trackerUrl != null && bus.trackerUrl!.isNotEmpty)
-                  _buildTrackerButton(bus),
+                  _buildTrackerButton(bus)
+                else
+                  _buildTrackerUnavailable(),
                 const SizedBox(height: AppTheme.space48),
               ],
             ),
@@ -531,6 +533,43 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
           fontSize: 10,
           fontWeight: FontWeight.bold,
         ),
+      ),
+    );
+  }
+
+  /// No tracker link configured for this bus: say so in the button's place
+  /// rather than silently dropping the section, so a rider who expected
+  /// tracking knows it's missing (not broken).
+  Widget _buildTrackerUnavailable() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.space16,
+        vertical: AppTheme.space12,
+      ),
+      decoration: BoxDecoration(
+        color: AppTheme.textHint.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        border: Border.all(color: AppTheme.textHint.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.location_off_rounded,
+            size: 20,
+            color: AppTheme.textHint,
+          ),
+          const SizedBox(width: AppTheme.space12),
+          Expanded(
+            child: Text(
+              context.l10n.busTrackerUnavailable,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppTheme.textSecondary,
+                    height: 1.4,
+                  ),
+            ),
+          ),
+        ],
       ),
     );
   }

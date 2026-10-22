@@ -980,6 +980,12 @@ abstract class AppLocalizations {
   /// **'লাইভ লোকেশন দেখুন'**
   String get busSeeLiveLocation;
 
+  /// Bus detail — shown in place of the live-tracking button when the bus has no tracker link yet.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই বাসের জন্য লাইভ ট্র্যাকার লিংক এখনো যুক্ত করা হয়নি'**
+  String get busTrackerUnavailable;
+
   /// Generic error fallback text.
   ///
   /// In bn, this message translates to:

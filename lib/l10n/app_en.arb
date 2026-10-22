@@ -167,6 +167,7 @@
   "scheduleRouteTitle": "Schedule & route",
   "busSchedulePaused": "Paused",
   "busSeeLiveLocation": "See live location",
+  "busTrackerUnavailable": "Live tracker link isn''t available for this bus yet",
   "commonError": "Error",
 
   "forceUpdateTitle": "Update required",

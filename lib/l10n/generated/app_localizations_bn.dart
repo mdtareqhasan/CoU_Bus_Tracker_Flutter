@@ -492,6 +492,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get busSeeLiveLocation => 'লাইভ লোকেশন দেখুন';
 
   @override
+  String get busTrackerUnavailable =>
+      'এই বাসের জন্য লাইভ ট্র্যাকার লিংক এখনো যুক্ত করা হয়নি';
+
+  @override
   String get commonError => 'ত্রুটি';
 
   @override
