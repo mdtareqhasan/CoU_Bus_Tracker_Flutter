@@ -196,8 +196,9 @@ class StorageService {
     // account's cached pins so a signed-out device holds none of them.
     final preferenceKeys = _prefs
         .getKeys()
-        .where((key) =>
-            key.startsWith(StorageKeys.cachedRoutePreferencesPrefix))
+        .where(
+          (key) => key.startsWith(StorageKeys.cachedRoutePreferencesPrefix),
+        )
         .toList();
     for (var key in preferenceKeys) {
       await _prefs.remove(key);

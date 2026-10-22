@@ -66,7 +66,12 @@ class RouteCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             for (var i = 0; i < rows.length; i++) ...[
-              if (i > 0) const Divider(height: 1, indent: AppTheme.space16, endIndent: AppTheme.space16),
+              if (i > 0)
+                const Divider(
+                  height: 1,
+                  indent: AppTheme.space16,
+                  endIndent: AppTheme.space16,
+                ),
               rows[i],
             ],
           ],

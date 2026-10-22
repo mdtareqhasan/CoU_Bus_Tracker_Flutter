@@ -84,9 +84,11 @@ class BusListState {
           (bus.busNumber?.toLowerCase().contains(query) ?? false) ||
           (bus.busNameBn?.toLowerCase().contains(query) ?? false) ||
           (bus.busNameEn?.toLowerCase().contains(query) ?? false) ||
-          busSchedules.any((s) =>
-              (s.routeNameBn?.toLowerCase().contains(query) ?? false) ||
-              (s.routeNameEn?.toLowerCase().contains(query) ?? false)) ||
+          busSchedules.any(
+            (s) =>
+                (s.routeNameBn?.toLowerCase().contains(query) ?? false) ||
+                (s.routeNameEn?.toLowerCase().contains(query) ?? false),
+          ) ||
           (route.toLowerCase().contains(query));
 
       return matchesCategory && matchesSearch;

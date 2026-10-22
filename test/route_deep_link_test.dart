@@ -71,7 +71,9 @@ void main() {
     return router;
   }
 
-  testWidgets('the exact /route path still opens the shell tab', (tester) async {
+  testWidgets('the exact /route path still opens the shell tab', (
+    tester,
+  ) async {
     final router = await pump(tester);
 
     router.go('/route');

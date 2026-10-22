@@ -126,10 +126,7 @@ class _RouteScreenState extends ConsumerState<RouteScreen> {
         itemCount: state.groups.length,
         itemBuilder: (context, index) => Padding(
           padding: const EdgeInsets.only(bottom: AppTheme.space12),
-          child: RouteCard(
-            group: state.groups[index],
-            onTap: _openRoute,
-          ),
+          child: RouteCard(group: state.groups[index], onTap: _openRoute),
         ),
       ),
     );

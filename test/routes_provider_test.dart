@@ -61,8 +61,12 @@ class _FakeRouteRepository extends RouteRepository {
   }
 }
 
-BusRoute _route(int id, {int? opposite}) =>
-    BusRoute(id: id, nameBn: 'রুট $id', nameEn: 'Route $id', oppositeRouteId: opposite);
+BusRoute _route(int id, {int? opposite}) => BusRoute(
+  id: id,
+  nameBn: 'রুট $id',
+  nameEn: 'Route $id',
+  oppositeRouteId: opposite,
+);
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -80,50 +84,57 @@ void main() {
   });
 
   group('setPinned / setAlerts writes', () {
-    test('a pin write sends ONLY the pin field (partial-body contract)', () async {
-      repo.writeResult = const RoutePreference(routeId: 4, isPinned: true);
+    test(
+      'a pin write sends ONLY the pin field (partial-body contract)',
+      () async {
+        repo.writeResult = const RoutePreference(routeId: 4, isPinned: true);
 
-      final result = await notifier.setPinned(4, true);
+        final result = await notifier.setPinned(4, true);
 
-      expect(result, isA<Success<RoutePreference>>());
-      final write = repo.writes.single;
-      expect(write['routeId'], 4);
-      expect(write['isPinned'], true);
-      expect(
-        write['scheduleAlertsEnabled'],
-        isNull,
-        reason: 'the provider passes the untouched flag as null — '
-            'RouteRepository builds the PUT body only from non-null fields, '
-            'so the server keeps its current value',
-      );
-      // The response is authoritative: state now carries the pin.
-      expect(notifier.state.preferences[4]!.isPinned, isTrue);
-    });
+        expect(result, isA<Success<RoutePreference>>());
+        final write = repo.writes.single;
+        expect(write['routeId'], 4);
+        expect(write['isPinned'], true);
+        expect(
+          write['scheduleAlertsEnabled'],
+          isNull,
+          reason:
+              'the provider passes the untouched flag as null — '
+              'RouteRepository builds the PUT body only from non-null fields, '
+              'so the server keeps its current value',
+        );
+        // The response is authoritative: state now carries the pin.
+        expect(notifier.state.preferences[4]!.isPinned, isTrue);
+      },
+    );
 
-    test('server answering both flags off removes the row from state', () async {
-      // Existing pin + alerts; unpinning one at a time keeps the row alive —
-      // until a write comes back with both flags off.
-      repo.writeResult = const RoutePreference(routeId: 4, isPinned: true);
-      await notifier.setPinned(4, true);
-      repo.writeResult = const RoutePreference(
-        routeId: 4,
-        isPinned: true,
-        scheduleAlertsEnabled: true,
-      );
-      await notifier.setAlerts(4, true);
-      expect(notifier.state.preferences[4]!.scheduleAlertsEnabled, isTrue);
+    test(
+      'server answering both flags off removes the row from state',
+      () async {
+        // Existing pin + alerts; unpinning one at a time keeps the row alive —
+        // until a write comes back with both flags off.
+        repo.writeResult = const RoutePreference(routeId: 4, isPinned: true);
+        await notifier.setPinned(4, true);
+        repo.writeResult = const RoutePreference(
+          routeId: 4,
+          isPinned: true,
+          scheduleAlertsEnabled: true,
+        );
+        await notifier.setAlerts(4, true);
+        expect(notifier.state.preferences[4]!.scheduleAlertsEnabled, isTrue);
 
-      // Both cleared → server deleted the row; mirror the removal.
-      repo.writeResult = const RoutePreference(routeId: 4);
-      await notifier.setPinned(4, false);
-      await notifier.setAlerts(4, false);
+        // Both cleared → server deleted the row; mirror the removal.
+        repo.writeResult = const RoutePreference(routeId: 4);
+        await notifier.setPinned(4, false);
+        await notifier.setAlerts(4, false);
 
-      expect(
-        notifier.state.preferences.containsKey(4),
-        isFalse,
-        reason: 'a (false, false) response means no preference at all',
-      );
-    });
+        expect(
+          notifier.state.preferences.containsKey(4),
+          isFalse,
+          reason: 'a (false, false) response means no preference at all',
+        );
+      },
+    );
 
     test('a failed write leaves the previous value untouched', () async {
       repo.writeResult = const RoutePreference(routeId: 4, isPinned: true);
@@ -145,9 +156,7 @@ void main() {
       await notifier.setPinned(4, true);
       await pumpEventQueue();
 
-      final cached = storage.getCache(
-        StorageKeys.cachedRoutePreferences(10),
-      );
+      final cached = storage.getCache(StorageKeys.cachedRoutePreferences(10));
       expect(cached, isNotNull);
       final List<dynamic> list = jsonDecode(cached!);
       expect(list, hasLength(1));
@@ -168,36 +177,42 @@ void main() {
       expect(notifier.state.preferences.keys, [1]);
     });
 
-    test('a failed fetch marks the load attempted instead of looping', () async {
-      repo.failPreferencesWith = 'offline';
+    test(
+      'a failed fetch marks the load attempted instead of looping',
+      () async {
+        repo.failPreferencesWith = 'offline';
 
-      await notifier.loadPreferences();
+        await notifier.loadPreferences();
 
-      expect(notifier.state.preferencesLoaded, isTrue);
-      expect(notifier.state.preferences, isEmpty);
-      expect(repo.preferenceRequests, 1);
-    });
+        expect(notifier.state.preferencesLoaded, isTrue);
+        expect(notifier.state.preferences, isEmpty);
+        expect(repo.preferenceRequests, 1);
+      },
+    );
 
-    test('cached pins survive an offline fetch (Home must still paint them)',
-        () async {
-      await storage.saveCache(
-        StorageKeys.cachedRoutePreferences(10),
-        jsonEncode([
-          const RoutePreference(routeId: 7, isPinned: true).toJson(),
-        ]),
-      );
-      repo.failPreferencesWith = 'offline';
+    test(
+      'cached pins survive an offline fetch (Home must still paint them)',
+      () async {
+        await storage.saveCache(
+          StorageKeys.cachedRoutePreferences(10),
+          jsonEncode([
+            const RoutePreference(routeId: 7, isPinned: true).toJson(),
+          ]),
+        );
+        repo.failPreferencesWith = 'offline';
 
-      await notifier.loadPreferences();
+        await notifier.loadPreferences();
 
-      expect(
-        notifier.state.preferencesLoaded,
-        isTrue,
-        reason: 'otherwise Home hides cached pins exactly when they are '
-            'needed most — offline',
-      );
-      expect(notifier.state.preferences[7]!.isPinned, isTrue);
-    });
+        expect(
+          notifier.state.preferencesLoaded,
+          isTrue,
+          reason:
+              'otherwise Home hides cached pins exactly when they are '
+              'needed most — offline',
+        );
+        expect(notifier.state.preferences[7]!.isPinned, isTrue);
+      },
+    );
 
     test('a successful fetch replaces the cached picture', () async {
       // Previous session's pins, stored per user id.
@@ -208,7 +223,11 @@ void main() {
         ]),
       );
       repo.preferences = const [
-        RoutePreference(routeId: 7, isPinned: true, scheduleAlertsEnabled: true),
+        RoutePreference(
+          routeId: 7,
+          isPinned: true,
+          scheduleAlertsEnabled: true,
+        ),
       ];
 
       await notifier.loadPreferences();

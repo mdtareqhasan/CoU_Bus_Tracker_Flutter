@@ -24,7 +24,9 @@ class RouteRepository {
         final List<dynamic> data = response.data;
         return Success(data.map((json) => BusRoute.fromJson(json)).toList());
       }
-      return Failure(message: ErrorHandler.getMessage(response.statusCode, null));
+      return Failure(
+        message: ErrorHandler.getMessage(response.statusCode, null),
+      );
     } on DioException catch (e) {
       return Failure(message: _handleDioError(e));
     } catch (_) {
@@ -43,7 +45,9 @@ class RouteRepository {
         final List<dynamic> data = response.data;
         return Success(data.map((json) => Schedule.fromJson(json)).toList());
       }
-      return Failure(message: ErrorHandler.getMessage(response.statusCode, null));
+      return Failure(
+        message: ErrorHandler.getMessage(response.statusCode, null),
+      );
     } on DioException catch (e) {
       return Failure(message: _handleDioError(e));
     } catch (_) {
@@ -62,7 +66,9 @@ class RouteRepository {
           data.map((json) => RoutePreference.fromJson(json)).toList(),
         );
       }
-      return Failure(message: ErrorHandler.getMessage(response.statusCode, null));
+      return Failure(
+        message: ErrorHandler.getMessage(response.statusCode, null),
+      );
     } on DioException catch (e) {
       return Failure(message: _handleDioError(e));
     } catch (_) {
@@ -91,7 +97,9 @@ class RouteRepository {
       if (response.statusCode == 200) {
         return Success(RoutePreference.fromJson(response.data));
       }
-      return Failure(message: ErrorHandler.getMessage(response.statusCode, null));
+      return Failure(
+        message: ErrorHandler.getMessage(response.statusCode, null),
+      );
     } on DioException catch (e) {
       return Failure(message: _handleDioError(e));
     } catch (_) {
@@ -109,7 +117,9 @@ class RouteRepository {
       if (response.statusCode == 200 || response.statusCode == 204) {
         return Success('Preference removed');
       }
-      return Failure(message: ErrorHandler.getMessage(response.statusCode, null));
+      return Failure(
+        message: ErrorHandler.getMessage(response.statusCode, null),
+      );
     } on DioException catch (e) {
       return Failure(message: _handleDioError(e));
     } catch (_) {

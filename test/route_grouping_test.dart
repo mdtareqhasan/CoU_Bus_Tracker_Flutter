@@ -13,12 +13,12 @@ import 'package:cou_bus_tracker/shared/models/route_preference.dart';
 ///    make a two-way corridor claim it only runs one way,
 ///  * a partner row is consumed exactly once no matter the listing order.
 BusRoute _route(int id, {int? opposite, int? trips}) => BusRoute(
-      id: id,
-      nameBn: 'রুট $id',
-      nameEn: 'Route $id',
-      oppositeRouteId: opposite,
-      activeScheduleCount: trips,
-    );
+  id: id,
+  nameBn: 'রুট $id',
+  nameEn: 'Route $id',
+  oppositeRouteId: opposite,
+  activeScheduleCount: trips,
+);
 
 void main() {
   group('groupRoutes', () {
@@ -53,17 +53,20 @@ void main() {
       expect(groups.single.opposite, isNull);
     });
 
-    test('linked route with a missing (retired) partner is NOT labeled one-way',
-        () {
-      final groups = groupRoutes([_route(1, opposite: 99)]);
+    test(
+      'linked route with a missing (retired) partner is NOT labeled one-way',
+      () {
+        final groups = groupRoutes([_route(1, opposite: 99)]);
 
-      expect(groups.single.opposite, isNull);
-      expect(
-        groups.single.isOneWay,
-        isFalse,
-        reason: 'the corridor runs both ways — only the partner row is absent',
-      );
-    });
+        expect(groups.single.opposite, isNull);
+        expect(
+          groups.single.isOneWay,
+          isFalse,
+          reason:
+              'the corridor runs both ways — only the partner row is absent',
+        );
+      },
+    );
 
     test('a self-referential opposite never swallows the route', () {
       final groups = groupRoutes([_route(1, opposite: 1)]);
@@ -95,13 +98,12 @@ void main() {
     RouteListState stateWith(
       List<BusRoute> routes,
       Map<int, RoutePreference> preferences,
-    ) =>
-        RouteListState(
-          routes: routes,
-          groups: groupRoutes(routes),
-          preferences: preferences,
-          preferencesLoaded: true,
-        );
+    ) => RouteListState(
+      routes: routes,
+      groups: groupRoutes(routes),
+      preferences: preferences,
+      preferencesLoaded: true,
+    );
 
     test('pinning both directions renders one paired card', () {
       final state = stateWith(
@@ -117,23 +119,25 @@ void main() {
       expect(state.pinnedGroups.single.opposite!.id, 8);
     });
 
-    test('pinning one direction shows that row alone, with NO one-way badge',
-        () {
-      final state = stateWith(
-        [_route(1, opposite: 8), _route(8, opposite: 1)],
-        {1: const RoutePreference(routeId: 1, isPinned: true)},
-      );
+    test(
+      'pinning one direction shows that row alone, with NO one-way badge',
+      () {
+        final state = stateWith(
+          [_route(1, opposite: 8), _route(8, opposite: 1)],
+          {1: const RoutePreference(routeId: 1, isPinned: true)},
+        );
 
-      final pinned = state.pinnedGroups;
-      expect(pinned, hasLength(1));
-      expect(pinned.single.route.id, 1);
-      expect(pinned.single.opposite, isNull);
-      expect(
-        pinned.single.isOneWay,
-        isFalse,
-        reason: 'the corridor is linked — only this side is pinned',
-      );
-    });
+        final pinned = state.pinnedGroups;
+        expect(pinned, hasLength(1));
+        expect(pinned.single.route.id, 1);
+        expect(pinned.single.opposite, isNull);
+        expect(
+          pinned.single.isOneWay,
+          isFalse,
+          reason: 'the corridor is linked — only this side is pinned',
+        );
+      },
+    );
 
     test('no pins yields no groups, so Home hides the section entirely', () {
       final state = stateWith(
@@ -141,10 +145,7 @@ void main() {
         {
           // Alert-only preference: opted into pushes but NOT pinned must
           // never surface the route on Home.
-          5: const RoutePreference(
-            routeId: 5,
-            scheduleAlertsEnabled: true,
-          ),
+          5: const RoutePreference(routeId: 5, scheduleAlertsEnabled: true),
         },
       );
 
@@ -160,7 +161,11 @@ void main() {
         'nameEn': 'Route 3',
       });
 
-      expect(route.isActive, isTrue, reason: 'defaultValue keeps old caches alive');
+      expect(
+        route.isActive,
+        isTrue,
+        reason: 'defaultValue keeps old caches alive',
+      );
       expect(route.oppositeRouteId, isNull);
       expect(route.activeScheduleCount, isNull);
       expect(route.isOneWay, isTrue);

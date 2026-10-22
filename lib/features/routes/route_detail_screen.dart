@@ -85,9 +85,9 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
 
   List<Schedule> _schedulesFromCache() {
     try {
-      final cached = ref.read(storageServiceProvider).getCache(
-            StorageKeys.cachedSchedules,
-          );
+      final cached = ref
+          .read(storageServiceProvider)
+          .getCache(StorageKeys.cachedSchedules);
       if (cached == null) return const [];
       final List<dynamic> list = jsonDecode(cached);
       return list
@@ -124,8 +124,9 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     if (route == null) {
       // Routes finished loading (loadRoutes is awaited) but this id isn't in
       // them: retired or unknown — refuse to guess rather than show stale rows.
-      final routesLoaded =
-          ref.watch(routeListProvider.select((s) => s.routes.isNotEmpty));
+      final routesLoaded = ref.watch(
+        routeListProvider.select((s) => s.routes.isNotEmpty),
+      );
       if (!routesLoaded) {
         return const Scaffold(body: Center(child: CircularProgressIndicator()));
       }
@@ -247,7 +248,10 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
   /// shallow while flipping back and forth.
   Widget _buildOppositeSwitch(BusRoute opposite) {
     return Padding(
-      padding: const EdgeInsets.only(left: AppTheme.space48, top: AppTheme.space4),
+      padding: const EdgeInsets.only(
+        left: AppTheme.space48,
+        top: AppTheme.space4,
+      ),
       child: InkWell(
         onTap: () => context.pushReplacement('/route/${opposite.id}'),
         borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
@@ -307,8 +311,9 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
           return ScheduleCard(
             schedule: schedule,
             flat: true,
-            onTap: () =>
-                context.push('/bus/${schedule.busId}?scheduleId=${schedule.id}'),
+            onTap: () => context.push(
+              '/bus/${schedule.busId}?scheduleId=${schedule.id}',
+            ),
           );
         },
       ),
@@ -320,7 +325,11 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.cloud_off_rounded, size: 64, color: AppTheme.textHint),
+          const Icon(
+            Icons.cloud_off_rounded,
+            size: 64,
+            color: AppTheme.textHint,
+          ),
           const SizedBox(height: AppTheme.space16),
           Text(message, textAlign: TextAlign.center),
           const SizedBox(height: AppTheme.space24),

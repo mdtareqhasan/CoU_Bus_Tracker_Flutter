@@ -564,9 +564,9 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
             child: Text(
               context.l10n.busTrackerUnavailable,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppTheme.textSecondary,
-                    height: 1.4,
-                  ),
+                color: AppTheme.textSecondary,
+                height: 1.4,
+              ),
             ),
           ),
         ],

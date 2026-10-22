@@ -139,8 +139,8 @@ class ScheduleCard extends StatelessWidget {
                       // Bengali digits), "Not scheduled" when absent.
                       schedule.displayDeparture,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ],
                 ),

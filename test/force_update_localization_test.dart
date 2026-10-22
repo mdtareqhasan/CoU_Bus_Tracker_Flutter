@@ -24,7 +24,8 @@ void main() {
         message: legacy,
         messageBn: bn,
         messageEn: en,
-        playStoreUrl: 'https://play.google.com/store/apps/details?id=com.cou.bustracker',
+        playStoreUrl:
+            'https://play.google.com/store/apps/details?id=com.cou.bustracker',
         forceUpdate: true,
       ),
     );
@@ -32,51 +33,56 @@ void main() {
 
   group('ForceUpdateScreen message selection', () {
     testWidgets('Bangla locale shows the Bangla copy', (tester) async {
-      await tester.pumpWidget(appWith(
-        locale: const Locale('bn'),
-        bn: 'নতুন ভার্সন এসেছে',
-        en: 'A new version is here',
-      ));
+      await tester.pumpWidget(
+        appWith(
+          locale: const Locale('bn'),
+          bn: 'নতুন ভার্সন এসেছে',
+          en: 'A new version is here',
+        ),
+      );
 
       expect(find.text('নতুন ভার্সন এসেছে'), findsOneWidget);
       expect(find.text('A new version is here'), findsNothing);
     });
 
     testWidgets('English locale shows the English copy', (tester) async {
-      await tester.pumpWidget(appWith(
-        locale: const Locale('en'),
-        bn: 'নতুন ভার্সন এসেছে',
-        en: 'A new version is here',
-      ));
+      await tester.pumpWidget(
+        appWith(
+          locale: const Locale('en'),
+          bn: 'নতুন ভার্সন এসেছে',
+          en: 'A new version is here',
+        ),
+      );
 
       expect(find.text('A new version is here'), findsOneWidget);
       expect(find.text('নতুন ভার্সন এসেছে'), findsNothing);
     });
 
     testWidgets('empty English copy falls back to Bangla', (tester) async {
-      await tester.pumpWidget(appWith(
-        locale: const Locale('en'),
-        bn: 'শুধু বাংলা লেখা আছে',
-      ));
+      await tester.pumpWidget(
+        appWith(locale: const Locale('en'), bn: 'শুধু বাংলা লেখা আছে'),
+      );
 
       expect(find.text('শুধু বাংলা লেখা আছে'), findsOneWidget);
     });
 
     testWidgets('both empty falls back to the legacy message', (tester) async {
-      await tester.pumpWidget(appWith(
-        locale: const Locale('en'),
-        legacy: 'Legacy update text',
-      ));
+      await tester.pumpWidget(
+        appWith(locale: const Locale('en'), legacy: 'Legacy update text'),
+      );
 
       expect(find.text('Legacy update text'), findsOneWidget);
     });
 
-    testWidgets('no admin copy at all uses the translated default',
-        (tester) async {
+    testWidgets('no admin copy at all uses the translated default', (
+      tester,
+    ) async {
       await tester.pumpWidget(appWith(locale: const Locale('en')));
 
-      expect(find.text('A new version of the app is available. Please update.'),
-          findsOneWidget);
+      expect(
+        find.text('A new version of the app is available. Please update.'),
+        findsOneWidget,
+      );
     });
   });
 

@@ -11,16 +11,21 @@ import 'package:go_router/go_router.dart';
 /// pushed page would stack on top of a dead `/splash` instead of `/home`,
 /// and Back from the bus page would strand the user on splash.
 void main() {
-  testWidgets('go then push stacks the deep link on /home, not /splash',
-      (tester) async {
+  testWidgets('go then push stacks the deep link on /home, not /splash', (
+    tester,
+  ) async {
     final router = GoRouter(
       initialLocation: '/splash',
       routes: [
-        GoRoute(path: '/splash', builder: (context, state) => const Text('splash')),
+        GoRoute(
+          path: '/splash',
+          builder: (context, state) => const Text('splash'),
+        ),
         GoRoute(path: '/home', builder: (context, state) => const Text('home')),
         GoRoute(
           path: '/bus/:id',
-          builder: (context, state) => Text('bus ${state.pathParameters['id']}'),
+          builder: (context, state) =>
+              Text('bus ${state.pathParameters['id']}'),
         ),
       ],
     );

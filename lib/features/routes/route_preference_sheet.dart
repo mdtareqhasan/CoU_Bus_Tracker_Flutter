@@ -45,8 +45,7 @@ class _RoutePreferenceSheetState extends ConsumerState<RoutePreferenceSheet> {
   }
 
   Future<void> _togglePin(int routeId) async {
-    final current =
-        ref.read(routeListProvider).preferenceFor(routeId).isPinned;
+    final current = ref.read(routeListProvider).preferenceFor(routeId).isPinned;
     await _write(routeId, () {
       return ref.read(routeListProvider.notifier).setPinned(routeId, !current);
     });
@@ -58,9 +57,7 @@ class _RoutePreferenceSheetState extends ConsumerState<RoutePreferenceSheet> {
         .preferenceFor(routeId)
         .scheduleAlertsEnabled;
     final ok = await _write(routeId, () {
-      return ref
-          .read(routeListProvider.notifier)
-          .setAlerts(routeId, enabling);
+      return ref.read(routeListProvider.notifier).setAlerts(routeId, enabling);
     });
     // Prompt only when a bell was just switched on, and only the first time —
     // requestPermissionWithRationale itself no-ops once the OS has an answer.
@@ -73,10 +70,7 @@ class _RoutePreferenceSheetState extends ConsumerState<RoutePreferenceSheet> {
   /// Runs one write, guarding the row against re-entry and surfacing failures
   /// as a snackbar (the server's answer is authoritative — on failure the
   /// toggle simply stays where it was).
-  Future<bool> _write(
-    int routeId,
-    Future<dynamic> Function() run,
-  ) async {
+  Future<bool> _write(int routeId, Future<dynamic> Function() run) async {
     if (_busy.contains(routeId)) return false;
     setState(() => _busy.add(routeId));
     final result = await run();
@@ -84,9 +78,9 @@ class _RoutePreferenceSheetState extends ConsumerState<RoutePreferenceSheet> {
     setState(() => _busy.remove(routeId));
 
     if (result is Failure) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result.message)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(result.message)));
       return false;
     }
     return true;
@@ -136,19 +130,19 @@ class _RoutePreferenceSheetState extends ConsumerState<RoutePreferenceSheet> {
                       child: CircularProgressIndicator(),
                     )
                   : state.groups.isEmpty
-                      // No routes configured at all — say so instead of
-                      // handing back a silently blank sheet.
-                      ? Padding(
-                          padding: const EdgeInsets.all(AppTheme.space24),
-                          child: Text(
-                            context.l10n.routeEmpty,
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.textTheme.bodySmall?.color,
-                            ),
-                          ),
-                        )
-                      : ListView.builder(
+                  // No routes configured at all — say so instead of
+                  // handing back a silently blank sheet.
+                  ? Padding(
+                      padding: const EdgeInsets.all(AppTheme.space24),
+                      child: Text(
+                        context.l10n.routeEmpty,
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.textTheme.bodySmall?.color,
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
                       shrinkWrap: true,
                       padding: const EdgeInsets.symmetric(
                         horizontal: AppTheme.space24,
@@ -160,8 +154,7 @@ class _RoutePreferenceSheetState extends ConsumerState<RoutePreferenceSheet> {
                           children: [
                             _PreferenceRow(
                               route: group.route,
-                              preference:
-                                  state.preferenceFor(group.route.id),
+                              preference: state.preferenceFor(group.route.id),
                               busy: _busy.contains(group.route.id),
                               onPin: () => _togglePin(group.route.id),
                               onAlerts: () => _toggleAlerts(group.route.id),
@@ -169,8 +162,9 @@ class _RoutePreferenceSheetState extends ConsumerState<RoutePreferenceSheet> {
                             if (group.opposite != null)
                               _PreferenceRow(
                                 route: group.opposite!,
-                                preference:
-                                    state.preferenceFor(group.opposite!.id),
+                                preference: state.preferenceFor(
+                                  group.opposite!.id,
+                                ),
                                 busy: _busy.contains(group.opposite!.id),
                                 onPin: () => _togglePin(group.opposite!.id),
                                 onAlerts: () =>

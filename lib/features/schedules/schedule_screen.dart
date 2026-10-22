@@ -398,9 +398,9 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                               height: 1,
                               indent: AppTheme.space16,
                               endIndent: AppTheme.space16,
-                              color: Theme.of(context)
-                                  .dividerColor
-                                  .withValues(alpha: 0.16),
+                              color: Theme.of(
+                                context,
+                              ).dividerColor.withValues(alpha: 0.16),
                             ),
                           Padding(
                             padding: const EdgeInsets.only(top: 8),

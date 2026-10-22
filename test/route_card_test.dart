@@ -20,45 +20,42 @@ BusRoute _route(
   int? trips,
   String bn = 'রুট',
   String en = 'Route',
-}) =>
-    BusRoute(
-      id: id,
-      nameBn: '$bn $id',
-      nameEn: '$en $id',
-      oppositeRouteId: opposite,
-      activeScheduleCount: trips,
-    );
+}) => BusRoute(
+  id: id,
+  nameBn: '$bn $id',
+  nameEn: '$en $id',
+  oppositeRouteId: opposite,
+  activeScheduleCount: trips,
+);
 
 Widget _wrap(Widget child) => MaterialApp(
-      locale: const Locale('bn'),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: Scaffold(body: Center(child: child)),
-    );
+  locale: const Locale('bn'),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: Scaffold(body: Center(child: child)),
+);
 
 void main() {
-  testWidgets('a linked corridor renders ONE card with two direction rows',
-      (tester) async {
+  testWidgets('a linked corridor renders ONE card with two direction rows', (
+    tester,
+  ) async {
     final tapped = <int>[];
     final group = groupRoutes([
       _route(1, opposite: 8, trips: 4, bn: 'কান্দিরপাড়'),
       _route(8, opposite: 1, trips: 5, bn: 'ক্যাম্পাস'),
     ]).single;
 
-    await tester.pumpWidget(
-      _wrap(
-        RouteCard(
-          group: group,
-          onTap: tapped.add,
-        ),
-      ),
-    );
+    await tester.pumpWidget(_wrap(RouteCard(group: group, onTap: tapped.add)));
 
     // One card surface, two rows.
     expect(find.byType(RouteCard), findsOneWidget);
     expect(find.text('কান্দিরপাড় 1'), findsOneWidget);
     expect(find.text('ক্যাম্পাস 8'), findsOneWidget);
-    expect(find.byType(Divider), findsOneWidget, reason: 'exactly one divider between the rows');
+    expect(
+      find.byType(Divider),
+      findsOneWidget,
+      reason: 'exactly one divider between the rows',
+    );
     expect(find.text('4 টি ট্রিপ'), findsOneWidget);
     expect(find.text('5 টি ট্রিপ'), findsOneWidget);
 
@@ -73,13 +70,19 @@ void main() {
     expect(tapped, [1, 8]);
   });
 
-  testWidgets('a one-way route shows the badge and a single row', (tester) async {
+  testWidgets('a one-way route shows the badge and a single row', (
+    tester,
+  ) async {
     final group = groupRoutes([_route(5, trips: 0)]).single;
 
     await tester.pumpWidget(_wrap(RouteCard(group: group, onTap: (_) {})));
 
     expect(find.text('একদিক'), findsOneWidget);
-    expect(find.byType(Divider), findsNothing, reason: 'single row, no divider');
+    expect(
+      find.byType(Divider),
+      findsNothing,
+      reason: 'single row, no divider',
+    );
     expect(find.text('রুট 5'), findsOneWidget);
     expect(
       find.text('এখনো কোনো ট্রিপ নেই'),

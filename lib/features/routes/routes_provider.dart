@@ -113,9 +113,7 @@ class RouteListState {
         .where((e) => e.value.isPinned)
         .map((e) => e.key)
         .toSet();
-    return groupRoutes(
-      routes.where((r) => pinnedIds.contains(r.id)).toList(),
-    );
+    return groupRoutes(routes.where((r) => pinnedIds.contains(r.id)).toList());
   }
 
   RoutePreference preferenceFor(int routeId) =>
@@ -292,8 +290,8 @@ class RouteListNotifier extends StateNotifier<RouteListState> {
 
 final routeListProvider =
     StateNotifierProvider<RouteListNotifier, RouteListState>((ref) {
-  return RouteListNotifier(
-    ref.watch(routeRepositoryProvider),
-    ref.watch(storageServiceProvider),
-  );
-});
+      return RouteListNotifier(
+        ref.watch(routeRepositoryProvider),
+        ref.watch(storageServiceProvider),
+      );
+    });
