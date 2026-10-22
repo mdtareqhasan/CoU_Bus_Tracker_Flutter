@@ -54,9 +54,28 @@ class AppTheme {
     end: Alignment.bottomCenter,
   );
 
-  /// The shared brand gradient used in both light and dark mode.
+  /// Dark-mode sibling of [primaryGradient]: the same indigo → blue → cyan
+  /// path with every stop darkened, so the gradient stops glaring against
+  /// [backgroundDark] (the brightest stop was a 9.4:1 match against it)
+  /// while white text painted on each stop stays at least as legible as in
+  /// light mode. Selected by [primaryGradientFor]; pinned by
+  /// `test/primary_gradient_test.dart`.
+  static const LinearGradient darkPrimaryGradient = LinearGradient(
+    colors: [
+      Color(0xFF17104D), // Deep Indigo (darkened)
+      Color(0xFF154A96), // Vibrant Blue (darkened)
+      Color(0xFF0E8791), // Bright Cyan (darkened)
+    ],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  /// The brand gradient for the active theme: the bright [primaryGradient]
+  /// in light mode, the darker [darkPrimaryGradient] in dark mode.
   static LinearGradient primaryGradientFor(BuildContext context) =>
-      primaryGradient;
+      Theme.brightnessOf(context) == Brightness.dark
+      ? darkPrimaryGradient
+      : primaryGradient;
 
   /// Button gradient for prominent actions on dark surfaces. It stays more
   /// saturated than the page gradient so the action remains obvious.
