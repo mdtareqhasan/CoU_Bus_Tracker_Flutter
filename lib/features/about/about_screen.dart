@@ -90,7 +90,7 @@ class _AboutScreenState extends State<AboutScreen> {
                         name: 'MD. Kawsar Amin',
                         role: context.l10n.aboutRoleMaintainer,
                         info: context.l10n.aboutInfoMaintainer,
-                        imagePath: 'assets/images/kawsar.jpg',
+                        imagePath: 'assets/images/kawsar.jpeg',
                       ),
 
                       const SizedBox(height: AppTheme.space24),
