@@ -989,7 +989,8 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
       width: double.infinity,
       height: 56,
       decoration: BoxDecoration(
-        gradient: AppTheme.primaryGradientFor(context),
+        // Plain brand color — no gradient; identical in light and dark mode.
+        color: AppTheme.primaryBlue,
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
         boxShadow: [
           BoxShadow(
@@ -1003,6 +1004,7 @@ class _AcademicDetailsScreenState extends ConsumerState<AcademicDetailsScreen> {
         onPressed: _isLoading ? null : _submit,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
+          disabledBackgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppTheme.radiusMedium),

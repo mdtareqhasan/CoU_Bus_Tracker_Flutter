@@ -318,11 +318,13 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
     final isLoading =
         _isSigningIn || authState.status == AuthStateStatus.loading;
 
+    // Plain brand color (same in light and dark mode). The "G" is tinted
+    // white so it stays legible on the blue fill.
     return Container(
       width: double.infinity,
       height: 56,
       decoration: BoxDecoration(
-        gradient: AppTheme.authButtonGradientFor(context),
+        color: AppTheme.primaryBlue,
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
         boxShadow: [
           BoxShadow(
@@ -336,6 +338,7 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
         onPressed: isLoading ? null : _signInWithGoogle,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
+          disabledBackgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
@@ -347,16 +350,29 @@ class _GoogleSigninScreenState extends ConsumerState<GoogleSigninScreen> {
                 width: 24,
                 child: CircularProgressIndicator(
                   color: Colors.white,
-                  strokeWidth: 2,
+                  strokeWidth: 2.5,
                 ),
               )
-            : Text(
-                context.l10n.googleSignInButton,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    'assets/images/googleg_64dp.png',
+                    height: 22,
+                    width: 22,
+                    color: Colors.white,
+                    colorBlendMode: BlendMode.srcIn,
+                  ),
+                  const SizedBox(width: AppTheme.space12),
+                  Text(
+                    context.l10n.googleSignInButton,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
               ),
       ),
     );
