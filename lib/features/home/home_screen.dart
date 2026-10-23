@@ -12,6 +12,7 @@ import '../../app/theme.dart';
 import '../../app/theme_mode_provider.dart';
 import '../../app/locale_provider.dart';
 import '../../l10n/l10n.dart';
+import '../../shared/widgets/app_bar_language_switcher.dart';
 import '../../shared/widgets/stat_card.dart';
 import '../../shared/widgets/schedule_card.dart';
 import '../../core/utils/time_utils.dart';
@@ -315,7 +316,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           value: 'profile',
           child: _MenuItemRow(
             icon: Icons.person_outline_rounded,
-            label: context.l10n.profileTitle,
+            label: (l10n) => l10n.profileTitle,
           ),
         ),
         const PopupMenuDivider(),
@@ -326,7 +327,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           value: 'about',
           child: _MenuItemRow(
             icon: Icons.info_outline_rounded,
-            label: context.l10n.aboutUsTitle,
+            label: (l10n) => l10n.aboutUsTitle,
           ),
         ),
       ],
@@ -719,19 +720,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 }
 
 /// Plain row used by the navigational entries in the home menu.
-class _MenuItemRow extends StatelessWidget {
+///
+/// A ConsumerWidget watching [localeProvider] on purpose: the popup is a
+/// separate route, so [PopupMenuButton] does not rebuild while it is open —
+/// switching language from the menu's own switcher would otherwise leave
+/// these rows stuck in the previous language until the menu is reopened.
+class _MenuItemRow extends ConsumerWidget {
   const _MenuItemRow({required this.icon, required this.label});
 
   final IconData icon;
-  final String label;
+  final String Function(AppLocalizations) label;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(localeProvider);
     return Row(
       children: [
         Icon(icon, size: 20, color: AppTheme.primaryBlue),
         const SizedBox(width: 12),
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text(
+          label(context.l10n),
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
       ],
     );
   }
@@ -747,6 +757,9 @@ class _ThemeMenuTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Rebuild on language change as well: the open popup doesn't rebuild
+    // itself, so the label would otherwise stay in the previous language.
+    ref.watch(localeProvider);
     final mode = ref.watch(themeModeProvider);
     final isDark =
         mode == ThemeMode.dark ||
@@ -778,7 +791,8 @@ class _ThemeMenuTile extends ConsumerWidget {
   }
 }
 
-/// Language switch inside the home menu: on = English, off = Bengali.
+/// Language row inside the home menu: label + current language, switched
+/// with the same segmented বাং/EN pill used on the login/registration screens.
 class _LanguageMenuTile extends ConsumerWidget {
   const _LanguageMenuTile();
 
@@ -814,12 +828,8 @@ class _LanguageMenuTile extends ConsumerWidget {
             ],
           ),
         ),
-        Switch(
-          value: isEnglish,
-          onChanged: (english) => ref
-              .read(localeProvider.notifier)
-              .setLanguageCode(english ? 'en' : 'bn'),
-        ),
+        // Same segmented বাং/EN switcher as the login/registration screens.
+        const AppBarLanguageSwitcher(),
       ],
     );
   }
