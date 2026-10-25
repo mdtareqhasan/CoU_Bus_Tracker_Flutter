@@ -1,7 +1,7 @@
 name: cou_bus_tracker
 description: CoU Bus Tracker - Comilla University Transport Management System
 publish_to: 'none'
-version: 1.2.0+1000
+version: 1.2.1+1000
 
 environment:
   sdk: ^3.8.0
