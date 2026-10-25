@@ -11,6 +11,8 @@ import '../../l10n/l10n.dart';
 import '../../shared/models/bus_route.dart';
 import '../../shared/models/schedule.dart';
 import '../../shared/widgets/schedule_card.dart';
+import '../auth/auth_provider.dart';
+import '../buses/buses_provider.dart';
 import '../providers.dart';
 import 'routes_provider.dart';
 
@@ -104,6 +106,18 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
       if (route.id == id) return route;
     }
     return null;
+  }
+
+  /// A route carries every category's trips — student, staff and teacher buses
+  /// run it at different times — and the endpoint is public, so the rider's
+  /// role has to be applied here. Same gate as the Home, Buses and Schedules
+  /// tabs; without it a teacher sees student trips and vice versa.
+  List<Schedule> get _visibleSchedules {
+    final allowed = allowedCategoriesForRole(ref.watch(authProvider).role);
+    return _schedules.where((s) {
+      final category = s.category?.toUpperCase();
+      return category != null && allowed.contains(category);
+    }).toList();
   }
 
   /// Only offer the switch when the partner is actually in the listing — a
@@ -292,7 +306,8 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
     if (_error != null && _schedules.isEmpty) {
       return _buildErrorState(_error!);
     }
-    if (_schedules.isEmpty) {
+    final schedules = _visibleSchedules;
+    if (schedules.isEmpty) {
       return _buildEmpty();
     }
     return RefreshIndicator(
@@ -305,9 +320,9 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
           AppTheme.space24,
           AppTheme.space48,
         ),
-        itemCount: _schedules.length,
+        itemCount: schedules.length,
         itemBuilder: (context, index) {
-          final schedule = _schedules[index];
+          final schedule = schedules[index];
           return ScheduleCard(
             schedule: schedule,
             flat: true,
