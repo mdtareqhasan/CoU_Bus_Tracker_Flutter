@@ -13,6 +13,10 @@ BusRoute _$BusRouteFromJson(Map<String, dynamic> json) => BusRoute(
   isActive: json['isActive'] as bool? ?? true,
   oppositeRouteId: (json['oppositeRouteId'] as num?)?.toInt(),
   activeScheduleCount: (json['activeScheduleCount'] as num?)?.toInt(),
+  activeScheduleCountsByCategory:
+      (json['activeScheduleCountsByCategory'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, (e as num).toInt()),
+      ),
 );
 
 Map<String, dynamic> _$BusRouteToJson(BusRoute instance) => <String, dynamic>{
@@ -22,4 +26,5 @@ Map<String, dynamic> _$BusRouteToJson(BusRoute instance) => <String, dynamic>{
   'isActive': instance.isActive,
   'oppositeRouteId': instance.oppositeRouteId,
   'activeScheduleCount': instance.activeScheduleCount,
+  'activeScheduleCountsByCategory': instance.activeScheduleCountsByCategory,
 };

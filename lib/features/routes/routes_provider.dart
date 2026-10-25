@@ -32,6 +32,17 @@ class RouteGroup {
   /// a linked route whose partner happens to be missing from the listing
   /// must not be mislabeled.
   bool get isOneWay => route.isOneWay;
+
+  /// Whether the Routes tab (and the pin sheet) lists this corridor for a
+  /// rider who may ride [allowedCategories].
+  ///
+  /// Hides a corridor whose trips all belong to the other role, while keeping
+  /// a genuinely empty one (its "No trips yet" label is the story) and keeping
+  /// a pair whose partner direction still has rides the rider can take — the
+  /// card keeps both of its rows, since a corridor is one card or none.
+  bool shouldListFor(Set<String> allowedCategories) =>
+      route.shouldListFor(allowedCategories) ||
+      (opposite?.shouldListFor(allowedCategories) ?? false);
 }
 
 /// Pairs up a flat listing: walks routes in order, and when a route declares

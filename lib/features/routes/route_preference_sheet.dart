@@ -7,6 +7,8 @@ import '../../l10n/l10n.dart';
 import '../../shared/models/bus_route.dart';
 import '../../shared/models/route_preference.dart';
 import '../auth/auth_notification_permission.dart';
+import '../auth/auth_provider.dart';
+import '../buses/buses_provider.dart';
 import 'routes_provider.dart';
 
 /// Per-route pins and schedule-alert bells for the signed-in rider.
@@ -91,6 +93,13 @@ class _RoutePreferenceSheetState extends ConsumerState<RoutePreferenceSheet> {
     final state = ref.watch(routeListProvider);
     final theme = Theme.of(context);
 
+    // Same role gate as the Routes tab: a corridor the rider has no trips on
+    // is not offered for pinning (pinning it would put an empty card on Home).
+    final allowed = allowedCategoriesForRole(ref.watch(authProvider).role);
+    final groups = state.groups
+        .where((group) => group.shouldListFor(allowed))
+        .toList();
+
     return SafeArea(
       child: ConstrainedBox(
         constraints: BoxConstraints(
@@ -124,12 +133,12 @@ class _RoutePreferenceSheetState extends ConsumerState<RoutePreferenceSheet> {
               ),
             ),
             Flexible(
-              child: state.groups.isEmpty && state.isLoading
+              child: groups.isEmpty && state.isLoading
                   ? const Padding(
                       padding: EdgeInsets.all(AppTheme.space24),
                       child: CircularProgressIndicator(),
                     )
-                  : state.groups.isEmpty
+                  : groups.isEmpty
                   // No routes configured at all — say so instead of
                   // handing back a silently blank sheet.
                   ? Padding(
@@ -147,9 +156,9 @@ class _RoutePreferenceSheetState extends ConsumerState<RoutePreferenceSheet> {
                       padding: const EdgeInsets.symmetric(
                         horizontal: AppTheme.space24,
                       ),
-                      itemCount: state.groups.length,
+                      itemCount: groups.length,
                       itemBuilder: (context, index) {
-                        final group = state.groups[index];
+                        final group = groups[index];
                         return Column(
                           children: [
                             _PreferenceRow(

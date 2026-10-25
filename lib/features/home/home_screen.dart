@@ -19,6 +19,7 @@ import '../../core/utils/time_utils.dart';
 import '../../shared/models/schedule.dart';
 import 'home_provider.dart';
 import '../auth/auth_provider.dart';
+import '../buses/buses_provider.dart';
 import '../routes/routes_provider.dart';
 import '../../shared/widgets/route_card.dart';
 
@@ -473,7 +474,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   /// with no "One way" badge, since the corridor genuinely runs both ways.
   List<Widget> _buildMyRoutesSlivers(BuildContext context) {
     final routeState = ref.watch(routeListProvider);
-    final pinned = routeState.pinnedGroups;
+    // A pin left over from the other role's shift (or from before a role
+    // change) carries no trips this rider can take — keep it off Home rather
+    // than render a card that says "No trips yet".
+    final allowed = allowedCategoriesForRole(ref.watch(authProvider).role);
+    final pinned = routeState.pinnedGroups
+        .where((group) => group.shouldListFor(allowed))
+        .toList();
     if (!routeState.preferencesLoaded || pinned.isEmpty) {
       return const <Widget>[];
     }

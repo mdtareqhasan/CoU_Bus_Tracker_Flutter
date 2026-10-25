@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:cou_bus_tracker/core/storage_service.dart';
+import 'package:cou_bus_tracker/features/providers.dart';
 import 'package:cou_bus_tracker/l10n/l10n.dart';
 import 'package:cou_bus_tracker/shared/models/bus_route.dart';
 import 'package:cou_bus_tracker/shared/widgets/route_card.dart';
@@ -13,7 +17,9 @@ import 'package:cou_bus_tracker/features/routes/routes_provider.dart';
 ///    own detail page,
 ///  * the "একদিক/One way" badge appears only for server-declared one-way
 ///    routes — a linked route whose partner is missing must not claim it,
-///  * trips/empty-trip copy comes straight from `activeScheduleCount`.
+///  * trips/empty-trip copy counts only the signed-in role's categories (the
+///    card watches authProvider itself, so no call site can forget the gate;
+///    with no breakdown on the row it falls back to `activeScheduleCount`).
 BusRoute _route(
   int id, {
   int? opposite,
@@ -28,14 +34,29 @@ BusRoute _route(
   activeScheduleCount: trips,
 );
 
-Widget _wrap(Widget child) => MaterialApp(
-  locale: const Locale('bn'),
-  localizationsDelegates: AppLocalizations.localizationsDelegates,
-  supportedLocales: AppLocalizations.supportedLocales,
-  home: Scaffold(body: Center(child: child)),
-);
-
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  late StorageService storage;
+
+  setUp(() async {
+    StorageService.resetInstanceForTesting();
+    SharedPreferences.setMockInitialValues({});
+    storage = await StorageService.getInstance();
+  });
+
+  // The card watches authProvider, so it needs a scope (and storage, which
+  // authProvider builds against). Role stays unset → student categories.
+  Widget wrap(Widget child) => ProviderScope(
+    overrides: [storageServiceProvider.overrideWithValue(storage)],
+    child: MaterialApp(
+      locale: const Locale('bn'),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: Scaffold(body: Center(child: child)),
+    ),
+  );
+
   testWidgets('a linked corridor renders ONE card with two direction rows', (
     tester,
   ) async {
@@ -45,7 +66,7 @@ void main() {
       _route(8, opposite: 1, trips: 5, bn: 'ক্যাম্পাস'),
     ]).single;
 
-    await tester.pumpWidget(_wrap(RouteCard(group: group, onTap: tapped.add)));
+    await tester.pumpWidget(wrap(RouteCard(group: group, onTap: tapped.add)));
 
     // One card surface, two rows.
     expect(find.byType(RouteCard), findsOneWidget);
@@ -75,7 +96,7 @@ void main() {
   ) async {
     final group = groupRoutes([_route(5, trips: 0)]).single;
 
-    await tester.pumpWidget(_wrap(RouteCard(group: group, onTap: (_) {})));
+    await tester.pumpWidget(wrap(RouteCard(group: group, onTap: (_) {})));
 
     expect(find.text('একদিক'), findsOneWidget);
     expect(
@@ -98,7 +119,7 @@ void main() {
     // (retired meanwhile). One row, and no claim that it's one-way.
     final group = groupRoutes([_route(1, opposite: 99, trips: 2)]).single;
 
-    await tester.pumpWidget(_wrap(RouteCard(group: group, onTap: (_) {})));
+    await tester.pumpWidget(wrap(RouteCard(group: group, onTap: (_) {})));
 
     expect(find.byType(RouteCard), findsOneWidget);
     expect(find.text('একদিক'), findsNothing);
@@ -111,7 +132,7 @@ void main() {
     const route = BusRoute(id: 42); // no names at all
     final group = RouteGroup(route: route);
 
-    await tester.pumpWidget(_wrap(RouteCard(group: group, onTap: (_) {})));
+    await tester.pumpWidget(wrap(RouteCard(group: group, onTap: (_) {})));
 
     expect(find.text('—'), findsOneWidget);
   });

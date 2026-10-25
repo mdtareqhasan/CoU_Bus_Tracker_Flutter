@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../app/theme.dart';
 import '../../l10n/l10n.dart';
 import '../../shared/widgets/route_card.dart';
+import '../auth/auth_provider.dart';
+import '../buses/buses_provider.dart';
 import 'route_preference_sheet.dart';
 import 'routes_provider.dart';
 
@@ -112,7 +114,17 @@ class _RouteScreenState extends ConsumerState<RouteScreen> {
     if (state.error != null && state.routes.isEmpty) {
       return _buildErrorState(state.error!);
     }
-    if (state.groups.isEmpty) {
+
+    // The listing endpoint is public and role-less, so the rider's role is
+    // applied here: a corridor whose trips all belong to the other role is
+    // not this rider's to browse and never reaches the list. A corridor with
+    // no trips at all still does — see [BusRoute.shouldListFor].
+    final allowed = allowedCategoriesForRole(ref.watch(authProvider).role);
+    final groups = state.groups
+        .where((group) => group.shouldListFor(allowed))
+        .toList();
+
+    if (groups.isEmpty) {
       return _buildEmptyState();
     }
     return RefreshIndicator(
@@ -123,10 +135,10 @@ class _RouteScreenState extends ConsumerState<RouteScreen> {
           vertical: AppTheme.space16,
         ),
         physics: const BouncingScrollPhysics(),
-        itemCount: state.groups.length,
+        itemCount: groups.length,
         itemBuilder: (context, index) => Padding(
           padding: const EdgeInsets.only(bottom: AppTheme.space12),
-          child: RouteCard(group: state.groups[index], onTap: _openRoute),
+          child: RouteCard(group: groups[index], onTap: _openRoute),
         ),
       ),
     );

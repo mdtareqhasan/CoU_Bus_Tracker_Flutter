@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/theme.dart';
 import '../../l10n/l10n.dart';
 import '../models/bus_route.dart';
+import '../../features/auth/auth_provider.dart';
+import '../../features/buses/buses_provider.dart';
 import '../../features/routes/routes_provider.dart';
 
 /// One card on the Route tab (and the home "My Routes" list).
@@ -14,7 +17,12 @@ import '../../features/routes/routes_provider.dart';
 ///
 /// Deliberately never says "Both ways": a pair is two one-direction trips,
 /// and each row keeps its own name, arrow and trip count.
-class RouteCard extends StatelessWidget {
+///
+/// The trip count is the *rider's* count, not the route's: it sums only the
+/// categories the signed-in role may ride (see [BusRoute.visibleTripCount]).
+/// The card watches [authProvider] itself so no call site can forget the
+/// gate — the same lesson as the route detail page.
+class RouteCard extends ConsumerWidget {
   const RouteCard({
     super.key,
     required this.group,
@@ -32,22 +40,25 @@ class RouteCard extends StatelessWidget {
   final bool flat;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final radius = BorderRadius.circular(
       flat ? AppTheme.radiusMedium : AppTheme.radiusLarge,
     );
+    final allowed = allowedCategoriesForRole(ref.watch(authProvider).role);
 
     final rows = <Widget>[
       _RouteRow(
         route: group.route,
         showOneWayBadge: group.isOneWay,
+        allowedTripCategories: allowed,
         onTap: () => onTap(group.route.id),
       ),
       if (group.opposite != null)
         _RouteRow(
           route: group.opposite!,
           showOneWayBadge: false,
+          allowedTripCategories: allowed,
           onTap: () => onTap(group.opposite!.id),
         ),
     ];
@@ -86,11 +97,17 @@ class _RouteRow extends StatelessWidget {
   const _RouteRow({
     required this.route,
     required this.showOneWayBadge,
+    required this.allowedTripCategories,
     required this.onTap,
   });
 
   final BusRoute route;
   final bool showOneWayBadge;
+
+  /// The categories the signed-in role may ride — the trip label counts only
+  /// these, so a student is never shown a teacher bus's trips.
+  final Set<String> allowedTripCategories;
+
   final VoidCallback onTap;
 
   @override
@@ -165,10 +182,12 @@ class _RouteRow extends StatelessWidget {
     );
   }
 
-  /// "12 trips" / "No trips yet" — straight from the listing's count so the
-  /// card never fires a second request just to say the route is empty.
+  /// "12 trips" / "No trips yet" — from the listing's per-category counts, so
+  /// the card never fires a second request and never claims the other role's
+  /// trips as the rider's. A listing served before the breakdown existed
+  /// falls back to the route total (see [BusRoute.visibleTripCount]).
   String _tripCountLabel(BuildContext context) {
-    final count = route.activeScheduleCount;
+    final count = route.visibleTripCount(allowedTripCategories);
     if (count == null || count <= 0) return context.l10n.routeNoTrips;
     return context.l10n.routeTripCount(count);
   }
