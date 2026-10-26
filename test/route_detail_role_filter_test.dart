@@ -45,7 +45,10 @@ void main() {
     _trip(id: 6, category: 'CHARTER', busNumber: 'C-01'),
   ];
 
-  Future<void> pumpRouteDetail(WidgetTester tester, {required String role}) async {
+  Future<void> pumpRouteDetail(
+    WidgetTester tester, {
+    required String role,
+  }) async {
     StorageService.resetInstanceForTesting();
     SharedPreferences.setMockInitialValues({});
     final storage = await StorageService.getInstance();
@@ -72,8 +75,9 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('a teacher only sees teacher/officer trips on the route',
-      (tester) async {
+  testWidgets('a teacher only sees teacher/officer trips on the route', (
+    tester,
+  ) async {
     await pumpRouteDetail(tester, role: 'teacher');
 
     expect(find.byType(ScheduleCard), findsNWidgets(2));
@@ -86,8 +90,7 @@ void main() {
     expect(find.text('C-01'), findsNothing);
   });
 
-  testWidgets('a student only sees student trips on the route',
-      (tester) async {
+  testWidgets('a student only sees student trips on the route', (tester) async {
     await pumpRouteDetail(tester, role: 'student');
 
     expect(find.byType(ScheduleCard), findsNWidgets(3));
@@ -115,7 +118,9 @@ void main() {
         overrides: [
           storageServiceProvider.overrideWithValue(storage),
           routeRepositoryProvider.overrideWithValue(repository),
-          authProvider.overrideWith((_) => _RoleAuthNotifier(storage, 'student')),
+          authProvider.overrideWith(
+            (_) => _RoleAuthNotifier(storage, 'student'),
+          ),
         ],
         child: MaterialApp(
           locale: const Locale('en'),

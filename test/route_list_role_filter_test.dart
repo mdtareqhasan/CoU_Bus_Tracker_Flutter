@@ -74,29 +74,41 @@ void main() {
 
   group('BusRoute trip gate', () {
     test('visibleTripCount sums only the categories the role may ride', () {
-      expect(mixed.visibleTripCount(student), 2,
-          reason: 'the teacher buses on a mixed line are not the rides');
+      expect(
+        mixed.visibleTripCount(student),
+        2,
+        reason: 'the teacher buses on a mixed line are not the rides',
+      );
       expect(mixed.visibleTripCount(teacher), 3);
       expect(teacherOnly.visibleTripCount(student), 0);
       expect(studentOnly.visibleTripCount(teacher), 0);
     });
 
     test('a listing with no breakdown falls back to the route total', () {
-      expect(legacy.visibleTripCount(student), 7,
-          reason: 'a missing field must not hide or zero every route');
+      expect(
+        legacy.visibleTripCount(student),
+        7,
+        reason: 'a missing field must not hide or zero every route',
+      );
       expect(legacy.visibleTripCount(teacher), 7);
     });
 
-    test('shouldListFor hides a corridor whose trips are all the other role', () {
-      expect(teacherOnly.shouldListFor(student), isFalse);
-      expect(studentOnly.shouldListFor(teacher), isFalse);
-      expect(mixed.shouldListFor(student), isTrue);
-      expect(studentOnly.shouldListFor(student), isTrue);
-    });
+    test(
+      'shouldListFor hides a corridor whose trips are all the other role',
+      () {
+        expect(teacherOnly.shouldListFor(student), isFalse);
+        expect(studentOnly.shouldListFor(teacher), isFalse);
+        expect(mixed.shouldListFor(student), isTrue);
+        expect(studentOnly.shouldListFor(student), isTrue);
+      },
+    );
 
     test('a route with no trips at all is still listed', () {
-      expect(empty.shouldListFor(student), isTrue,
-          reason: '"No trips yet" is its honest label, not a role problem');
+      expect(
+        empty.shouldListFor(student),
+        isTrue,
+        reason: '"No trips yet" is its honest label, not a role problem',
+      );
       expect(empty.shouldListFor(teacher), isTrue);
       expect(empty.visibleTripCount(student), 0);
     });
@@ -116,8 +128,11 @@ void main() {
         ),
       );
 
-      expect(group.shouldListFor(student), isTrue,
-          reason: 'the corridor is one card or none — never a torn pair');
+      expect(
+        group.shouldListFor(student),
+        isTrue,
+        reason: 'the corridor is one card or none — never a torn pair',
+      );
       expect(
         RouteGroup(route: teacherOnly, opposite: mixed).shouldListFor(student),
         isTrue,
@@ -187,8 +202,11 @@ void main() {
 
       expect(find.byType(RouteCard), findsNWidgets(3));
       expect(find.text('Student Line'), findsNothing);
-      expect(find.text('6 trips'), findsNothing,
-          reason: "the student bus's count must not appear for a teacher");
+      expect(
+        find.text('6 trips'),
+        findsNothing,
+        reason: "the student bus's count must not appear for a teacher",
+      );
 
       expect(find.text('Teacher Loop'), findsOneWidget);
       expect(find.text('4 trips'), findsOneWidget);
