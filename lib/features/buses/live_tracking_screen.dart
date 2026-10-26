@@ -228,6 +228,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
     _setRefreshInterval();
     _setupStatusTracking();
     _watchTimerDropdown();
+    _preserveZoomOnRefresh();
   }
 
   /// The site's refresh-interval dropdown (.el-select-dropdown) expands
@@ -254,6 +255,112 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
             if (window.StatusChannel) window.StatusChannel.postMessage('DD:' + (open ? '1' : '0'));
           }
         }, 250);
+      })();
+    """;
+    _controller?.runJavaScript(js);
+  }
+
+  /// The site's auto-refresh (~every 30s) calls `map.setView(busPos, 18)`,
+  /// snapping the map back to its default zoom and throwing away whatever
+  /// zoom the user chose. Remember the zoom picked through real user gestures
+  /// (wheel, pinch, double-tap, +/- keys, zoom buttons) and restore it on
+  /// programmatic changes; until the user zooms once, the site is left alone
+  /// so its initial framing still works.
+  ///
+  /// Two Leaflet quirks this has to work around: pinch zoom bypasses
+  /// setZoom/setView entirely (only 'zoomend' sees it), and getZoom() still
+  /// returns the old value while an animated zoom is in flight.
+  void _preserveZoomOnRefresh() {
+    const js = """
+      (function() {
+        if (window.__zoomKeeperInstalled) return;
+        window.__zoomKeeperInstalled = true;
+
+        var lastZoomGestureAt = 0;
+        var userZoom = null;
+        var restoring = false;
+        var watchedMap = null;
+
+        function markZoomGesture() { lastZoomGestureAt = Date.now(); }
+        function inZoomGesture() { return Date.now() - lastZoomGestureAt < 800; }
+
+        document.addEventListener('wheel', markZoomGesture, { capture: true, passive: true });
+        document.addEventListener('dblclick', markZoomGesture, { capture: true, passive: true });
+        document.addEventListener('keydown', function(e) {
+          if (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '_') {
+            markZoomGesture();
+          }
+        }, { capture: true, passive: true });
+        document.addEventListener('touchmove', function(e) {
+          if (e.touches && e.touches.length > 1) markZoomGesture(); // pinch zoom
+        }, { capture: true, passive: true });
+        document.addEventListener('click', function(e) {
+          if (e.target && e.target.closest && e.target.closest('.leaflet-control-zoom')) {
+            markZoomGesture();
+          }
+        }, { capture: true, passive: true });
+
+        // Pinch zoom (and every animated zoom) only settles on 'zoomend',
+        // where getZoom() is finally accurate. Record there when the zoom
+        // followed a user gesture; programmatic changes never do.
+        function watch(map) {
+          if (!map || map === watchedMap || typeof map.on !== 'function') return;
+          watchedMap = map;
+          map.on('zoomend', function() {
+            if (!inZoomGesture()) return;
+            var z = map.getZoom();
+            if (typeof z === 'number') userZoom = z;
+          });
+        }
+
+        function install() {
+          if (!window.L || !window.L.Map || window.L.Map.__zoomKeeper) return false;
+          window.L.Map.__zoomKeeper = true;
+          var proto = window.L.Map.prototype;
+
+          ['setView', 'setZoom', 'flyTo'].forEach(function(name) {
+            var orig = proto[name];
+            if (typeof orig !== 'function') return;
+            proto[name] = function() {
+              watch(this);
+              if (restoring) return orig.apply(this, arguments);
+
+              var requested = (name === 'setZoom') ? arguments[0] : arguments[1];
+
+              if (inZoomGesture()) {
+                // Real user zoom: let it through and remember the level. Take
+                // it from the arguments — getZoom() may still be stale here.
+                if (typeof requested === 'number') userZoom = requested;
+                return orig.apply(this, arguments);
+              }
+
+              // Programmatic change (auto-refresh, initial framing, ...):
+              // untouched until the user has chosen a zoom level themselves.
+              if (userZoom === null) return orig.apply(this, arguments);
+              if (typeof requested !== 'number' || requested === userZoom) {
+                return orig.apply(this, arguments);
+              }
+
+              // Keep the user's zoom; the site still recenters on the bus.
+              restoring = true;
+              try {
+                if (name === 'setZoom') return orig.call(this, userZoom, arguments[1]);
+                return orig.call(this, arguments[0], userZoom, arguments[2]);
+              } finally {
+                restoring = false;
+              }
+            };
+          });
+          return true;
+        }
+
+        // Leaflet may be bundled in a chunk that loads after this injection.
+        if (!install()) {
+          var tries = 0;
+          var timer = setInterval(function() {
+            if (install() || ++tries >= 240) clearInterval(timer);
+          }, 500);
+        }
       })();
     """;
     _controller?.runJavaScript(js);
