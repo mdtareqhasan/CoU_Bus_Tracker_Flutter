@@ -30,6 +30,15 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
   String _speed = '0 km/h';
   String _status = L10n.current.trackingConnecting;
   String _distance = '-- km';
+
+  // Distance (CSS px) from the WebView bottom to the top of the site's
+  // refresh-interval timer (.countdown-select, bottom-left of the map).
+  // 92 is the site's known layout; injected JS corrects it once loaded.
+  double _timerClearance = 92;
+
+  // True while the site's interval dropdown is open (it expands upward and
+  // would otherwise be covered by our status card).
+  bool _timerDropdownOpen = false;
   Position? _userPosition;
   StreamSubscription<Position>? _positionStream;
   late final String _viewId;
@@ -150,6 +159,15 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
   }
 
   void _handleWebStatus(String data) {
+    // Lightweight signal from the injected dropdown watcher.
+    if (data.startsWith('DD:')) {
+      final open = data == 'DD:1';
+      if (open != _timerDropdownOpen && mounted) {
+        setState(() => _timerDropdownOpen = open);
+      }
+      return;
+    }
+
     try {
       final parts = data.split('|');
       if (parts.length < 4) return;
@@ -158,6 +176,13 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
       final status = parts[1];
       final latVal = double.tryParse(parts[2]);
       final lngVal = double.tryParse(parts[3]);
+
+      if (parts.length >= 5) {
+        final clearance = double.tryParse(parts[4]);
+        if (clearance != null && clearance >= 0) {
+          _timerClearance = clearance;
+        }
+      }
 
       String translatedStatus = status;
       if (status.toLowerCase().contains('moving') ||
@@ -202,6 +227,36 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
     _removeCheckboxes();
     _setRefreshInterval();
     _setupStatusTracking();
+    _watchTimerDropdown();
+  }
+
+  /// The site's refresh-interval dropdown (.el-select-dropdown) expands
+  /// upward from the timer and would sit behind our Flutter status card.
+  /// Report open/closed changes so the card can step out of the way.
+  void _watchTimerDropdown() {
+    const js = """
+      (function() {
+        if (window.__timerDropdownWatch) return;
+        window.__timerDropdownWatch = true;
+        var last = null;
+        setInterval(function() {
+          var open = false;
+          var dropdowns = document.querySelectorAll('.el-select-dropdown');
+          for (var i = 0; i < dropdowns.length; i++) {
+            var cs = getComputedStyle(dropdowns[i]);
+            if (cs.display !== 'none' && dropdowns[i].getBoundingClientRect().height > 0) {
+              open = true;
+              break;
+            }
+          }
+          if (open !== last) {
+            last = open;
+            if (window.StatusChannel) window.StatusChannel.postMessage('DD:' + (open ? '1' : '0'));
+          }
+        }, 250);
+      })();
+    """;
+    _controller?.runJavaScript(js);
   }
 
   void _setupStatusTracking() {
@@ -237,7 +292,10 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
             }
           }
 
-          return speed + '|' + status + '|' + lat + '|' + lng;
+          var timerEl = document.querySelector('.countdown-select');
+          var timerTop = timerEl ? Math.round(innerHeight - timerEl.getBoundingClientRect().top) : 0;
+
+          return speed + '|' + status + '|' + lat + '|' + lng + '|' + timerTop;
         }
         setInterval(function() {
           var data = getRealtimeData();
@@ -521,79 +579,88 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
 
     return Stack(
       children: [
-        // Top Left Info Card
+        // Status card, stacked above the site's refresh timer (bottom-left).
+        // It fades out while the timer's interval dropdown is open, since
+        // that dropdown expands upward and would otherwise be covered.
         Positioned(
-          top: 16,
           left: 16,
-          child: Container(
-            width: 190,
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1A1F2E).withValues(alpha: 0.9),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.1),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.3),
-                  blurRadius: 15,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      isMoving
-                          ? Icons.directions_bus_rounded
-                          : Icons.pause_circle_rounded,
-                      color: statusColor,
-                      size: 22,
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      _status.toUpperCase(),
-                      style: TextStyle(
-                        color: statusColor,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 18,
-                        letterSpacing: 0.5,
-                      ),
+          bottom: _timerClearance + 12 + MediaQuery.of(context).padding.bottom,
+          child: IgnorePointer(
+            ignoring: _timerDropdownOpen,
+            child: AnimatedOpacity(
+              opacity: _timerDropdownOpen ? 0 : 1,
+              duration: const Duration(milliseconds: 180),
+              child: Container(
+                width: 190,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1A1F2E).withValues(alpha: 0.9),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.1),
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.3),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
-                Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
-                      Icons.near_me_rounded,
-                      color: Colors.white54,
-                      size: 14,
+                    Row(
+                      children: [
+                        Icon(
+                          isMoving
+                              ? Icons.directions_bus_rounded
+                              : Icons.pause_circle_rounded,
+                          color: statusColor,
+                          size: 22,
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          _status.toUpperCase(),
+                          style: TextStyle(
+                            color: statusColor,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 18,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 6),
-                    const Text(
-                      'Distance: ',
-                      style: TextStyle(color: Colors.white70, fontSize: 12),
-                    ),
-                    Text(
-                      _distance,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.near_me_rounded,
+                          color: Colors.white54,
+                          size: 14,
+                        ),
+                        const SizedBox(width: 6),
+                        const Text(
+                          'Distance: ',
+                          style: TextStyle(color: Colors.white70, fontSize: 12),
+                        ),
+                        Text(
+                          _distance,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
+              ).animate().fadeIn(duration: 400.ms).slideX(begin: -0.2, end: 0),
             ),
-          ).animate().fadeIn(duration: 400.ms).slideX(begin: -0.2, end: 0),
+          ),
         ),
 
         // Bottom Right Speedometer
