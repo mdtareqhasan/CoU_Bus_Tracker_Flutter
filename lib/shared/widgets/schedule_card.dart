@@ -120,11 +120,10 @@ class ScheduleCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Expanded(
+                      // No maxLines/ellipsis: this is the schedule's route name — wrap, never truncate.
                       child: Text(
                         schedule.routeDisplay,
                         style: Theme.of(context).textTheme.bodyMedium,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],

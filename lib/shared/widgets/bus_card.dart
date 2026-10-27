@@ -83,11 +83,10 @@ class BusCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Expanded(
+                            // No maxLines/ellipsis: this is the bus's route name — wrap, never truncate.
                             child: Text(
                               route,
                               style: Theme.of(context).textTheme.bodyMedium,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],

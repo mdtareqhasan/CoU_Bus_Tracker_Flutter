@@ -220,6 +220,7 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
               ),
               const SizedBox(width: AppTheme.space4),
               Expanded(
+                // No maxLines/ellipsis: the header name must wrap, never truncate.
                 child: Text(
                   route.localizedName ?? '—',
                   style: const TextStyle(
@@ -227,8 +228,6 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               if (route.isOneWay) _buildOneWayBadge(),
@@ -288,11 +287,10 @@ class _RouteDetailScreenState extends ConsumerState<RouteDetailScreen> {
               ),
               const SizedBox(width: AppTheme.space8),
               Flexible(
+                // No maxLines/ellipsis: this is a route name too — wrap, never truncate.
                 child: Text(
                   opposite.localizedName ?? '—',
                   style: const TextStyle(color: Colors.white, fontSize: 13),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
