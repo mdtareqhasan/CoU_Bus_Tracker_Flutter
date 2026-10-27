@@ -24,8 +24,8 @@ import 'package:cou_bus_tracker/shared/widgets/route_card.dart';
 ///
 ///  * the trip badge counts only the categories the signed-in role may ride
 ///    (a student must not be told a teacher bus runs 4 trips on this line),
-///  * a corridor whose trips *all* belong to the other role is not listed at
-///    all, while a genuinely empty one still is ("No trips yet" is its story).
+///  * a corridor the rider has no trip on — all of its trips belong to the
+///    other role, or it has no trips at all — is not listed at all.
 ///
 /// The count needs the server's per-category breakdown, so the badge degrades
 /// to the route total on a backend that predates it — pinned here as well.
@@ -103,13 +103,13 @@ void main() {
       },
     );
 
-    test('a route with no trips at all is still listed', () {
+    test('a route with no trips at all is hidden — nothing to ride', () {
       expect(
         empty.shouldListFor(student),
-        isTrue,
-        reason: '"No trips yet" is its honest label, not a role problem',
+        isFalse,
+        reason: 'zero schedules for the role means no reason to list it',
       );
-      expect(empty.shouldListFor(teacher), isTrue);
+      expect(empty.shouldListFor(teacher), isFalse);
       expect(empty.visibleTripCount(student), 0);
     });
 
@@ -179,8 +179,9 @@ void main() {
     ) async {
       await pumpRoutes(tester, role: 'student');
 
-      // Three of the four corridors: the teacher-only one is not listed.
-      expect(find.byType(RouteCard), findsNWidgets(3));
+      // Two of the four corridors: the teacher-only one has no student
+      // trips and the empty one has no trips at all — both stay hidden.
+      expect(find.byType(RouteCard), findsNWidgets(2));
       expect(find.text('Teacher Loop'), findsNothing);
 
       expect(find.text('Mixed Line'), findsOneWidget);
@@ -192,15 +193,16 @@ void main() {
       expect(find.text('Student Line'), findsOneWidget);
       expect(find.text('6 trips'), findsOneWidget);
 
-      // A corridor with no trips at all still shows, with its own label.
-      expect(find.text('Empty Line'), findsOneWidget);
-      expect(find.text('No trips yet'), findsOneWidget);
+      expect(find.text('Empty Line'), findsNothing);
+      expect(find.text('No trips yet'), findsNothing);
     });
 
     testWidgets('a teacher sees the same list flipped', (tester) async {
       await pumpRoutes(tester, role: 'teacher');
 
-      expect(find.byType(RouteCard), findsNWidgets(3));
+      // Two of the four corridors: the student-only one and the empty one
+      // carry no teacher trips at all.
+      expect(find.byType(RouteCard), findsNWidgets(2));
       expect(find.text('Student Line'), findsNothing);
       expect(
         find.text('6 trips'),
@@ -212,7 +214,8 @@ void main() {
       expect(find.text('4 trips'), findsOneWidget);
       expect(find.text('Mixed Line'), findsOneWidget);
       expect(find.text('3 trips'), findsOneWidget, reason: 'the TEACHER share');
-      expect(find.text('No trips yet'), findsOneWidget);
+      expect(find.text('Empty Line'), findsNothing);
+      expect(find.text('No trips yet'), findsNothing);
     });
   });
 }

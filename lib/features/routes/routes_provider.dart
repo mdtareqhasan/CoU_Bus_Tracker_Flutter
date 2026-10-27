@@ -36,10 +36,10 @@ class RouteGroup {
   /// Whether the Routes tab (and the pin sheet) lists this corridor for a
   /// rider who may ride [allowedCategories].
   ///
-  /// Hides a corridor whose trips all belong to the other role, while keeping
-  /// a genuinely empty one (its "No trips yet" label is the story) and keeping
-  /// a pair whose partner direction still has rides the rider can take — the
-  /// card keeps both of its rows, since a corridor is one card or none.
+  /// Hides a corridor the rider has no trip on — all of its trips belong to
+  /// the other role, or it has no trips at all — while keeping a pair whose
+  /// partner direction still has rides the rider can take: the card keeps
+  /// both of its rows, since a corridor is one card or none.
   bool shouldListFor(Set<String> allowedCategories) =>
       route.shouldListFor(allowedCategories) ||
       (opposite?.shouldListFor(allowedCategories) ?? false);

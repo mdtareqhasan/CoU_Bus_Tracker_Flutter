@@ -116,9 +116,10 @@ class _RouteScreenState extends ConsumerState<RouteScreen> {
     }
 
     // The listing endpoint is public and role-less, so the rider's role is
-    // applied here: a corridor whose trips all belong to the other role is
-    // not this rider's to browse and never reaches the list. A corridor with
-    // no trips at all still does — see [BusRoute.shouldListFor].
+    // applied here: a corridor the rider has no trip on — all of its rides
+    // belong to the other role, or it has no rides at all — is not this
+    // rider's to browse and never reaches the list. See
+    // [BusRoute.shouldListFor].
     final allowed = allowedCategoriesForRole(ref.watch(authProvider).role);
     final groups = state.groups
         .where((group) => group.shouldListFor(allowed))
