@@ -30,6 +30,8 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
   String _speed = '0 km/h';
   String _status = L10n.current.trackingConnecting;
   String _distance = '-- km';
+  double? _busLatitude;
+  double? _busLongitude;
 
   // Distance (CSS px) from the WebView bottom to the top of the site's
   // refresh-interval timer (.countdown-select, bottom-left of the map).
@@ -151,7 +153,16 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
               distanceFilter: 10,
             ),
           ).listen((Position position) {
-            if (mounted) setState(() => _userPosition = position);
+            if (!mounted) return;
+            final distance = _formatDistance(
+              _busLatitude,
+              _busLongitude,
+              position,
+            );
+            setState(() {
+              _userPosition = position;
+              if (distance != null) _distance = distance;
+            });
           });
     } catch (e) {
       debugPrint('Location Error: $e');
@@ -177,10 +188,11 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
       final latVal = double.tryParse(parts[2]);
       final lngVal = double.tryParse(parts[3]);
 
+      var nextTimerClearance = _timerClearance;
       if (parts.length >= 5) {
         final clearance = double.tryParse(parts[4]);
         if (clearance != null && clearance >= 0) {
-          _timerClearance = clearance;
+          nextTimerClearance = clearance;
         }
       }
 
@@ -192,33 +204,54 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
         translatedStatus = 'Stopped';
       }
 
-      String distanceStr = '-- km';
-      if (_userPosition != null &&
-          latVal != null &&
-          lngVal != null &&
-          latVal != 0 &&
-          lngVal != 0) {
-        double dist = Geolocator.distanceBetween(
-          _userPosition!.latitude,
-          _userPosition!.longitude,
-          latVal,
-          lngVal,
-        );
-        if (dist < 1000) {
-          distanceStr = '${dist.toStringAsFixed(0)} m';
-        } else {
-          distanceStr = '${(dist / 1000).toStringAsFixed(1)} km';
-        }
+      final hasCoordinates =
+          latVal != null && lngVal != null && latVal != 0 && lngVal != 0;
+      final distanceStr = hasCoordinates
+          ? (_formatDistance(latVal, lngVal) ?? _distance)
+          : _distance;
+
+      // WebView callbacks can arrive frequently. Avoid rebuilding the full
+      // platform-view stack unless a value visible in Flutter actually changed.
+      if (speed == _speed &&
+          translatedStatus == _status &&
+          distanceStr == _distance &&
+          nextTimerClearance == _timerClearance) {
+        return;
       }
 
       setState(() {
         _speed = speed;
         _status = translatedStatus;
         _distance = distanceStr;
+        _timerClearance = nextTimerClearance;
+        if (hasCoordinates) {
+          _busLatitude = latVal;
+          _busLongitude = lngVal;
+        }
       });
     } catch (e) {
       debugPrint('Error parsing status: $e');
     }
+  }
+
+  String? _formatDistance(
+    double? latitude,
+    double? longitude, [
+    Position? position,
+  ]) {
+    final userPosition = position ?? _userPosition;
+    if (userPosition == null || latitude == null || longitude == null) {
+      return null;
+    }
+    final meters = Geolocator.distanceBetween(
+      userPosition.latitude,
+      userPosition.longitude,
+      latitude,
+      longitude,
+    );
+    return meters < 1000
+        ? '${meters.toStringAsFixed(0)} m'
+        : '${(meters / 1000).toStringAsFixed(1)} km';
   }
 
   void _applyCustomChanges() {
@@ -254,7 +287,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
             last = open;
             if (window.StatusChannel) window.StatusChannel.postMessage('DD:' + (open ? '1' : '0'));
           }
-        }, 250);
+        }, 1000);
       })();
     """;
     _controller?.runJavaScript(js);
@@ -369,45 +402,80 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
   void _setupStatusTracking() {
     const js = """
       (function() {
+        if (window.__statusTrackingInstalled) return;
+        window.__statusTrackingInstalled = true;
+
+        var lastPayload = null;
+        var lastReadAt = 0;
+        var pending = false;
+        var selectors = [
+          '.side-panel', '.info-panel', '#sidebar', '.sidebar',
+          '.details-panel', '.control-panel', '.right-section',
+          '[class*="tracking"]', '[class*="vehicle"]'
+        ];
+
+        function textFromTrackingPanel() {
+          var parts = [];
+          for (var i = 0; i < selectors.length; i++) {
+            var elements = document.querySelectorAll(selectors[i]);
+            for (var j = 0; j < elements.length; j++) {
+              var value = elements[j].innerText || elements[j].textContent || '';
+              if (value) parts.push(value);
+            }
+          }
+          // The provider can change its CSS class names. This fallback is used
+          // only at the reduced sampling rate below, never in a tight DOM loop.
+          return parts.length ? parts.join('\\n') : (document.body.innerText || document.body.textContent || '');
+        }
+
         function getRealtimeData() {
           var speed = '0 km/h';
           var status = 'Stopped';
           var lat = '0', lng = '0';
+          var text = textFromTrackingPanel();
 
-          var allElements = document.getElementsByTagName('*');
-          for (var i = 0; i < allElements.length; i++) {
-            var el = allElements[i];
-            var text = el.innerText || el.textContent;
-            
-            if (text && text.includes('Status')) {
-               var parts = text.split('Status');
-               if (parts[1]) status = parts[1].trim().split('\\n')[0].replace(':', '').trim();
-            }
-            
-            if (text && text.includes('Coordinates')) {
-               var parts = text.split('Coordinates');
-               if (parts[1]) {
-                 var rawCoords = parts[1].trim().split('\\n')[0].replace(':', '').trim();
-                 var coords = rawCoords.split(',');
-                 if (coords.length >= 2) { lat = coords[0].trim(); lng = coords[1].trim(); }
-               }
-            }
+          var statusMatch = text.match(/Status\\s*:?\\s*([^\\n\\r|]+)/i);
+          if (statusMatch && statusMatch[1]) status = statusMatch[1].trim();
 
-            if (!speed || speed === '0 km/h') {
-               var speedMatch = text.match(/(\\d+)\\s*km\\/h/i);
-               if (speedMatch) speed = speedMatch[0];
-            }
+          var coordinateMatch = text.match(/Coordinates\\s*:?\\s*(-?\\d+(?:\\.\\d+)?)\\s*,\\s*(-?\\d+(?:\\.\\d+)?)/i);
+          if (coordinateMatch) {
+            lat = coordinateMatch[1];
+            lng = coordinateMatch[2];
           }
+
+          var speedMatch = text.match(/(\\d+(?:\\.\\d+)?)\\s*km\\/h/i);
+          if (speedMatch) speed = speedMatch[0];
 
           var timerEl = document.querySelector('.countdown-select');
           var timerTop = timerEl ? Math.round(innerHeight - timerEl.getBoundingClientRect().top) : 0;
 
           return speed + '|' + status + '|' + lat + '|' + lng + '|' + timerTop;
         }
-        setInterval(function() {
+        function report() {
+          pending = false;
+          lastReadAt = Date.now();
           var data = getRealtimeData();
-          if (window.StatusChannel) window.StatusChannel.postMessage(data);
-        }, 1500);
+          if (data !== lastPayload && window.StatusChannel) {
+            lastPayload = data;
+            window.StatusChannel.postMessage(data);
+          }
+        }
+
+        function scheduleReport() {
+          if (pending) return;
+          var wait = Math.max(0, 5000 - (Date.now() - lastReadAt));
+          pending = true;
+          setTimeout(report, wait);
+        }
+
+        // Observe actual tracker-page updates and debounce them. The 5-second
+        // fallback handles providers that update without changing text nodes.
+        var observer = new MutationObserver(scheduleReport);
+        observer.observe(document.documentElement, {
+          childList: true, subtree: true, characterData: true
+        });
+        report();
+        setInterval(scheduleReport, 5000);
       })();
     """;
     _controller?.runJavaScript(js);
@@ -443,7 +511,11 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
           }
           return false;
         };
-        setRefresh(); setInterval(setRefresh, 10000);
+        if (setRefresh()) return;
+        var attempts = 0;
+        var timer = setInterval(function() {
+          if (setRefresh() || ++attempts >= 12) clearInterval(timer);
+        }, 1000);
       })();
     """;
     _controller?.runJavaScript(js);
