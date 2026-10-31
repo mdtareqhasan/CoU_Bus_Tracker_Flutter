@@ -90,13 +90,15 @@ class BusRoute {
   /// Whether a rider who may ride [allowedCategories] should be shown this
   /// direction at all.
   ///
-  /// A direction with **no** trips stays listed — "No trips yet" is its
-  /// honest label and the empty-route copy exists for it. A direction that
-  /// *does* carry trips, none of them the rider's, is the other role's
-  /// schedule, so it is hidden rather than teased.
+  /// Hidden when the rider has **no** trips to take here: a direction that
+  /// only runs the other role's schedule, and a direction with no trips at
+  /// all, are both nothing for this rider to ride. The only row still listed
+  /// with zero visible trips is one where the counts are missing entirely
+  /// ([visibleTripCount] returns null) — with no data, absence can't be
+  /// proven and a real corridor must not vanish.
   bool shouldListFor(Set<String> allowedCategories) {
-    final total = activeScheduleCount;
-    if (total == null || total <= 0) return true;
-    return (visibleTripCount(allowedCategories) ?? 0) > 0;
+    final visible = visibleTripCount(allowedCategories);
+    if (visible == null) return true;
+    return visible > 0;
   }
 }

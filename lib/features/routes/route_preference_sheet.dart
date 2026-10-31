@@ -220,8 +220,7 @@ class _PreferenceRow extends StatelessWidget {
           Expanded(
             child: Text(
               name,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+              // No maxLines/ellipsis: route names wrap, never truncate.
               style: Theme.of(context).textTheme.bodyLarge,
             ),
           ),

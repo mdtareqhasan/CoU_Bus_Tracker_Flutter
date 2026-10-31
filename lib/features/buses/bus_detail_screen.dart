@@ -11,6 +11,7 @@ import '../../core/constants.dart';
 import '../../shared/models/bus_detail.dart';
 import '../../shared/models/schedule.dart';
 import '../providers.dart';
+import '../../shared/widgets/bus_number_badge.dart';
 
 /// Trips to render on the bus page.
 ///
@@ -103,6 +104,23 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
     }
   }
 
+  /// Big text: localized bus name; bus number only as fallback.
+  String _heroTitle(BusDetail bus) {
+    final name = bus.localizedBusName;
+    if (name != null && name.trim().isNotEmpty) return name;
+    return bus.busNumber ?? '';
+  }
+
+  /// Small text: the bus number, shown only when a name is the big text
+  /// (otherwise the number is already the title).
+  String? _heroSubtitle(BusDetail bus) {
+    final name = bus.localizedBusName;
+    final number = bus.busNumber;
+    final hasName = name != null && name.trim().isNotEmpty;
+    if (hasName && number != null && number.trim().isNotEmpty) return number;
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -156,6 +174,7 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
 
   Widget _buildSliverAppBar(BusDetail bus) {
     final hasTracker = bus.trackerUrl != null && bus.trackerUrl!.isNotEmpty;
+    final subtitle = _heroSubtitle(bus);
 
     return SliverAppBar(
       expandedHeight: 240.0,
@@ -199,24 +218,38 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
                     const SizedBox(height: 40),
                     _buildHeroIcon(bus),
                     const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          bus.busNumber ?? '',
-                          style: GoogleFonts.plusJakartaSans(
-                            color: Colors.white,
-                            fontSize: 28,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 1,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              _heroTitle(bus),
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.plusJakartaSans(
+                                color: Colors.white,
+                                fontSize: 28,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 1,
+                              ),
+                            ),
                           ),
-                        ),
-                        if (hasTracker) ...[
-                          const SizedBox(width: 8),
-                          _buildLiveBadge(),
+                          if (hasTracker) ...[
+                            const SizedBox(width: 8),
+                            _buildLiveBadge(),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 6),
+                      BusNumberBadge(
+                        number: subtitle,
+                        onDark: true,
+                        fontSize: 13,
+                      ),
+                    ],
                     const SizedBox(height: 4),
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -585,10 +618,9 @@ class _BusDetailScreenState extends ConsumerState<BusDetailScreen> {
       child: ElevatedButton(
         onPressed: () {
           final url = bus.trackerUrl!;
-          final name =
-              bus.busNumber ??
-              bus.localizedBusName ??
-              context.l10n.busTrackingTitle;
+          // Localized name first; bus number only as fallback.
+          final title = _heroTitle(bus);
+          final name = title.isNotEmpty ? title : context.l10n.busTrackingTitle;
           context.push(
             '/bus/live/${bus.id}',
             extra: {'url': url, 'name': name},

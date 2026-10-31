@@ -475,8 +475,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   List<Widget> _buildMyRoutesSlivers(BuildContext context) {
     final routeState = ref.watch(routeListProvider);
     // A pin left over from the other role's shift (or from before a role
-    // change) carries no trips this rider can take — keep it off Home rather
-    // than render a card that says "No trips yet".
+    // change) — or one whose corridor now has no trips at all — carries no
+    // trips this rider can take: keep it off Home rather than render a card
+    // that says "No trips yet".
     final allowed = allowedCategoriesForRole(ref.watch(authProvider).role);
     final pinned = routeState.pinnedGroups
         .where((group) => group.shouldListFor(allowed))
