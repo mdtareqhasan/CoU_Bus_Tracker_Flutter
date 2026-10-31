@@ -56,21 +56,19 @@ class BusCard extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Text(
-                            bus.busNumber ?? 'N/A',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          if (bus.localizedBusName != null) ...[
-                            const SizedBox(width: 8),
-                            Text(
-                              bus.localizedBusName!,
-                              style: Theme.of(context).textTheme.bodySmall,
+                          // Localized bus name; displayBusName falls back to
+                          // the bus number only when no name exists.
+                          Expanded(
+                            child: Text(
+                              bus.displayBusName,
+                              style: Theme.of(context).textTheme.titleMedium,
                             ),
-                          ],
-                          const Spacer(),
+                          ),
                           if (bus.trackerUrl != null &&
-                              bus.trackerUrl!.isNotEmpty)
+                              bus.trackerUrl!.isNotEmpty) ...[
+                            const SizedBox(width: 8),
                             const LiveIndicator(),
+                          ],
                         ],
                       ),
                       const SizedBox(height: 4),

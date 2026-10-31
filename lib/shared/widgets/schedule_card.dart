@@ -24,6 +24,13 @@ class ScheduleCard extends StatelessWidget {
       flat ? AppTheme.radiusMedium : AppTheme.radiusLarge,
     );
 
+    // Localized bus name; bus number only as a fallback when there is no name.
+    final name = schedule.localizedBusName;
+    final number = schedule.busNumber;
+    final hasName = name != null && name.trim().isNotEmpty;
+    final hasNumber = number != null && number.trim().isNotEmpty;
+    final title = hasName ? name : (hasNumber ? number : null);
+
     return Container(
       margin: const EdgeInsets.only(bottom: AppTheme.space12),
       decoration: BoxDecoration(
@@ -49,33 +56,15 @@ class ScheduleCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryBlue.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(
-                          AppTheme.radiusSmall,
-                        ),
-                      ),
-                      child: Text(
-                        schedule.busNumber ?? 'N/A',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.primaryBlue,
-                          fontSize: 12,
-                        ),
-                      ),
+                    Expanded(
+                      child: title != null
+                          ? Text(
+                              title,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            )
+                          : const SizedBox.shrink(),
                     ),
                     const SizedBox(width: 8),
-                    if (schedule.localizedBusName != null)
-                      Text(
-                        schedule.localizedBusName!,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    const Spacer(),
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
