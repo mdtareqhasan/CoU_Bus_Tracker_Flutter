@@ -34,6 +34,43 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _connectionDialogShown = false;
   StreamSubscription<List<ConnectivityResult>>? _connectivitySub;
 
+  // Overlay-based menu state (non-modal so the page stays scrollable).
+  OverlayEntry? _menuOverlay;
+  final LayerLink _menuLayerLink = LayerLink();
+  bool _menuOpen = false;
+
+  void _openMenu(BuildContext context) {
+    if (_menuOpen) {
+      _closeMenu();
+      return;
+    }
+    _menuOpen = true;
+
+    _menuOverlay = OverlayEntry(
+      builder: (overlayCtx) => _NonModalMenu(
+        layerLink: _menuLayerLink,
+        onClose: _closeMenu,
+        onSelected: (value) {
+          _closeMenu();
+          switch (value) {
+            case 'profile':
+              context.push('/profile');
+            case 'about':
+              context.push('/about');
+          }
+        },
+      ),
+    );
+
+    Overlay.of(context).insert(_menuOverlay!);
+  }
+
+  void _closeMenu() {
+    _menuOverlay?.remove();
+    _menuOverlay = null;
+    _menuOpen = false;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -166,6 +203,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   void dispose() {
+    _closeMenu();
     _connectivitySub?.cancel();
     super.dispose();
   }
@@ -290,48 +328,37 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildMenuButton(BuildContext context) {
-    return PopupMenuButton<String>(
-      offset: const Offset(0, 50),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-      ),
-      tooltip: context.l10n.menuTooltip,
-      icon: Container(
-        padding: const EdgeInsets.all(AppTheme.space8),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-        ),
-        child: const Icon(Icons.menu_rounded, color: Colors.white, size: 24),
-      ),
-      onSelected: (value) {
-        switch (value) {
-          case 'profile':
-            context.push('/profile');
-          case 'about':
-            context.push('/about');
-        }
-      },
-      itemBuilder: (context) => [
-        PopupMenuItem(
-          value: 'profile',
-          child: _MenuItemRow(
-            icon: Icons.person_outline_rounded,
-            label: (l10n) => l10n.profileTitle,
+    final radius = BorderRadius.circular(AppTheme.radiusSmall);
+    return CompositedTransformTarget(
+      link: _menuLayerLink,
+      child: Tooltip(
+        message: context.l10n.menuTooltip,
+        child: Material(
+          // Transparent so the Ink decoration's colour shows through.
+          color: Colors.transparent,
+          borderRadius: radius,
+          child: InkWell(
+            onTap: () => _openMenu(context),
+            borderRadius: radius,
+            // White ripple that reads well on the gradient header.
+            splashColor: Colors.white.withValues(alpha: 0.35),
+            highlightColor: Colors.white.withValues(alpha: 0.15),
+            child: Ink(
+              // Ink carries the decoration so the splash paints above it.
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.15),
+                borderRadius: radius,
+              ),
+              padding: const EdgeInsets.all(AppTheme.space8),
+              child: const Icon(
+                Icons.menu_rounded,
+                color: Colors.white,
+                size: 24,
+              ),
+            ),
           ),
         ),
-        const PopupMenuDivider(),
-        const PopupMenuItem<String>(height: 60, child: _ThemeMenuTile()),
-        const PopupMenuItem<String>(height: 60, child: _LanguageMenuTile()),
-        const PopupMenuDivider(),
-        PopupMenuItem(
-          value: 'about',
-          child: _MenuItemRow(
-            icon: Icons.info_outline_rounded,
-            label: (l10n) => l10n.aboutUsTitle,
-          ),
-        ),
-      ],
+      ),
     );
   }
 
@@ -837,8 +864,118 @@ class _LanguageMenuTile extends ConsumerWidget {
           ),
         ),
         // Same segmented বাং/EN switcher as the login/registration screens.
+        const SizedBox(width: 16),
         const AppBarLanguageSwitcher(),
       ],
+    );
+  }
+}
+
+/// Non-modal overlay menu shown when the hamburger icon is tapped.
+///
+/// Unlike [PopupMenuButton] (which pushes a [ModalRoute] and blocks all
+/// touch/scroll input behind it), this widget is inserted into the [Overlay]
+/// without a modal barrier, so the home page remains fully scrollable while
+/// the menu is open. A transparent barrier widget still listens for taps
+/// *outside* the menu card to close it, but it lets scroll events pass
+/// through to the content underneath.
+class _NonModalMenu extends ConsumerWidget {
+  const _NonModalMenu({
+    required this.layerLink,
+    required this.onClose,
+    required this.onSelected,
+  });
+
+  final LayerLink layerLink;
+  final VoidCallback onClose;
+  final void Function(String value) onSelected;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Stack(
+      children: [
+        // Transparent barrier — closes the menu on tap outside, but does NOT
+        // block scroll events (no ModalBarrier, no AbsorbPointer).
+        Positioned.fill(
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: onClose,
+            // Allow scroll gestures to pass through to the page behind.
+            child: const SizedBox.expand(),
+          ),
+        ),
+
+        // The menu card itself, anchored below the hamburger button.
+        CompositedTransformFollower(
+          link: layerLink,
+          showWhenUnlinked: false,
+          offset: const Offset(0, 48),
+          targetAnchor: Alignment.topRight,
+          followerAnchor: Alignment.topRight,
+          child: Material(
+            elevation: 8,
+            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+            color: isDark ? AppTheme.surfaceDark : Colors.white,
+            child: IntrinsicWidth(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Profile
+                  _MenuTile(
+                    onTap: () => onSelected('profile'),
+                    child: _MenuItemRow(
+                      icon: Icons.person_outline_rounded,
+                      label: (l10n) => l10n.profileTitle,
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  // Theme switch
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 6, 16, 6),
+                    child: _ThemeMenuTile(),
+                  ),
+                  // Language switch
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+                    child: _LanguageMenuTile(),
+                  ),
+                  const Divider(height: 1),
+                  // About
+                  _MenuTile(
+                    onTap: () => onSelected('about'),
+                    child: _MenuItemRow(
+                      icon: Icons.info_outline_rounded,
+                      label: (l10n) => l10n.aboutUsTitle,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// A tappable row inside [_NonModalMenu].
+class _MenuTile extends StatelessWidget {
+  const _MenuTile({required this.child, required this.onTap});
+
+  final Widget child;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: child,
+      ),
     );
   }
 }
