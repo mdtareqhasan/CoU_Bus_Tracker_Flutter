@@ -27,15 +27,22 @@ class ProfileScreen extends ConsumerWidget {
                 : _buildLoggedOutPrompt(context),
           ),
           if (authState.isLoggedIn)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppTheme.space24,
-                  AppTheme.space32,
-                  AppTheme.space24,
-                  AppTheme.space48,
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    AppTheme.space24,
+                    AppTheme.space32,
+                    AppTheme.space24,
+                    // Respect the system nav-bar inset + a fixed comfortable gap.
+                    // This keeps the button off the very edge on edge-to-edge
+                    // devices while not wasting space on smaller screens.
+                    MediaQuery.of(context).padding.bottom + AppTheme.space24,
+                  ),
+                  child: _buildLogoutButton(context, ref),
                 ),
-                child: _buildLogoutButton(context, ref),
               ),
             ),
         ],
