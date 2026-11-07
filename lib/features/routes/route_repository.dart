@@ -15,8 +15,9 @@ class RouteRepository {
 
   final ApiClient _apiClient;
 
-  /// Every active route, each direction as its own row. Public — no auth
-  /// needed, so a stale token must never be attached (see `_publicPaths`).
+  /// Every active route, each direction as its own row. Authenticated — the
+  /// backend requires a JWT for `/api/routes`, so the interceptor attaches the
+  /// caller's token (see `AuthInterceptor`).
   Future<Result<List<BusRoute>>> getRoutes() async {
     try {
       final response = await _apiClient.dio.get(ApiEndpoints.routes);

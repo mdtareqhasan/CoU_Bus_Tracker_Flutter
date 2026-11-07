@@ -81,9 +81,12 @@ class AuthInterceptor extends Interceptor {
 
   /// Public endpoints that must never carry an auth header.
   ///
-  /// Note: `/notices/active` is deliberately absent — the backend filters it
-  /// by the caller's audience (students get ALL+STUDENT, teachers get
-  /// ALL+TEACHER), so it needs the JWT.
+  /// Note: `/buses`, `/routes`, `/schedules` and `/notices/active` are
+  /// deliberately absent — the backend requires a JWT for all four. The bus
+  /// detail response carries the live tracker link, which is why the
+  /// bus/route/schedule reference data is no longer guest-facing; notices are
+  /// filtered by the caller's audience (students get ALL+STUDENT, teachers get
+  /// ALL+TEACHER), so they need the JWT too.
   static final _publicPaths = RegExp(
     r'/auth/(student|teacher)/(login|register)'
     r'|/auth/phone-verification/(send|verify|resend|init)'
@@ -92,10 +95,7 @@ class AuthInterceptor extends Interceptor {
     r'|/auth/forgot-password'
     r'|/auth/forgot-password-email'
     r'|/config'
-    r'|/app/version'
-    r'|/buses'
-    r'|/routes'
-    r'|/schedules',
+    r'|/app/version',
   );
 
   AuthInterceptor(this._storage);

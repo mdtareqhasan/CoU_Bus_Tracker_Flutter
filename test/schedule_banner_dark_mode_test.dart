@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:cou_bus_tracker/app/theme.dart';
@@ -26,6 +27,11 @@ void main() {
   }) async {
     StorageService.resetInstanceForTesting();
     SharedPreferences.setMockInitialValues({});
+    // The schedules call now travels through AuthInterceptor, which reads the
+    // token from secure storage. Give it an in-memory backing store so that
+    // read resolves instead of hanging (secure storage has no platform
+    // implementation under `flutter test`).
+    FlutterSecureStorage.setMockInitialValues({});
     final storage = await StorageService.getInstance();
 
     await tester.pumpWidget(
